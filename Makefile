@@ -2,7 +2,7 @@ include $(PWD)/config.mk
 
 PWD := $(shell pwd)
 
-SUB_DIR := $(PWD)/source/phy_driver/$(DRIVER_TARGET)
+SUB_DIR := $(PWD)/source/phy_driver/$(DRIVER_LIST)
 export SUB_DIR
 
 BUILD := ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE)
@@ -15,9 +15,10 @@ KCFG = config JLSEMI_PHY\n\
 	\t ---help---\n\
 	\t Currently has a driver for the $(OBJ_MODULE)
 DOLLAR = \$
-MFILE = obj-$(DOLLAR)(CONFIG_JLSEMI_PHY)\
-	\t += $(OBJ_MODULE).o
-CFG = CONFIG_JLSEMI_PHY=m
+MFILE = $(OBJ_MODULE)-$(BUILD_MODE) \t:= $(OBJ_CODE)\
+	\nobj-$(DOLLAR)(CONFIG_JLSEMI_PHY)\
+	\t+= $(OBJ_MODULE).o
+CFG = CONFIG_JLSEMI_PHY=$(BUILD_MODE)
 
 config_kernel:	
 	$(call config_kernel_gnu)
@@ -54,9 +55,8 @@ OBJ_CONFIG = $(KERNEL_DIR)/.config
 
 
 define autocof
-	echo	" obj-m = $(OBJ_MODULE).o \n \
-		$(OBJ_MODULE)-objs = $(DRIVER_TARGET).o \
-		$(DRIVER_TARGET)-core.o " > $(SUB_DIR)/Makefile
+	echo	"obj-m = $(OBJ_MODULE).o\
+		\n$(OBJ_MODULE)-objs = $(OBJ_CODE)" > $(SUB_DIR)/Makefile
 endef
 
 define cross_compile_kernel
@@ -65,6 +65,7 @@ endef
 
 define build_driver
 	$(MAKE) -C $(KERNEL_DIR) M=$(SUB_DIR) modules $(BUILD)
+	cp $(SUB_DIR)/*.ko $(PWD)/build
 endef
 
 define config_kernel_gnu
@@ -89,32 +90,35 @@ define setup_Makefile
 endef
 
 define copy_code_to_kernel
-	$(shell cp $(SUB_DIR)/$(DRIVER_TARGET).c $(SUB_DIR)/$(DRIVER_TARGET)-core.c \
-		$(SUB_DIR)/$(DRIVER_TARGET)-core.h $(KERNEL_DIR) $(KERNEL_DIR)/drivers/net/phy/)
+	$(call clean_module)
+	$(shell cp $(SUB_DIR)/*.c $(SUB_DIR)/*.h $(KERNEL_DIR)/drivers/net/phy/)
 endef
 
 
 define clean_config
 	$(shell if [ ! -f "$(OBJ_CONFIG)" ]; then\
-			sed -i "/^CONFIG_JLSEMI_PHY/d" $(OBJ_CONFIG); fi)
+			sed -i "/CONFIG_JLSEMI_PHY/d" $(OBJ_CONFIG); fi)
 endef
 
 define clean_Kconfig
 	$(shell if [ ! -f "$(OBJ_KCONFIG)" ]; then\
-			sed -i "/^config JLSEMI_PHY/,+3d" $(OBJ_KCONFIG); fi)
+			sed -i "/config JLSEMI_PHY/,+3d" $(OBJ_KCONFIG); fi)
 endef
 
 define clean_Makefile
 	$(shell if [ ! -f "$(OBJ_MAKEFILE)" ]; then\
-			sed -i "/^obj-$(DOLLAR)(CONFIG_JLSEMI_PHY)/d" $(OBJ_MAKEFILE); fi)
+			sed -i "/obj-$(DOLLAR)(CONFIG_JLSEMI_PHY)/d" $(OBJ_MAKEFILE);\
+			sed -i "/$(OBJ_MODULE)-$(BUILD_MODE)/d" $(OBJ_MAKEFILE); fi)
 endef
 
 define clean_module
-	$(MAKE) -C $(KERNEL_DIR) M=$(SUB_DIR) clean $(BUILD)
-	rm -rf $(SUB_DIR)/Makefile
+	$(shell rm -f $(SUB_DIR)/*.o $(SUB_DIR)/*.symvers $(SUB_DIR)/*.order \
+		$(SUB_DIR)/*.ko $(SUB_DIR)/*.mod $(SUB_DIR)/*.mod.c \
+		$(SUB_DIR)/Makefile $(PWD)/build/*.ko)
 endef
 
 define clean_code
-	rm -rf $(KERNEL_DIR)/drivers/net/phy/$(DRIVER_TARGET).c \
-		$(DRIVER_TARGET)-core.c $(DRIVER_TARGET)-core.h
+	$(shell rm -rf $(KERNEL_DIR)/drivers/net/phy/$(DRIVER_LIST).c \
+		$(KERNEL_DIR)/drivers/net/phy/$(DRIVER_LIST)-core.c \
+		$(KERNEL_DIR)/drivers/net/phy/$(DRIVER_LIST)-core.h)
 endef
