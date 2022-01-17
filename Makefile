@@ -15,7 +15,7 @@ KCFG = config JLSEMI_PHY\n\
 	\t ---help---\n\
 	\t Currently has a driver for the $(OBJ_MODULE)
 DOLLAR = \$
-MFILE = $(OBJ_MODULE)-$(BUILD_MODE) \t:= $(OBJ_CODE)\
+MFILE = $(OBJ_MODULE)-objs \t:= $(OBJ_CODE)\
 	\nobj-$(DOLLAR)(CONFIG_JLSEMI_PHY)\
 	\t+= $(OBJ_MODULE).o
 CFG = CONFIG_JLSEMI_PHY=$(BUILD_MODE)
