@@ -19,7 +19,7 @@
 #include <linux/kernel.h>
 
 #define JL2XXX_PHY_ID		0x937c4032
-#define JLSEMI_PHY_ID_MASK	0xffffffff
+#define JLSEMI_PHY_ID_MASK	0xfffffff0
 
 #define JL2XXX_RGMII_CTRL_PAGE	0x00ab
 #define JL2XXX_RGMII_CTRL_REG	0x0011
