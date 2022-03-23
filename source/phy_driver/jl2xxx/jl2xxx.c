@@ -1,9 +1,9 @@
 /*
- * drivers/net/phy/jl2xx1.c
+ * drivers/net/phy/jl2xxx.c
  *
  * Driver for JLSemi PHYs
  *
- * Author: Gangqiao Kuang <gqkuang@jl2xxx.com>
+ * Author: Gangqiao Kuang <gqkuang@jlsemi.com>
  *
  * Copyright (c) 2021 JingLue Semiconductor, Inc.
  *
