@@ -108,7 +108,7 @@ endef
 define clean_Makefile
 	$(shell if [ ! -f "$(OBJ_MAKEFILE)" ]; then\
 			sed -i "/obj-$(DOLLAR)(CONFIG_JLSEMI_PHY)/d" $(OBJ_MAKEFILE);\
-			sed -i "/$(OBJ_MODULE)-$(BUILD_MODE)/d" $(OBJ_MAKEFILE); fi)
+			sed -i "/$(OBJ_MODULE)-objs/d" $(OBJ_MAKEFILE); fi)
 endef
 
 define clean_module
