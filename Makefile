@@ -55,8 +55,8 @@ OBJ_CONFIG = $(KERNEL_DIR)/.config
 
 
 define autocof
-	echo	"obj-m = $(OBJ_MODULE).o\
-		\n$(OBJ_MODULE)-objs = $(OBJ_CODE)" > $(SUB_DIR)/Makefile
+	echo -e "obj-m = $(OBJ_MODULE).o \n \
+		$(OBJ_MODULE)-objs = $(OBJ_CODE)" > $(SUB_DIR)/Makefile
 endef
 
 define cross_compile_kernel
