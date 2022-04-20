@@ -17,7 +17,9 @@
 #include <linux/phy.h>
 #include <linux/version.h>
 #include <linux/kernel.h>
+#include <linux/errno.h>
 
+#define JL1XXX_PHY_ID		0x937c4023
 #define JL2XXX_PHY_ID		0x937c4032
 #define JLSEMI_PHY_ID_MASK	0xfffffff0
 
@@ -37,11 +39,8 @@
 #define JL2XXX_AUTONEG_EN	BIT(12)
 #define JL2XXX_SPEED_MSB	BIT(6)
 
-#define JL2XXX_DIG_PAGE		0x00c9
-#define JL2XXX_DIG_REG		0x0011
-#define JL2XXX_CLK_10M_EN	BIT(15)
-#define JL2XXX_DAC_MSB		BIT(1)
-#define JL2XXX_DAC_LSB		BIT(0)
+#define JL2XXX_PATCH		0x00ad
+#define JL2XXX_PATCH_REG	0x0010
 
 #define JL2XXX_PHY_PAGE		0x001f
 #define JL2XXX_WOL_CTL_PAGE	0x0012
@@ -56,26 +55,22 @@
 #define JL2XXX_WOL_EN		BIT(6)
 #define JL2XXX_WOL_CTL_EN	BIT(15)
 
+/* macros to simplify debug checking */
+#define JLSEMI_PHY_MSG(msg,args...) printk(msg, ## args)
 
 /************************* Configuration section *************************/
 
-#define JLSEMI_WOL_EN		1
-
 
 /************************* JLSemi iteration code *************************/
-struct jl2xx1_priv {
+struct jl2xxx_priv {
 	u16 sw_info;
 };
 
+int jlsemi_soft_reset(struct phy_device *phydev);
+
+int jlsemi_aneg_done(struct phy_device *phydev);
+
 int jl2xxx_pre_init(struct phy_device *phydev);
-
-int jl2xxx_dis_rgmii_tx(struct phy_device *phydev);
-
-int jl2xxx_check_rgmii(struct phy_device *phydev);
-
-int jl2xxx_config_suspend(struct phy_device *phydev);
-
-int jl2xxx_config_resume(struct phy_device *phydev);
 
 int jl2xxx_clear_wol_event(struct phy_device *phydev);
 
@@ -84,7 +79,7 @@ int jl2xxx_store_mac_addr(struct phy_device *phydev);
 int jl2xxx_software_version(struct phy_device *phydev);
 
 int jl2xxx_config_phy_info(struct phy_device *phydev,
-			   struct jl2xx1_priv *jl2xx1);
+			   struct jl2xxx_priv *jl2xxx);
 
 int jl2xxx_enable_wol(struct phy_device *phydev, bool enable);
 
@@ -93,29 +88,29 @@ int jl2xxx_setup_wol_high_polarity(struct phy_device *phydev, bool high);
 /********************** Convenience function for phy **********************/
 
 /* Notice: You should change page 0 when you When you call it after*/
-int jl2xxx_write_page(struct phy_device *phydev, int page);
+int jlsemi_write_page(struct phy_device *phydev, int page);
 
-int jl2xxx_read_page(struct phy_device *phydev);
+int jlsemi_read_page(struct phy_device *phydev);
 
-int jl2xxx_modify_paged_reg(struct phy_device *phydev,
+int jlsemi_modify_paged_reg(struct phy_device *phydev,
 			    int page, u32 regnum,
 			    u16 mask, u16 set);
 
-int jl2xxx_set_bits(struct phy_device *phydev,
+int jlsemi_set_bits(struct phy_device *phydev,
 		    int page, u32 regnum, u16 val);
 
-int jl2xxx_clear_bits(struct phy_device *phydev,
+int jlsemi_clear_bits(struct phy_device *phydev,
 		      int page, u32 regnum, u16 val);
 
-int jl2xxx_get_bit(struct phy_device *phydev,
-		   int page, u32 regnum, u16 val);
+int jlsemi_fetch_bit(struct phy_device *phydev,
+		     int page, u32 regnum, u16 val);
 
-int jl2xxx_drivers_register(struct phy_driver *phydrvs, int size);
+int jlsemi_drivers_register(struct phy_driver *phydrvs, int size);
 
-void jl2xxx_drivers_unregister(struct phy_driver *phydrvs, int size);
+void jlsemi_drivers_unregister(struct phy_driver *phydrvs, int size);
 
 /**
- * module_jl2xxx_driver() - Helper macro for registering PHY drivers
+ * module_jlsemi_driver() - Helper macro for registering PHY drivers
  * @__phy_drivers: array of PHY drivers to register
  *
  * Helper macro for PHY drivers which do not do anything special in module
@@ -124,24 +119,24 @@ void jl2xxx_drivers_unregister(struct phy_driver *phydrvs, int size);
  */
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(4,0,0))
 
-#define jl2xxx_module_driver(__phy_drivers, __count)			\
+#define jlsemi_module_driver(__phy_drivers, __count)			\
 static int __init phy_module_init(void)					\
 {									\
-	return jl2xxx_drivers_register(__phy_drivers, __count);		\
+	return jlsemi_drivers_register(__phy_drivers, __count);		\
 }									\
 module_init(phy_module_init);						\
 static void __exit phy_module_exit(void)				\
 {									\
-	jl2xxx_drivers_unregister(__phy_drivers, __count);		\
+	jlsemi_drivers_unregister(__phy_drivers, __count);		\
 }									\
 module_exit(phy_module_exit)
 
-#define module_jl2xxx_driver(__phy_drivers)				\
-	jl2xxx_module_driver(__phy_drivers, ARRAY_SIZE(__phy_drivers))
+#define module_jlsemi_driver(__phy_drivers)				\
+	jlsemi_module_driver(__phy_drivers, ARRAY_SIZE(__phy_drivers))
 
 #else
 
-#define module_jl2xxx_driver(__phy_drivers)				\
+#define module_jlsemi_driver(__phy_drivers)				\
 	module_phy_driver(__phy_drivers)
 #endif
 

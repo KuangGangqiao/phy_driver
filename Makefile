@@ -118,7 +118,5 @@ define clean_module
 endef
 
 define clean_code
-	$(shell rm -rf $(KERNEL_DIR)/drivers/net/phy/$(DRIVER_LIST).c \
-		$(KERNEL_DIR)/drivers/net/phy/$(DRIVER_LIST)-core.c \
-		$(KERNEL_DIR)/drivers/net/phy/$(DRIVER_LIST)-core.h)
+	$(shell rm -rf $(KERNEL_DIR)/drivers/net/phy/$(DRIVER_LIST)*)
 endef
