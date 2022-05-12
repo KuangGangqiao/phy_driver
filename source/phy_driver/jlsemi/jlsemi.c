@@ -47,6 +47,14 @@ static int jl1xxx_read_status(struct phy_device *phydev)
 	return genphy_read_status(phydev);
 }
 
+static void jl1xxx_remove(struct phy_device *phydev)
+{
+	struct jl1xxx_priv *priv = phydev->priv;
+
+	if (priv)
+		kfree(priv);
+}
+
 static int jl1xxx_suspend(struct phy_device *phydev)
 {
 	return genphy_suspend(phydev);
@@ -188,6 +196,7 @@ static struct phy_driver jlsemi_drivers[] = {
 		.soft_reset	= jlsemi_soft_reset,
 		.read_status	= jl1xxx_read_status,
 		.config_init    = jl1xxx_config_init,
+		.remove		= jl1xxx_remove,
 		.suspend        = jl1xxx_suspend,
 		.resume         = jl1xxx_resume,
 	},

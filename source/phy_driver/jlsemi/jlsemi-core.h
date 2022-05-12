@@ -62,6 +62,10 @@
 
 
 /************************* JLSemi iteration code *************************/
+struct jl1xxx_priv {
+
+};
+
 struct jl2xxx_priv {
 	u16 sw_info;
 };
