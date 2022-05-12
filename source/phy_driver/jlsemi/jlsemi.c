@@ -169,7 +169,7 @@ static int jl2xxx_set_wol(struct phy_device *phydev,
 
 static void jl2xxx_remove(struct phy_device *phydev)
 {
-	struct jl2xx1_priv *priv = phydev->priv;
+	struct jl2xxx_priv *priv = phydev->priv;
 
 	if (priv)
 		kfree(priv);
