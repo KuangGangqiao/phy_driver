@@ -1,0 +1,42 @@
+* JLSemi - ethernet phy
+
+Required properties:
+-to do
+
+
+Optional properties:
+	- jl1xxx,led-[N]-mode	: LED mode. Specify how the LED[N] should behave.
+				  N depends on the number of LEDs supported by a
+				  PHY.
+				  Allowed values are defined in "jlsemi-dt-phy.h".
+				  Default values:
+				  JL1XXX_LED0_100_LINK(4),
+				  JL1XXX_LED0_10_LINK(5),
+				  JL1XXX_LED1_100_ACTIVITY(10),
+				  JL1XXX_LED1_10_ACTIVITY(11).
+
+
+
+Default child nodes are standard Ethernet PHY device
+
+Example for jl1xxx:
+
+	jl1xxx_0 : ethernet-phy@0 {
+		compatible = "ethernet-phy-id937c.4020";
+		reg = <0>;
+		led {
+			compatible		= "jl1xxx-led";
+			jl1xxx,led-enable	= <LED_CTRL_EN>;
+			jl1xxx,led-mode		= <JL1XXX_CFG_LED_MODE>;
+			jl1xxx,led-period	= <JL1XXX_GLOBAL_PERIOD_MS>;
+			jl1xxx,led-on		= <JL1xxx_GLOBAL_ON_MS>;
+			jl1xxx,led-gpio		= <JL1XXXX_CFG_GPIO>;
+		};
+		rgmii {
+			compatible		= "jl1xxx-rgmii";
+
+		};
+	};
+
+
+

@@ -18,6 +18,8 @@
 #include <linux/version.h>
 #include <linux/kernel.h>
 #include <linux/errno.h>
+#include <linux/of.h>
+#include "jlsemi-dt-phy.h"
 
 #define JL1XXX_PHY_ID		0x937c4023
 #define JL2XXX_PHY_ID		0x937c4032
@@ -55,6 +57,50 @@
 #define JL2XXX_WOL_EN		BIT(6)
 #define JL2XXX_WOL_CTL_EN	BIT(15)
 
+#define JL1XXX_LED_PERIOD_MASK	GENMASK(8, 15)
+#define JL1XXXLEDPERIOD(n)	(n << 8) & JL1XXX_LED_PERIOD_MASK
+#define JL1XXX_LED_ON_MASK	GENMASK(0, 7)
+#define JL1XXX_LED_ON(n)	(n << 0) & JL1XXX_LED_ON_MASK
+
+/*************************************************************************/
+
+enum static_op_mode {
+	_C_MACRO	= 0,
+	_DEVICE_TREE	= 1,
+};
+
+enum dynamic_op_mode {
+	_ETHTOOL	= 0,
+};
+
+struct config_mode {
+	enum static_op_mode stc;
+	enum dynamic_op_mode dyc;
+};
+
+struct led_ctrl {
+	u8 enable;			/* LED control enable */
+	u16 mode;			/* LED work mode */
+	u16 global_period;		/* LED global twinkle period */
+	u16 global_on;			/* LED global twinkle hold on time */
+	u16 gpio_output;		/* LED is used as gpio output */
+	u16 polarity;			/* LED polarity */
+};
+
+struct jl1xxx_priv {
+	struct config_mode *op;
+	struct led_ctrl *led;
+};
+
+struct jl2xxx_priv {
+	struct config_mode *op;
+	struct led_ctrl *led;
+	u16 rx_delay;			/* Rgmii rx delay */
+	u16 tx_delay;			/* Rgmii tx delay */
+	u16 clk_125m_en;
+	u16 sw_info;
+};
+
 /* macros to simplify debug checking */
 #define JLSEMI_PHY_MSG(msg,args...) printk(msg, ## args)
 
@@ -62,13 +108,11 @@
 
 
 /************************* JLSemi iteration code *************************/
-struct jl1xxx_priv {
+int jlsemi_operation_mode_select(struct config_mode *mode);
 
-};
+int jl1xxx_operation_get(struct phy_device *phydev);
 
-struct jl2xxx_priv {
-	u16 sw_info;
-};
+int jl1xxx_operation_init(struct phy_device *phydev);
 
 int jlsemi_soft_reset(struct phy_device *phydev);
 

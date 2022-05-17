@@ -24,11 +24,33 @@ MODULE_LICENSE("GPL");
 
 static int jl1xxx_probe(struct phy_device *phydev)
 {
+	struct jl1xxx_priv *jl1xxx;
+	int err;
+
+	jl1xxx = kzalloc(sizeof(*jl1xxx), GFP_KERNEL);
+	if (!jl1xxx)
+		return -ENOMEM;
+
+	phydev->priv = jl1xxx;
+
+	/* Select operation mode */
+	jlsemi_operation_mode_select(jl1xxx->op);
+
+	err = jl1xxx_operation_get(phydev);
+	if (err < 0)
+		return err;
+
 	return 0;
 }
 
 static int jl1xxx_config_init(struct phy_device *phydev)
 {
+	int ret;
+
+	ret = jl1xxx_operation_init(phydev);
+	if (ret < 0)
+		return ret;
+
 	return 0;
 }
 
