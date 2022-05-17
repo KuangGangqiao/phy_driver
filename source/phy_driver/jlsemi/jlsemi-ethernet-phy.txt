@@ -32,11 +32,20 @@ Example for jl1xxx:
 			jl1xxx,led-on		= <JL1xxx_GLOBAL_ON_MS>;
 			jl1xxx,led-gpio		= <JL1XXXX_CFG_GPIO>;
 		};
+	};
+
+Example for jl2xxx:
+
+	jl2xxx_0 : ethernet-phy@0 {
+		compatible = "ethernet-phy-id937c.4030";
+		reg = <0>;
+		led {
+			compatible		= "jl2xxx-led";
+		};
 		rgmii {
-			compatible		= "jl1xxx-rgmii";
+			compatible		= "jl2xxx-rgmii";
 
 		};
 	};
-
 
 
