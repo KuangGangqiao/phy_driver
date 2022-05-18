@@ -64,21 +64,21 @@
 
 /*************************************************************************/
 
-enum static_op_mode {
-	_C_MACRO	= 0,
-	_DEVICE_TREE	= 1,
+enum jl_static_op_mode {
+	STATIC_C_MACRO		= 0,
+	STATIC_DEVICE_TREE	= 1,
 };
 
-enum dynamic_op_mode {
-	_ETHTOOL	= 0,
+enum jl_dynamic_op_mode {
+	DYNAMIC_ETHTOOL		= 0,
 };
 
-struct config_mode {
-	enum static_op_mode stc;
-	enum dynamic_op_mode dyc;
+struct jl_config_mode {
+	enum jl_static_op_mode _static;
+	enum jl_dynamic_op_mode _dynamic;
 };
 
-struct led_ctrl {
+struct jl_led_ctrl {
 	u8 enable;			/* LED control enable */
 	u16 mode;			/* LED work mode */
 	u16 global_period;		/* LED global twinkle period */
@@ -88,13 +88,13 @@ struct led_ctrl {
 };
 
 struct jl1xxx_priv {
-	struct config_mode *op;
-	struct led_ctrl *led;
+	struct jl_config_mode *op;
+	struct jl_led_ctrl *led;
 };
 
 struct jl2xxx_priv {
-	struct config_mode *op;
-	struct led_ctrl *led;
+	struct jl_config_mode *op;
+	struct jl_led_ctrl *led;
 	u16 rx_delay;			/* Rgmii rx delay */
 	u16 tx_delay;			/* Rgmii tx delay */
 	u16 clk_125m_en;
@@ -108,7 +108,7 @@ struct jl2xxx_priv {
 
 
 /************************* JLSemi iteration code *************************/
-int jlsemi_operation_mode_select(struct config_mode *mode);
+int jlsemi_operation_mode_select(struct jl_config_mode *mode);
 
 int jl1xxx_operation_get(struct phy_device *phydev);
 

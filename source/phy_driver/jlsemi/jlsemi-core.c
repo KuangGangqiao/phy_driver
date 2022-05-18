@@ -135,7 +135,7 @@ static int jl1xxx_c_marcro_cfg(struct phy_device *phydev)
 	struct jl1xxx_priv *priv = phydev->priv;
 
 	/* Config LED */
-	struct led_ctrl led_cfg = {
+	struct jl_led_ctrl led_cfg = {
 		.enable		= LED_CTRL_EN,
 		.mode		= JL1XXX_CFG_LED_MODE,
 		.global_period	= JL1XXX_GLOBAL_PERIOD_MS,
@@ -157,10 +157,10 @@ static int jl1xxx_ethtool_cfg(struct phy_device *phydev)
 	return 0;
 }
 
-int jlsemi_operation_mode_select(struct config_mode *mode)
+int jlsemi_operation_mode_select(struct jl_config_mode *mode)
 {
-	mode->stc = _C_MACRO;
-	mode->dyc = _ETHTOOL;
+	mode->_static = STATIC_C_MACRO;
+	mode->_dynamic = DYNAMIC_ETHTOOL;
 
 	return 0;
 }
@@ -169,14 +169,14 @@ int jl1xxx_operation_get(struct phy_device *phydev)
 {
 	struct jl1xxx_priv *priv = phydev->priv;
 
-	if (priv->op->stc == _DEVICE_TREE)
+	if (priv->op->_static == STATIC_DEVICE_TREE)
 		jl1xxx_device_tree_cfg(phydev);
-	else if ( priv->op->stc == _C_MACRO)
+	else if (priv->op->_static == STATIC_C_MACRO)
 		jl1xxx_c_marcro_cfg(phydev);
 	else
 		JLSEMI_PHY_MSG("jl1xxx static operation need args\n");
 
-	if (priv->op->dyc == _ETHTOOL)
+	if (priv->op->_dynamic == DYNAMIC_ETHTOOL)
 		jl1xxx_ethtool_cfg(phydev);
 	else
 		JLSEMI_PHY_MSG("jl1xxx static operation need args\n");
