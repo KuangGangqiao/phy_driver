@@ -67,10 +67,12 @@
 enum jl_static_op_mode {
 	STATIC_C_MACRO		= 0,
 	STATIC_DEVICE_TREE	= 1,
+	STATIC_NONE		= 2.
 };
 
 enum jl_dynamic_op_mode {
 	DYNAMIC_ETHTOOL		= 0,
+	DYNAMIC_NONE		= 1,
 };
 
 struct jl_config_mode {
