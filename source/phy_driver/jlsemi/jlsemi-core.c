@@ -418,7 +418,7 @@ int jl2xxx_config_phy_info(struct phy_device *phydev,
  */
 int jlsemi_write_page(struct phy_device *phydev, int page)
 {
-	return phy_write(phydev, JL2XXX_PHY_PAGE, page);
+	return phy_write(phydev, JLSEMI_PHY_PAGE, page);
 }
 
 /**
@@ -429,7 +429,7 @@ int jlsemi_write_page(struct phy_device *phydev, int page)
  */
 int jlsemi_read_page(struct phy_device *phydev)
 {
-	return phy_read(phydev, JL2XXX_PHY_PAGE);
+	return phy_read(phydev, JLSEMI_PHY_PAGE);
 }
 
 /**
