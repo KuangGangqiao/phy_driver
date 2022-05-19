@@ -48,6 +48,12 @@
 /* PHY LED Global Hold On */
 #define JL1xxx_GLOBAL_ON_MS		0x8
 
+/* PHY peration mode select */
+#define CONFIG_C_MACRO_MODE		true
+
+#define CONFIG_DEVICE_TREE_MODE		true
+
+#define CONFIG__ETHTOOL_MODE		true
 
 #endif
 

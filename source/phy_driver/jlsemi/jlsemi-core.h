@@ -67,7 +67,7 @@
 enum jl_static_op_mode {
 	STATIC_C_MACRO		= 0,
 	STATIC_DEVICE_TREE	= 1,
-	STATIC_NONE		= 2.
+	STATIC_NONE		= 2,
 };
 
 enum jl_dynamic_op_mode {
@@ -87,10 +87,10 @@ struct jl_led_ctrl {
 	u16 global_on;			/* LED global twinkle hold on time */
 	u16 gpio_output;		/* LED is used as gpio output */
 	u16 polarity;			/* LED polarity */
+	struct jl_config_mode *op;	/* LED config operation mode */
 };
 
 struct jl1xxx_priv {
-	struct jl_config_mode *op;
 	struct jl_led_ctrl *led;
 };
 
@@ -110,7 +110,7 @@ struct jl2xxx_priv {
 
 
 /************************* JLSemi iteration code *************************/
-int jlsemi_operation_mode_select(struct jl_config_mode *mode);
+int jl1xxx_operation_mode_select(struct phy_device *phydev);
 
 int jl1xxx_operation_get(struct phy_device *phydev);
 

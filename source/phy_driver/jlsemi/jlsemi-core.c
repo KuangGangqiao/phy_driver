@@ -36,7 +36,6 @@
 
 
 /************************* JLSemi iteration code *************************/
-
 int jl1xxx_led_ctrl_set(struct phy_device *phydev)
 {
 	struct jl1xxx_priv *priv = phydev->priv;
@@ -84,7 +83,7 @@ int jl1xxx_led_ctrl_set(struct phy_device *phydev)
 	return 0;
 }
 
-static int jl1xxx_dt_led_cfg_get(struct phy_device *phydev)
+static int jl1xxx_dts_led_cfg_get(struct phy_device *phydev)
 {
 	struct jl1xxx_priv *priv = phydev->priv;
 	struct device *dev = &phydev->mdio.dev;
@@ -119,18 +118,7 @@ static int jl1xxx_dt_led_cfg_get(struct phy_device *phydev)
 	return 0;
 }
 
-static int jl1xxx_device_tree_cfg(struct phy_device *phydev)
-{
-	int err;
-
-	err = jl1xxx_dt_led_cfg_get(phydev);
-	if (err < 0)
-		return err;
-
-	return 0;
-}
-
-static int jl1xxx_c_marcro_cfg(struct phy_device *phydev)
+static int jl1xxx_c_marcro_led_cfg_get(struct phy_device *phydev)
 {
 	struct jl1xxx_priv *priv = phydev->priv;
 
@@ -143,43 +131,69 @@ static int jl1xxx_c_marcro_cfg(struct phy_device *phydev)
 		.gpio_output	= JL1XXXX_CFG_GPIO,
 	};
 
-	struct jl1xxx_priv temp = {
-		.led = &led_cfg,
-	};
-
-	priv = &temp;
+	priv->led = &led_cfg;
 
 	return 0;
 }
 
-static int jl1xxx_ethtool_cfg(struct phy_device *phydev)
+static int jl1xxx_ethtool_cfg_get(struct phy_device *phydev)
 {
 	return 0;
 }
 
-int jlsemi_operation_mode_select(struct jl_config_mode *mode)
+static int jl1xxx_led_operation_mode(struct phy_device *phydev)
 {
-	mode->_static = STATIC_C_MACRO;
-	mode->_dynamic = DYNAMIC_ETHTOOL;
+	struct jl1xxx_priv *priv = phydev->priv;
+	struct jl_led_ctrl *ctrl = priv->led;
+	struct jl_config_mode *mode = ctrl->op;
+
+	if(CONFIG_C_MACRO_MODE)
+		mode->_static = STATIC_C_MACRO;
+	else if(CONFIG_DEVICE_TREE_MODE)
+		mode->_static = STATIC_DEVICE_TREE;
+	else
+		mode->_static = STATIC_NONE;
+
+	if (CONFIG__ETHTOOL_MODE)
+		mode->_dynamic = DYNAMIC_NONE;
+	else
+		mode->_dynamic = DYNAMIC_NONE;
+
+
+	return 0;
+}
+
+int jl1xxx_operation_mode_select(struct phy_device *phydev)
+{
+	jl1xxx_led_operation_mode(phydev);
+
+	return 0;
+}
+
+static int jl1xxx_led_operation_args(struct phy_device *phydev)
+{
+	struct jl1xxx_priv *priv = phydev->priv;
+	struct jl_led_ctrl *ctrl = priv->led;
+	struct jl_config_mode *mode = ctrl->op;
+
+	if (mode->_static == STATIC_DEVICE_TREE)
+		jl1xxx_dts_led_cfg_get(phydev);
+	else if (mode->_static == STATIC_C_MACRO)
+		jl1xxx_c_marcro_led_cfg_get(phydev);
+	else
+		JLSEMI_PHY_MSG("jl1xxx led static operation not support\n");
+
+	if (mode->_dynamic == DYNAMIC_ETHTOOL)
+		jl1xxx_ethtool_cfg_get(phydev);
+	else
+		JLSEMI_PHY_MSG("jl1xxx led dynamic operation not support\n");
 
 	return 0;
 }
 
 int jl1xxx_operation_get(struct phy_device *phydev)
 {
-	struct jl1xxx_priv *priv = phydev->priv;
-
-	if (priv->op->_static == STATIC_DEVICE_TREE)
-		jl1xxx_device_tree_cfg(phydev);
-	else if (priv->op->_static == STATIC_C_MACRO)
-		jl1xxx_c_marcro_cfg(phydev);
-	else
-		JLSEMI_PHY_MSG("jl1xxx static operation need args\n");
-
-	if (priv->op->_dynamic == DYNAMIC_ETHTOOL)
-		jl1xxx_ethtool_cfg(phydev);
-	else
-		JLSEMI_PHY_MSG("jl1xxx static operation need args\n");
+	jl1xxx_led_operation_args(phydev);
 
 	return 0;
 }

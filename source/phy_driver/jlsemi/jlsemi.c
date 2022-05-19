@@ -34,7 +34,7 @@ static int jl1xxx_probe(struct phy_device *phydev)
 	phydev->priv = jl1xxx;
 
 	/* Select operation mode */
-	jlsemi_operation_mode_select(jl1xxx->op);
+	jl1xxx_operation_mode_select(phydev);
 
 	err = jl1xxx_operation_get(phydev);
 	if (err < 0)
