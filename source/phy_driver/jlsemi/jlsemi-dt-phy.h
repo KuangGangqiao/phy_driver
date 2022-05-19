@@ -49,11 +49,11 @@
 #define JL1XXX_GLOBAL_ON_MS		0x8
 
 /* PHY peration mode select */
-#define CONFIG_C_MACRO_MODE		true
+#define JL1XXX_LED_C_MACRO_MODE		true
 
-#define CONFIG_DEVICE_TREE_MODE		true
+#define JL1XXX_LED_DEVICE_TREE_MODE	true
 
-#define CONFIG_ETHTOOL_MODE		true
+#define JL1XXX_LED_ETHTOOL_MODE		true
 
 /**********************************jl2xxx*********************************/
 #define JL2XXX_LED0_LINK10		(1 << 0)
@@ -95,6 +95,13 @@
 
 /* PHY LED Global Hold On */
 #define JL2XXX_GLOBAL_ON_MS		0x2
+
+/* PHY peration mode select */
+#define JL2XXX_LED_C_MACRO_MODE		true
+
+#define JL2XXX_LED_DEVICE_TREE_MODE	true
+
+#define JL2XXX_LED_ETHTOOL_MODE		true
 
 
 

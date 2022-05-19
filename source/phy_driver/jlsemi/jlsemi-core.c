@@ -282,14 +282,14 @@ static int jl2xxx_led_operation_mode(struct phy_device *phydev)
 	struct jl_led_ctrl *ctrl = priv->led;
 	struct jl_config_mode *mode = ctrl->op;
 
-	if(CONFIG_C_MACRO_MODE)
+	if(JL2XXX_LED_C_MACRO_MODE)
 		mode->_static = STATIC_C_MACRO;
-	else if(CONFIG_DEVICE_TREE_MODE)
+	else if(JL2XXX_LED_DEVICE_TREE_MODE)
 		mode->_static = STATIC_DEVICE_TREE;
 	else
 		mode->_static = STATIC_NONE;
 
-	if (CONFIG_ETHTOOL_MODE)
+	if (JL2XXX_LED_ETHTOOL_MODE)
 		mode->_dynamic = DYNAMIC_NONE;
 	else
 		mode->_dynamic = DYNAMIC_NONE;
@@ -303,14 +303,14 @@ static int jl1xxx_led_operation_mode(struct phy_device *phydev)
 	struct jl_led_ctrl *ctrl = priv->led;
 	struct jl_config_mode *mode = ctrl->op;
 
-	if(CONFIG_C_MACRO_MODE)
+	if(JL1XXX_LED_C_MACRO_MODE)
 		mode->_static = STATIC_C_MACRO;
-	else if(CONFIG_DEVICE_TREE_MODE)
+	else if(JL1XXX_LED_DEVICE_TREE_MODE)
 		mode->_static = STATIC_DEVICE_TREE;
 	else
 		mode->_static = STATIC_NONE;
 
-	if (CONFIG_ETHTOOL_MODE)
+	if (JL1XXX_LED_ETHTOOL_MODE)
 		mode->_dynamic = DYNAMIC_NONE;
 	else
 		mode->_dynamic = DYNAMIC_NONE;
