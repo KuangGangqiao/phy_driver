@@ -106,11 +106,24 @@ static int jl2xxx_probe(struct phy_device *phydev)
 	if (err < 0)
 		return err;
 
+	/* Select operation mode */
+	jl2xxx_operation_mode_select(phydev);
+
+	err = jl2xxx_operation_get(phydev);
+	if (err < 0)
+		return err;
+
 	return 0;
 }
 
 static int jl2xxx_config_init(struct phy_device *phydev)
 {
+	int ret;
+
+	ret = jl2xxx_operation_init(phydev);
+	if (ret < 0)
+		return ret;
+
 	return 0;
 }
 

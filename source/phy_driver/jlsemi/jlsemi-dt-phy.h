@@ -37,7 +37,7 @@
 				 JL1XXX_LED1_100_ACTIVITY | \
 				 JL1XXX_LED1_10_ACTIVITY)
 
-#define JL1XXXX_CFG_GPIO	(JL1XXX_GPIO_LED0_EN | \
+#define JL1XXX_CFG_GPIO		(JL1XXX_GPIO_LED0_EN | \
 				 JL1XXX_GPIO_LED0_OUT | \
 				 JL1XXX_GPIO_LED1_EN | \
 				 JL1XXX_GPIO_LED1_OUT)
@@ -46,14 +46,58 @@
 #define JL1XXX_GLOBAL_PERIOD_MS		0x10
 
 /* PHY LED Global Hold On */
-#define JL1xxx_GLOBAL_ON_MS		0x8
+#define JL1XXX_GLOBAL_ON_MS		0x8
 
 /* PHY peration mode select */
 #define CONFIG_C_MACRO_MODE		true
 
 #define CONFIG_DEVICE_TREE_MODE		true
 
-#define CONFIG__ETHTOOL_MODE		true
+#define CONFIG_ETHTOOL_MODE		true
+
+/**********************************jl2xxx*********************************/
+#define JL2XXX_LED0_LINK10		(1 << 0)
+#define JL2XXX_LED0_LINK100		(1 << 1)
+#define JL2XXX_LED0_LINK1000		(1 << 3)
+#define JL2XXX_LED0_ACTIVITY		(1 << 4)
+#define JL2XXX_LED1_LINK10		(1 << 5)
+#define JL2XXX_LED1_LINK100		(1 << 6)
+#define JL2XXX_LED1_LINK1000		(1 << 8)
+#define JL2XXX_LED1_ACTIVITY		(1 << 9)
+#define JL2XXX_LED2_LINK10		(1 << 10)
+#define JL2XXX_LED2_LINK100		(1 << 11)
+#define JL2XXX_LED2_LINK1000		(1 << 13)
+#define JL2XXX_LED2_ACTIVITY		(1 << 14)
+/* mode_A = 0 and mode_B = 1 default mode_A */
+#define JL2XXX_LED_GLB_MODE_B		(1 << 15)
+
+/* PHY LED Polarity */
+#define JL2XXX_LED0_POLARITY		(1 << 12)
+#define JL2XXX_LED1_POLARITY		(1 << 11)
+#define JL2XXX_LED2_POLARITY		(1 << 10)
+
+#define JL2XXX_LED_CTRL_EN		0
+
+#define JL2XXX_CFG_LED_MODE	(JL2XXX_LED0_LINK10 | \
+				 JL2XXX_LED0_ACTIVITY | \
+				 JL2XXX_LED1_LINK100 | \
+				 JL2XXX_LED1_ACTIVITY | \
+				 JL2XXX_LED2_LINK1000 | \
+				 JL2XXX_LED2_ACTIVITY | \
+				 JL2XXX_LED_GLB_MODE_B)
+
+#define JL2XXX_LED_POLARITY	(JL2XXX_LED0_POLARITY | \
+				 JL2XXX_LED1_POLARITY | \
+				 JL2XXX_LED2_POLARITY)
+
+/* PHY LED Global Period */
+#define JL2XXX_GLOBAL_PERIOD_MS		0x3
+
+/* PHY LED Global Hold On */
+#define JL2XXX_GLOBAL_ON_MS		0x2
+
+
+
 
 #endif
 

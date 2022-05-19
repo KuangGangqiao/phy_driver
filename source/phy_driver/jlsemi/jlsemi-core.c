@@ -31,11 +31,76 @@
 #define JL1XXX_PAGE128		128
 #define JL1XXX_LED_GPIO_REG	29
 
+#define JL2XXX_PAGE3332		3332
+#define JL2XXX_LED_CTRL_REG	16
+#define JL2XXX_PAGE4096		4096
+#define JL2XXX_LED_BLINK_REG	20
+#define JL2XXX_LED_POLARITY_REG	19
+
+#define JL2XXX_SUPP_LED_MODE	(JL2XXX_LED0_LINK10 | \
+				 JL2XXX_LED0_LINK100 | \
+				 JL2XXX_LED0_LINK1000 | \
+				 JL2XXX_LED0_ACTIVITY | \
+				 JL2XXX_LED1_LINK10 | \
+				 JL2XXX_LED1_LINK100 | \
+				 JL2XXX_LED1_LINK1000 | \
+				 JL2XXX_LED1_ACTIVITY | \
+				 JL2XXX_LED2_LINK10 | \
+				 JL2XXX_LED2_LINK100 | \
+				 JL2XXX_LED2_LINK1000 | \
+				 JL2XXX_LED2_ACTIVITY | \
+				 JL2XXX_LED_GLB_MODE_B)
+
+#define JL2XXX_SUPP_LED_POLARITY (JL2XXX_LED0_POLARITY | \
+				 JL2XXX_LED1_POLARITY | \
+				 JL2XXX_LED2_POLARITY)
+
+
 
 /************************* Configuration section *************************/
 
 
 /************************* JLSemi iteration code *************************/
+static int jl2xxx_led_ctrl_set(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	int err;
+
+	if (!priv->led->enable)
+		return 0;
+
+	/* Set led mode */
+	err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE3332,
+				      JL2XXX_LED_CTRL_REG,
+				      JL2XXX_SUPP_LED_MODE,
+				      priv->led->mode);
+	if (err < 0)
+		return err;
+	/* Set led period */
+	err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE4096,
+				      JL2XXX_LED_BLINK_REG,
+				      LED_PERIOD_MASK,
+				      LEDPERIOD(priv->led->global_period));
+	if (err < 0)
+		return err;
+	/* Set led on time */
+	err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE4096,
+				      JL2XXX_LED_BLINK_REG,
+				      LED_ON_MASK,
+				      LEDON(priv->led->global_on));
+	if (err < 0)
+		return err;
+	/* Set led polarity */
+	err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE4096,
+				      JL2XXX_LED_POLARITY_REG,
+				      JL2XXX_SUPP_LED_POLARITY,
+				      priv->led->polarity);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
 int jl1xxx_led_ctrl_set(struct phy_device *phydev)
 {
 	struct jl1xxx_priv *priv = phydev->priv;
@@ -70,15 +135,50 @@ int jl1xxx_led_ctrl_set(struct phy_device *phydev)
 
 	/* Set led period */
 	jlsemi_set_bits(phydev, JL1XXX_PAGE24, JL1XXX_LED_BLINK_REG,
-			JL1XXXLEDPERIOD(priv->led->global_period));
+			LEDPERIOD(priv->led->global_period));
 
 	/* Set led on time */
 	jlsemi_set_bits(phydev, JL1XXX_PAGE24, JL1XXX_LED_BLINK_REG,
-			JL1XXX_LED_ON(priv->led->global_on));
+			LEDON(priv->led->global_on));
 
 	/*Set led gpio output */
 	jlsemi_set_bits(phydev, JL1XXX_PAGE128, JL1XXX_LED_GPIO_REG,
 			priv->led->gpio_output);
+
+	return 0;
+}
+
+static int jl2xxx_dts_led_cfg_get(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	struct device *dev = &phydev->mdio.dev;
+	struct device_node *of_node = dev->of_node;
+	int err;
+
+	err = of_property_read_u8(of_node, "jl2xxx,led-enable",
+				  &priv->led->enable);
+	if (err < 0)
+		return err;
+
+	err = of_property_read_u16(of_node, "jl2xxx,led-mode",
+				   &priv->led->mode);
+	if (err < 0)
+		return err;
+
+	err = of_property_read_u16(of_node, "jl2xxx,led-period",
+				   &priv->led->global_period);
+	if (err < 0)
+		return err;
+
+	err = of_property_read_u16(of_node, "jl2xxx,led-on",
+				   &priv->led->global_on);
+	if (err < 0)
+		return err;
+
+	err = of_property_read_u16(of_node, "jl2xxx,led-polarity",
+				   &priv->led->polarity);
+	if (err < 0)
+		return err;
 
 	return 0;
 }
@@ -118,6 +218,24 @@ static int jl1xxx_dts_led_cfg_get(struct phy_device *phydev)
 	return 0;
 }
 
+static int jl2xxx_c_marcro_led_cfg_get(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+
+	/* Config LED */
+	struct jl_led_ctrl led_cfg = {
+		.enable		= LED_CTRL_EN,
+		.mode		= JL2XXX_CFG_LED_MODE,
+		.global_period	= JL2XXX_GLOBAL_PERIOD_MS,
+		.global_on	= JL2XXX_GLOBAL_ON_MS,
+		.gpio_output	= JL2XXX_LED_POLARITY,
+	};
+
+	priv->led = &led_cfg;
+
+	return 0;
+}
+
 static int jl1xxx_c_marcro_led_cfg_get(struct phy_device *phydev)
 {
 	struct jl1xxx_priv *priv = phydev->priv;
@@ -127,8 +245,8 @@ static int jl1xxx_c_marcro_led_cfg_get(struct phy_device *phydev)
 		.enable		= LED_CTRL_EN,
 		.mode		= JL1XXX_CFG_LED_MODE,
 		.global_period	= JL1XXX_GLOBAL_PERIOD_MS,
-		.global_on	= JL1xxx_GLOBAL_ON_MS,
-		.gpio_output	= JL1XXXX_CFG_GPIO,
+		.global_on	= JL1XXX_GLOBAL_ON_MS,
+		.gpio_output	= JL1XXX_CFG_GPIO,
 	};
 
 	priv->led = &led_cfg;
@@ -136,8 +254,34 @@ static int jl1xxx_c_marcro_led_cfg_get(struct phy_device *phydev)
 	return 0;
 }
 
+static int jl2xxx_ethtool_cfg_get(struct phy_device *phydev)
+{
+	return 0;
+}
+
 static int jl1xxx_ethtool_cfg_get(struct phy_device *phydev)
 {
+	return 0;
+}
+
+static int jl2xxx_led_operation_mode(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	struct jl_led_ctrl *ctrl = priv->led;
+	struct jl_config_mode *mode = ctrl->op;
+
+	if(CONFIG_C_MACRO_MODE)
+		mode->_static = STATIC_C_MACRO;
+	else if(CONFIG_DEVICE_TREE_MODE)
+		mode->_static = STATIC_DEVICE_TREE;
+	else
+		mode->_static = STATIC_NONE;
+
+	if (CONFIG_ETHTOOL_MODE)
+		mode->_dynamic = DYNAMIC_NONE;
+	else
+		mode->_dynamic = DYNAMIC_NONE;
+
 	return 0;
 }
 
@@ -154,11 +298,10 @@ static int jl1xxx_led_operation_mode(struct phy_device *phydev)
 	else
 		mode->_static = STATIC_NONE;
 
-	if (CONFIG__ETHTOOL_MODE)
+	if (CONFIG_ETHTOOL_MODE)
 		mode->_dynamic = DYNAMIC_NONE;
 	else
 		mode->_dynamic = DYNAMIC_NONE;
-
 
 	return 0;
 }
@@ -166,6 +309,34 @@ static int jl1xxx_led_operation_mode(struct phy_device *phydev)
 int jl1xxx_operation_mode_select(struct phy_device *phydev)
 {
 	jl1xxx_led_operation_mode(phydev);
+
+	return 0;
+}
+
+int jl2xxx_operation_mode_select(struct phy_device *phydev)
+{
+	jl2xxx_led_operation_mode(phydev);
+
+	return 0;
+}
+
+static int jl2xxx_led_operation_args(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	struct jl_led_ctrl *ctrl = priv->led;
+	struct jl_config_mode *mode = ctrl->op;
+
+	if (mode->_static == STATIC_DEVICE_TREE)
+		jl2xxx_dts_led_cfg_get(phydev);
+	else if (mode->_static == STATIC_C_MACRO)
+		jl2xxx_c_marcro_led_cfg_get(phydev);
+	else
+		JLSEMI_PHY_MSG("jl2xxx led static operation not support\n");
+
+	if (mode->_dynamic == DYNAMIC_ETHTOOL)
+		jl2xxx_ethtool_cfg_get(phydev);
+	else
+		JLSEMI_PHY_MSG("jl2xxx led dynamic operation not support\n");
 
 	return 0;
 }
@@ -191,6 +362,13 @@ static int jl1xxx_led_operation_args(struct phy_device *phydev)
 	return 0;
 }
 
+int jl2xxx_operation_get(struct phy_device *phydev)
+{
+	jl2xxx_led_operation_args(phydev);
+
+	return 0;
+}
+
 int jl1xxx_operation_get(struct phy_device *phydev)
 {
 	jl1xxx_led_operation_args(phydev);
@@ -208,6 +386,18 @@ int jl1xxx_operation_init(struct phy_device *phydev)
 
 	return 0;
 }
+
+int jl2xxx_operation_init(struct phy_device *phydev)
+{
+	int err;
+
+	err = jl2xxx_led_ctrl_set(phydev);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
 static const uint16_t patch_version = 0xdef2;
 
 static const uint32_t init_data[] = {

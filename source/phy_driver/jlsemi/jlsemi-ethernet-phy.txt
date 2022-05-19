@@ -41,6 +41,11 @@ Example for jl2xxx:
 		reg = <0>;
 		led {
 			compatible		= "jl2xxx-led";
+			jl2xxx,led-enable	= <JL2XXX_LED_CTRL_EN>;
+			jl2xxx,led-mode		= <JL2XXX_CFG_LED_MODE>;
+			jl2xxx,led-period	= <JL2XXX_GLOBAL_PERIOD_MS>;
+			jl2xxx,led-on		= <JL2xxx_GLOBAL_ON_MS>;
+			jl2xxx,led-gpio		= <JL2XXX_LED_POLARITY>;
 		};
 		rgmii {
 			compatible		= "jl2xxx-rgmii";

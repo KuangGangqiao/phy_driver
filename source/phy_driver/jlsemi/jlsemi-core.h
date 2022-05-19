@@ -57,10 +57,10 @@
 #define JL2XXX_WOL_EN		BIT(6)
 #define JL2XXX_WOL_CTL_EN	BIT(15)
 
-#define JL1XXX_LED_PERIOD_MASK	GENMASK(8, 15)
-#define JL1XXXLEDPERIOD(n)	(n << 8) & JL1XXX_LED_PERIOD_MASK
-#define JL1XXX_LED_ON_MASK	GENMASK(0, 7)
-#define JL1XXX_LED_ON(n)	(n << 0) & JL1XXX_LED_ON_MASK
+#define LED_PERIOD_MASK		GENMASK(8, 15)
+#define LEDPERIOD(n)		(n << 8) & LED_PERIOD_MASK
+#define LED_ON_MASK		GENMASK(0, 7)
+#define LEDON(n)		(n << 0) & LED_ON_MASK
 
 /*************************************************************************/
 
@@ -95,7 +95,6 @@ struct jl1xxx_priv {
 };
 
 struct jl2xxx_priv {
-	struct jl_config_mode *op;
 	struct jl_led_ctrl *led;
 	u16 rx_delay;			/* Rgmii rx delay */
 	u16 tx_delay;			/* Rgmii tx delay */
@@ -115,6 +114,12 @@ int jl1xxx_operation_mode_select(struct phy_device *phydev);
 int jl1xxx_operation_get(struct phy_device *phydev);
 
 int jl1xxx_operation_init(struct phy_device *phydev);
+
+int jl2xxx_operation_mode_select(struct phy_device *phydev);
+
+int jl2xxx_operation_get(struct phy_device *phydev);
+
+int jl2xxx_operation_init(struct phy_device *phydev);
 
 int jlsemi_soft_reset(struct phy_device *phydev);
 
