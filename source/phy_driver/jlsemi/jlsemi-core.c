@@ -52,9 +52,24 @@
 				 JL2XXX_LED_GLB_MODE_B)
 
 #define JL2XXX_SUPP_LED_POLARITY (JL2XXX_LED0_POLARITY | \
-				 JL2XXX_LED1_POLARITY | \
-				 JL2XXX_LED2_POLARITY)
+				  JL2XXX_LED1_POLARITY | \
+				  JL2XXX_LED2_POLARITY)
 
+#define JL1XXX_SUPP_GPIO	(JL1XXX_GPIO_LED0_EN | \
+				 JL1XXX_GPIO_LED0_OUT | \
+				 JL1XXX_GPIO_LED1_EN | \
+				 JL1XXX_GPIO_LED1_OUT)
+
+#define JL1XXX_SUPP_LED_MODE	(JL1XXX_LED0_EEE | \
+				 JL1XXX_LED0_100_ACTIVITY | \
+				 JL1XXX_LED0_10_ACTIVITY | \
+				 JL1XXX_LED0_100_LINK | \
+				 JL1XXX_LED0_10_LINK | \
+				 JL1XXX_LED1_EEE | \
+				 JL1XXX_LED1_100_ACTIVITY | \
+				 JL1XXX_LED1_10_ACTIVITY | \
+				 JL1XXX_LED1_100_LINK | \
+				 JL1XXX_LED1_10_LINK)
 
 
 /************************* Configuration section *************************/
@@ -104,7 +119,7 @@ static int jl2xxx_led_ctrl_set(struct phy_device *phydev)
 int jl1xxx_led_ctrl_set(struct phy_device *phydev)
 {
 	struct jl1xxx_priv *priv = phydev->priv;
-	u16 mask;
+	int err;
 
 	if (!priv->led->enable)
 		return 0;
@@ -112,38 +127,35 @@ int jl1xxx_led_ctrl_set(struct phy_device *phydev)
 	/* Enable LED operation */
 	jlsemi_set_bits(phydev, JL1XXX_PAGE7, JL1XXX_LED_REG, JL1XXX_LED_EN);
 
-	if (priv->led->mode & JL1XXX_LED1_100_LINK)
-		mask |= JL1XXX_LED1_100_ACTIVITY;
-	if (priv->led->mode & JL1XXX_LED1_10_LINK)
-		mask |= JL1XXX_LED1_10_ACTIVITY;
-	if (priv->led->mode & JL1XXX_LED1_100_ACTIVITY)
-		mask |= JL1XXX_LED1_100_LINK;
-	if (priv->led->mode & JL1XXX_LED1_10_ACTIVITY)
-		mask |= JL1XXX_LED1_10_LINK;
-	if (priv->led->mode & JL1XXX_LED0_100_LINK)
-		mask |= JL1XXX_LED0_100_ACTIVITY;
-	if (priv->led->mode & JL1XXX_LED0_10_LINK)
-		mask |= BIT(JL1XXX_LED0_10_ACTIVITY);
-	if (priv->led->mode & JL1XXX_LED0_100_ACTIVITY)
-		mask |= JL1XXX_LED0_100_LINK;
-	if (priv->led->mode & JL1XXX_LED0_10_ACTIVITY)
-		mask |= JL1XXX_LED0_10_LINK;
-
 	/* Set led mode */
-	jlsemi_modify_paged_reg(phydev, JL1XXX_PAGE129,
-				JL1XXX_LED_MODE_REG, mask, priv->led->mode);
+	err = jlsemi_modify_paged_reg(phydev, JL1XXX_PAGE129,
+				      JL1XXX_LED_MODE_REG,
+				      JL1XXX_SUPP_LED_MODE,
+				      priv->led->mode);
+	if (err < 0)
+		return err;
 
 	/* Set led period */
-	jlsemi_set_bits(phydev, JL1XXX_PAGE24, JL1XXX_LED_BLINK_REG,
-			LEDPERIOD(priv->led->global_period));
-
+	err = jlsemi_modify_paged_reg(phydev, JL1XXX_PAGE24,
+				      JL1XXX_LED_BLINK_REG,
+				      LED_PERIOD_MASK,
+				      LEDPERIOD(priv->led->global_period));
+	if (err < 0)
+		return err;
 	/* Set led on time */
-	jlsemi_set_bits(phydev, JL1XXX_PAGE24, JL1XXX_LED_BLINK_REG,
-			LEDON(priv->led->global_on));
-
+	err = jlsemi_modify_paged_reg(phydev, JL1XXX_PAGE24,
+				      JL1XXX_LED_BLINK_REG,
+				      LED_ON_MASK,
+				      LEDON(priv->led->global_on));
+	if (err < 0)
+		return err;
 	/*Set led gpio output */
-	jlsemi_set_bits(phydev, JL1XXX_PAGE128, JL1XXX_LED_GPIO_REG,
-			priv->led->gpio_output);
+	err = jlsemi_modify_paged_reg(phydev, JL1XXX_PAGE128,
+				      JL1XXX_LED_GPIO_REG,
+				      JL1XXX_SUPP_GPIO,
+				      priv->led->gpio_output);
+	if (err < 0)
+		return err;
 
 	return 0;
 }
