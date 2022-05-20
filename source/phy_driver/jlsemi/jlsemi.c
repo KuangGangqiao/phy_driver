@@ -210,6 +210,28 @@ static int jl2xxx_set_wol(struct phy_device *phydev,
 	return 0;
 }
 
+static int jl2xxx_get_tunable(struct phy_device *phydev,
+			      struct ethtool_tunable *tuna, void *data)
+{
+	switch (tuna->id) {
+	case ETHTOOL_PHY_FAST_LINK_DOWN:
+		return jl2xxx_ethtool_get_fld(phydev, data);
+	default:
+		return -EOPNOTSUPP;
+	}
+}
+
+static int jl2xxx_set_tunable(struct phy_device *phydev,
+			      struct ethtool_tunable *tuna, const void *data)
+{
+	switch (tuna->id) {
+	case ETHTOOL_PHY_FAST_LINK_DOWN:
+		return jl2xxx_ethtool_set_fld(phydev, data);
+	default:
+		return -EOPNOTSUPP;
+	}
+}
+
 static void jl2xxx_remove(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
@@ -253,6 +275,9 @@ static struct phy_driver jlsemi_drivers[] = {
 		.remove		= jl2xxx_remove,
 		.get_wol	= jl2xxx_get_wol,
 		.set_wol	= jl2xxx_set_wol,
+		.get_tunable	= jl2xxx_get_tunable,
+		.set_tunable	= jl2xxx_set_tunable,
+
 	},
 };
 

@@ -37,6 +37,18 @@
 #define JL2XXX_LED_BLINK_REG	20
 #define JL2XXX_LED_POLARITY_REG	19
 
+#define JL2XXX_PAGE0		0
+#define JL2XXX_PAGE128		128
+#define JL2XXX_FLD_CTRL_REG	28
+#define JL2XXX_FLD_EN		BIT(13)
+#define JL2XXX_FLD_MASK		GENMASK(12, 11)
+#define JL2XXX_FLD_MASK_HEAD	11
+#define JL2XXX_FLD_DELAY_00MS	0
+#define JL2XXX_FLD_DELAY_10MS	1
+#define JL2XXX_FLD_DELAY_20MS	2
+#define JL2XXX_FLD_DELAY_40MS	3
+
+
 #define JL2XXX_SUPP_LED_MODE	(JL2XXX_LED0_LINK10 | \
 				 JL2XXX_LED0_LINK100 | \
 				 JL2XXX_LED0_LINK1000 | \
@@ -69,7 +81,6 @@
 				 JL1XXX_LED1_10_ACTIVITY | \
 				 JL1XXX_LED1_100_LINK | \
 				 JL1XXX_LED1_10_LINK)
-
 
 /************************* Configuration section *************************/
 
@@ -397,6 +408,82 @@ int jl1xxx_operation_init(struct phy_device *phydev)
 
 	return 0;
 }
+
+/* Get fast link down for jl2xxx */
+int jl2xxx_ethtool_get_fld(struct phy_device *phydev, u8 *msecs)
+{
+	u16 val;
+	int ret;
+
+	jlsemi_write_page(phydev, JL2XXX_PAGE128);
+	ret = phy_read(phydev, JL2XXX_FLD_CTRL_REG);
+	jlsemi_write_page(phydev, JL2XXX_PAGE0);
+	if (ret < 0)
+		return ret;
+
+	if (!(ret & JL2XXX_FLD_EN)) {
+		*msecs = ETHTOOL_PHY_FAST_LINK_DOWN_OFF;
+		return 0;
+	}
+
+	val = (val & JL2XXX_FLD_MASK) >> JL2XXX_FLD_MASK_HEAD;
+
+	switch (val) {
+	case JL2XXX_FLD_DELAY_00MS:
+		*msecs = 0;
+		break;
+	case JL2XXX_FLD_DELAY_10MS:
+		*msecs = 10;
+		break;
+	case JL2XXX_FLD_DELAY_20MS:
+		*msecs = 20;
+		break;
+	case JL2XXX_FLD_DELAY_40MS:
+		*msecs = 40;
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	return 0;
+}
+/* Set fast link down for jl2xxx */
+int jl2xxx_ethtool_set_fld(struct phy_device *phydev, const u8 *msecs)
+{
+	u16 val;
+	int ret;
+
+	if (*msecs == ETHTOOL_PHY_FAST_LINK_DOWN_OFF)
+		return jlsemi_clear_bits(phydev, JL2XXX_PAGE128,
+					 JL2XXX_FLD_CTRL_REG,
+					 JL2XXX_FLD_EN);
+
+	if (*msecs <= 5)
+		val = JL2XXX_FLD_DELAY_00MS;
+	else if (*msecs <= 15)
+		val = JL2XXX_FLD_DELAY_10MS;
+	else if (*msecs <= 30)
+		val = JL2XXX_FLD_DELAY_20MS;
+	else
+		val = JL2XXX_FLD_DELAY_40MS;
+
+	val = val << JL2XXX_FLD_MASK_HEAD;
+
+	ret = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE128,
+				      JL2XXX_FLD_CTRL_REG,
+				      JL2XXX_FLD_MASK, val);
+	if (ret < 0)
+		return ret;
+
+	ret = jlsemi_set_bits(phydev, JL2XXX_PAGE128,
+			      JL2XXX_FLD_CTRL_REG,
+			      JL2XXX_FLD_EN);
+	if (ret < 0)
+		return ret;
+
+	return 0;
+}
+
 
 int jl2xxx_operation_init(struct phy_device *phydev)
 {

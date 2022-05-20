@@ -109,6 +109,10 @@ struct jl2xxx_priv {
 
 
 /************************* JLSemi iteration code *************************/
+int jl2xxx_ethtool_get_fld(struct phy_device *phydev, u8 *msecs);
+
+int jl2xxx_ethtool_set_fld(struct phy_device *phydev, const u8 *msecs);
+
 int jl1xxx_operation_mode_select(struct phy_device *phydev);
 
 int jl1xxx_operation_get(struct phy_device *phydev);
