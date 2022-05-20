@@ -98,11 +98,13 @@ struct jl_fld_ctrl {
 
 struct jl1xxx_priv {
 	struct jl_led_ctrl *led;
+	bool init_flag;
 };
 
 struct jl2xxx_priv {
 	struct jl_led_ctrl *led;
 	struct jl_fld_ctrl *fld;
+	bool init_flag;
 	u16 rx_delay;			/* Rgmii rx delay */
 	u16 tx_delay;			/* Rgmii tx delay */
 	u16 clk_125m_en;
