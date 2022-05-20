@@ -250,7 +250,7 @@ static int jl2xxx_c_marcro_led_cfg_get(struct phy_device *phydev)
 		.mode		= JL2XXX_CFG_LED_MODE,
 		.global_period	= JL2XXX_GLOBAL_PERIOD_MS,
 		.global_on	= JL2XXX_GLOBAL_ON_MS,
-		.gpio_output	= JL2XXX_LED_POLARITY,
+		.polarity	= JL2XXX_LED_POLARITY,
 	};
 
 	priv->led = &led_cfg;
