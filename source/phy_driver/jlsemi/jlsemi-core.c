@@ -205,6 +205,26 @@ static int jl2xxx_dts_led_cfg_get(struct phy_device *phydev)
 	return 0;
 }
 
+static int jl2xxx_dts_fld_cfg_get(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	struct device *dev = &phydev->mdio.dev;
+	struct device_node *of_node = dev->of_node;
+	int err;
+
+	err = of_property_read_u8(of_node, "jl2xxx,fld-enable",
+				  &priv->fld->enable);
+	if (err < 0)
+		return err;
+
+	err = of_property_read_u8(of_node, "jl2xxx,fld-delay",
+				   &priv->fld->delay);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
 static int jl1xxx_dts_led_cfg_get(struct phy_device *phydev)
 {
 	struct jl1xxx_priv *priv = phydev->priv;
@@ -254,6 +274,20 @@ static int jl2xxx_c_marcro_led_cfg_get(struct phy_device *phydev)
 	};
 
 	priv->led = &led_cfg;
+
+	return 0;
+}
+static int jl2xxx_c_marcro_fld_cfg_get(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+
+	/* Config fast link down */
+	struct jl_fld_ctrl fld_cfg = {
+		.enable		= JL2XXX_FLD_CTRL_EN,
+		.delay		= JL2XXX_FLD_DELAY,
+	};
+
+	priv->fld = &fld_cfg;
 
 	return 0;
 }
@@ -307,6 +341,27 @@ static int jl2xxx_led_operation_mode(struct phy_device *phydev)
 	return 0;
 }
 
+static int jl2xxx_fld_operation_mode(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	struct jl_fld_ctrl *ctrl = priv->fld;
+	struct jl_config_mode *mode = ctrl->op;
+
+	if(JL2XXX_FLD_C_MACRO_MODE)
+		mode->_static = STATIC_C_MACRO;
+	else if(JL2XXX_FLD_DEVICE_TREE_MODE)
+		mode->_static = STATIC_DEVICE_TREE;
+	else
+		mode->_static = STATIC_NONE;
+
+	if (JL2XXX_FLD_ETHTOOL_MODE)
+		mode->_dynamic = DYNAMIC_ETHTOOL;
+	else
+		mode->_dynamic = DYNAMIC_NONE;
+
+	return 0;
+}
+
 static int jl1xxx_led_operation_mode(struct phy_device *phydev)
 {
 	struct jl1xxx_priv *priv = phydev->priv;
@@ -338,6 +393,28 @@ int jl1xxx_operation_mode_select(struct phy_device *phydev)
 int jl2xxx_operation_mode_select(struct phy_device *phydev)
 {
 	jl2xxx_led_operation_mode(phydev);
+	jl2xxx_fld_operation_mode(phydev);
+
+	return 0;
+}
+
+static int jl2xxx_fld_operation_args(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	struct jl_fld_ctrl *ctrl = priv->fld;
+	struct jl_config_mode *mode = ctrl->op;
+
+	if (mode->_static == STATIC_DEVICE_TREE)
+		jl2xxx_dts_fld_cfg_get(phydev);
+	else if (mode->_static == STATIC_C_MACRO)
+		jl2xxx_c_marcro_fld_cfg_get(phydev);
+	else
+		JLSEMI_PHY_MSG("jl2xxx fld static operation not support\n");
+
+	if (mode->_dynamic == DYNAMIC_ETHTOOL)
+		jl2xxx_ethtool_cfg_get(phydev);
+	else
+		JLSEMI_PHY_MSG("jl2xxx fld dynamic operation not support\n");
 
 	return 0;
 }
@@ -387,6 +464,7 @@ static int jl1xxx_led_operation_args(struct phy_device *phydev)
 int jl2xxx_operation_get(struct phy_device *phydev)
 {
 	jl2xxx_led_operation_args(phydev);
+	jl2xxx_fld_operation_args(phydev);
 
 	return 0;
 }
@@ -447,6 +525,21 @@ int jl2xxx_ethtool_get_fld(struct phy_device *phydev, u8 *msecs)
 
 	return 0;
 }
+static int jl2xxx_fld_ctrl_set(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	int err;
+
+	if (!priv->fld->enable)
+		return 0;
+
+	err = jl2xxx_ethtool_set_fld(phydev, &priv->fld->delay);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
 /* Set fast link down for jl2xxx */
 int jl2xxx_ethtool_set_fld(struct phy_device *phydev, const u8 *msecs)
 {
@@ -484,12 +577,15 @@ int jl2xxx_ethtool_set_fld(struct phy_device *phydev, const u8 *msecs)
 	return 0;
 }
 
-
 int jl2xxx_operation_init(struct phy_device *phydev)
 {
 	int err;
 
 	err = jl2xxx_led_ctrl_set(phydev);
+	if (err < 0)
+		return err;
+
+	err = jl2xxx_fld_ctrl_set(phydev);
 	if (err < 0)
 		return err;
 

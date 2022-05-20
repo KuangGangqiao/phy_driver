@@ -51,6 +51,11 @@ Example for jl2xxx:
 			compatible		= "jl2xxx-rgmii";
 
 		};
+		fast_link_down {
+			compatible		= "jl2xxx-fld";
+			"jl2xxx,fld-enable"	= <JL2XXX_FLD_CTRL_EN>
+			"jl2xxx,fld-delay"	= <JL2XXX_FLD_DELAY>
+		}
 	};
 
 

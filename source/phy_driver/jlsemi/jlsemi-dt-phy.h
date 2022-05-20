@@ -103,6 +103,13 @@
 #define JL2XXX_LED_ETHTOOL_MODE		true
 
 
+#define JL2XXX_FLD_CTRL_EN		0
+#define JL2XXX_FLD_DELAY		0
+
+/* PHY fast link down peration mode select */
+#define JL2XXX_FLD_C_MACRO_MODE		true
+#define JL2XXX_FLD_DEVICE_TREE_MODE	false
+#define JL2XXX_FLD_ETHTOOL_MODE		true
 
 
 #endif

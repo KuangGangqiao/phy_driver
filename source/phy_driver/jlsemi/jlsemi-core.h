@@ -90,12 +90,19 @@ struct jl_led_ctrl {
 	struct jl_config_mode *op;	/* LED config operation mode */
 };
 
+struct jl_fld_ctrl {
+	u8 enable;			/* Fast link down control enable */
+	u8 delay;			/* Fast link down time */
+	struct jl_config_mode *op;	/* Fast link down config operation mode */
+};
+
 struct jl1xxx_priv {
 	struct jl_led_ctrl *led;
 };
 
 struct jl2xxx_priv {
 	struct jl_led_ctrl *led;
+	struct jl_fld_ctrl *fld;
 	u16 rx_delay;			/* Rgmii rx delay */
 	u16 tx_delay;			/* Rgmii tx delay */
 	u16 clk_125m_en;
