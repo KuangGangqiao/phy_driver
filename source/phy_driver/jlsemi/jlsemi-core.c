@@ -476,7 +476,7 @@ int jl1xxx_operation_get(struct phy_device *phydev)
 	return 0;
 }
 
-int jl1xxx_operation_init(struct phy_device *phydev)
+int jl1xxx_static_op_init(struct phy_device *phydev)
 {
 	int err;
 
@@ -577,7 +577,7 @@ int jl2xxx_ethtool_set_fld(struct phy_device *phydev, const u8 *msecs)
 	return 0;
 }
 
-int jl2xxx_operation_init(struct phy_device *phydev)
+int jl2xxx_static_op_init(struct phy_device *phydev)
 {
 	int err;
 

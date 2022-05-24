@@ -98,13 +98,13 @@ struct jl_fld_ctrl {
 
 struct jl1xxx_priv {
 	struct jl_led_ctrl *led;
-	bool init_flag;
+	bool static_inited;
 };
 
 struct jl2xxx_priv {
 	struct jl_led_ctrl *led;
 	struct jl_fld_ctrl *fld;
-	bool init_flag;
+	bool static_inited;
 	u16 rx_delay;			/* Rgmii rx delay */
 	u16 tx_delay;			/* Rgmii tx delay */
 	u16 clk_125m_en;
@@ -126,13 +126,13 @@ int jl1xxx_operation_mode_select(struct phy_device *phydev);
 
 int jl1xxx_operation_get(struct phy_device *phydev);
 
-int jl1xxx_operation_init(struct phy_device *phydev);
+int jl1xxx_static_op_init(struct phy_device *phydev);
 
 int jl2xxx_operation_mode_select(struct phy_device *phydev);
 
 int jl2xxx_operation_get(struct phy_device *phydev);
 
-int jl2xxx_operation_init(struct phy_device *phydev);
+int jl2xxx_static_op_init(struct phy_device *phydev);
 
 int jlsemi_soft_reset(struct phy_device *phydev);
 

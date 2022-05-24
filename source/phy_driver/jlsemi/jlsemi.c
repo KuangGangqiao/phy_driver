@@ -40,7 +40,7 @@ static int jl1xxx_probe(struct phy_device *phydev)
 	if (err < 0)
 		return err;
 
-	jl1xxx->init_flag = false;
+	jl1xxx->static_inited = false;
 
 	return 0;
 }
@@ -50,11 +50,11 @@ static int jl1xxx_config_init(struct phy_device *phydev)
 	struct jl1xxx_priv *priv = phydev->priv;
 	int ret;
 
-	if (!priv->init_flag) {
-		ret = jl1xxx_operation_init(phydev);
+	if (!priv->static_inited) {
+		ret = jl1xxx_static_op_init(phydev);
 		if (ret < 0)
 			return ret;
-		priv->init_flag = true;
+		priv->static_inited = true;
 	}
 
 	return 0;
@@ -119,7 +119,7 @@ static int jl2xxx_probe(struct phy_device *phydev)
 	if (err < 0)
 		return err;
 
-	jl2xxx->init_flag = false;
+	jl2xxx->static_inited = false;
 
 	return 0;
 }
@@ -129,11 +129,11 @@ static int jl2xxx_config_init(struct phy_device *phydev)
 	struct jl2xxx_priv *priv = phydev->priv;
 	int ret;
 
-	if(!priv->init_flag) {
-		ret = jl2xxx_operation_init(phydev);
+	if (!priv->static_inited) {
+		ret = jl2xxx_static_op_init(phydev);
 		if (ret < 0)
 			return ret;
-		priv->init_flag = true;
+		priv->static_inited = true;
 	}
 
 	return 0;
