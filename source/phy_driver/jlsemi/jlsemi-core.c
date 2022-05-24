@@ -327,16 +327,16 @@ static int jl2xxx_led_operation_mode(struct phy_device *phydev)
 	struct jl_config_mode *mode = ctrl->op;
 
 	if(JL2XXX_LED_C_MACRO_MODE)
-		mode->_static = STATIC_C_MACRO;
+		mode->static_op = STATIC_C_MACRO;
 	else if(JL2XXX_LED_DEVICE_TREE_MODE)
-		mode->_static = STATIC_DEVICE_TREE;
+		mode->static_op = STATIC_DEVICE_TREE;
 	else
-		mode->_static = STATIC_NONE;
+		mode->static_op = STATIC_NONE;
 
 	if (JL2XXX_LED_ETHTOOL_MODE)
-		mode->_dynamic = DYNAMIC_NONE;
+		mode->dynamic_op = DYNAMIC_NONE;
 	else
-		mode->_dynamic = DYNAMIC_NONE;
+		mode->dynamic_op = DYNAMIC_NONE;
 
 	return 0;
 }
@@ -348,16 +348,16 @@ static int jl2xxx_fld_operation_mode(struct phy_device *phydev)
 	struct jl_config_mode *mode = ctrl->op;
 
 	if(JL2XXX_FLD_C_MACRO_MODE)
-		mode->_static = STATIC_C_MACRO;
+		mode->static_op = STATIC_C_MACRO;
 	else if(JL2XXX_FLD_DEVICE_TREE_MODE)
-		mode->_static = STATIC_DEVICE_TREE;
+		mode->static_op = STATIC_DEVICE_TREE;
 	else
-		mode->_static = STATIC_NONE;
+		mode->static_op = STATIC_NONE;
 
 	if (JL2XXX_FLD_ETHTOOL_MODE)
-		mode->_dynamic = DYNAMIC_ETHTOOL;
+		mode->dynamic_op = DYNAMIC_ETHTOOL;
 	else
-		mode->_dynamic = DYNAMIC_NONE;
+		mode->dynamic_op = DYNAMIC_NONE;
 
 	return 0;
 }
@@ -369,16 +369,16 @@ static int jl1xxx_led_operation_mode(struct phy_device *phydev)
 	struct jl_config_mode *mode = ctrl->op;
 
 	if(JL1XXX_LED_C_MACRO_MODE)
-		mode->_static = STATIC_C_MACRO;
+		mode->static_op = STATIC_C_MACRO;
 	else if(JL1XXX_LED_DEVICE_TREE_MODE)
-		mode->_static = STATIC_DEVICE_TREE;
+		mode->static_op = STATIC_DEVICE_TREE;
 	else
-		mode->_static = STATIC_NONE;
+		mode->static_op = STATIC_NONE;
 
 	if (JL1XXX_LED_ETHTOOL_MODE)
-		mode->_dynamic = DYNAMIC_NONE;
+		mode->dynamic_op = DYNAMIC_NONE;
 	else
-		mode->_dynamic = DYNAMIC_NONE;
+		mode->dynamic_op = DYNAMIC_NONE;
 
 	return 0;
 }
@@ -404,14 +404,14 @@ static int jl2xxx_fld_operation_args(struct phy_device *phydev)
 	struct jl_fld_ctrl *ctrl = priv->fld;
 	struct jl_config_mode *mode = ctrl->op;
 
-	if (mode->_static == STATIC_DEVICE_TREE)
+	if (mode->static_op == STATIC_DEVICE_TREE)
 		jl2xxx_dts_fld_cfg_get(phydev);
-	else if (mode->_static == STATIC_C_MACRO)
+	else if (mode->static_op == STATIC_C_MACRO)
 		jl2xxx_c_marcro_fld_cfg_get(phydev);
 	else
 		JLSEMI_PHY_MSG("jl2xxx fld static operation not support\n");
 
-	if (mode->_dynamic == DYNAMIC_ETHTOOL)
+	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
 		jl2xxx_ethtool_cfg_get(phydev);
 	else
 		JLSEMI_PHY_MSG("jl2xxx fld dynamic operation not support\n");
@@ -425,14 +425,14 @@ static int jl2xxx_led_operation_args(struct phy_device *phydev)
 	struct jl_led_ctrl *ctrl = priv->led;
 	struct jl_config_mode *mode = ctrl->op;
 
-	if (mode->_static == STATIC_DEVICE_TREE)
+	if (mode->static_op == STATIC_DEVICE_TREE)
 		jl2xxx_dts_led_cfg_get(phydev);
-	else if (mode->_static == STATIC_C_MACRO)
+	else if (mode->static_op == STATIC_C_MACRO)
 		jl2xxx_c_marcro_led_cfg_get(phydev);
 	else
 		JLSEMI_PHY_MSG("jl2xxx led static operation not support\n");
 
-	if (mode->_dynamic == DYNAMIC_ETHTOOL)
+	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
 		jl2xxx_ethtool_cfg_get(phydev);
 	else
 		JLSEMI_PHY_MSG("jl2xxx led dynamic operation not support\n");
@@ -446,14 +446,14 @@ static int jl1xxx_led_operation_args(struct phy_device *phydev)
 	struct jl_led_ctrl *ctrl = priv->led;
 	struct jl_config_mode *mode = ctrl->op;
 
-	if (mode->_static == STATIC_DEVICE_TREE)
+	if (mode->static_op == STATIC_DEVICE_TREE)
 		jl1xxx_dts_led_cfg_get(phydev);
-	else if (mode->_static == STATIC_C_MACRO)
+	else if (mode->static_op == STATIC_C_MACRO)
 		jl1xxx_c_marcro_led_cfg_get(phydev);
 	else
 		JLSEMI_PHY_MSG("jl1xxx led static operation not support\n");
 
-	if (mode->_dynamic == DYNAMIC_ETHTOOL)
+	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
 		jl1xxx_ethtool_cfg_get(phydev);
 	else
 		JLSEMI_PHY_MSG("jl1xxx led dynamic operation not support\n");

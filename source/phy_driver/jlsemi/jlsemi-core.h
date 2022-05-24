@@ -57,27 +57,27 @@
 #define JL2XXX_WOL_EN		BIT(6)
 #define JL2XXX_WOL_CTL_EN	BIT(15)
 
-#define LED_PERIOD_MASK		GENMASK(8, 15)
+#define LED_PERIOD_MASK		0xff00
 #define LEDPERIOD(n)		(n << 8) & LED_PERIOD_MASK
-#define LED_ON_MASK		GENMASK(0, 7)
+#define LED_ON_MASK		0x00ff
 #define LEDON(n)		(n << 0) & LED_ON_MASK
 
 /*************************************************************************/
 
 enum jl_static_op_mode {
-	STATIC_C_MACRO		= 0,
-	STATIC_DEVICE_TREE	= 1,
-	STATIC_NONE		= 2,
+	STATIC_NONE		= 0,
+	STATIC_C_MACRO		= 1,
+	STATIC_DEVICE_TREE	= 2,
 };
 
 enum jl_dynamic_op_mode {
-	DYNAMIC_ETHTOOL		= 0,
-	DYNAMIC_NONE		= 1,
+	DYNAMIC_NONE		= 0,
+	DYNAMIC_ETHTOOL		= 1,
 };
 
 struct jl_config_mode {
-	enum jl_static_op_mode _static;
-	enum jl_dynamic_op_mode _dynamic;
+	enum jl_static_op_mode static_op;
+	enum jl_dynamic_op_mode dynamic_op;
 };
 
 struct jl_led_ctrl {
