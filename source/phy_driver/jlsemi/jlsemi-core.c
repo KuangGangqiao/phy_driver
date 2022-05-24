@@ -334,7 +334,7 @@ static int jl2xxx_led_operation_mode(struct phy_device *phydev)
 		mode->static_op = STATIC_NONE;
 
 	if (JL2XXX_LED_ETHTOOL_MODE)
-		mode->dynamic_op = DYNAMIC_NONE;
+		mode->dynamic_op = DYNAMIC_ETHTOOL;
 	else
 		mode->dynamic_op = DYNAMIC_NONE;
 
@@ -376,7 +376,7 @@ static int jl1xxx_led_operation_mode(struct phy_device *phydev)
 		mode->static_op = STATIC_NONE;
 
 	if (JL1XXX_LED_ETHTOOL_MODE)
-		mode->dynamic_op = DYNAMIC_NONE;
+		mode->dynamic_op = DYNAMIC_ETHTOOL;
 	else
 		mode->dynamic_op = DYNAMIC_NONE;
 
