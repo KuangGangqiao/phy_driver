@@ -86,7 +86,7 @@
 
 
 /************************* JLSemi iteration code *************************/
-static int jl2xxx_led_ctrl_set(struct phy_device *phydev)
+static int jl2xxx_led_static_op_set(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
 	int err;
@@ -134,7 +134,7 @@ static int jl2xxx_led_ctrl_set(struct phy_device *phydev)
 	return 0;
 }
 
-int jl1xxx_led_ctrl_set(struct phy_device *phydev)
+static int jl1xxx_led_static_op_set(struct phy_device *phydev)
 {
 	struct jl1xxx_priv *priv = phydev->priv;
 	int err;
@@ -327,11 +327,13 @@ static int jl1xxx_c_marcro_led_cfg_get(struct phy_device *phydev)
 
 static int jl2xxx_ethtool_cfg_get(struct phy_device *phydev)
 {
+	/* Ethtool does not need to get the initialization configuration */
 	return 0;
 }
 
 static int jl1xxx_ethtool_cfg_get(struct phy_device *phydev)
 {
+	/* Ethtool does not need to get the initialization configuration */
 	return 0;
 }
 
@@ -493,25 +495,23 @@ int jl1xxx_operation_get(struct phy_device *phydev)
 
 int jl1xxx_static_op_init(struct phy_device *phydev)
 {
+	struct jl2xxx_priv *priv = phydev->priv;
 	int err;
 
-	err = jl1xxx_led_ctrl_set(phydev);
-	if (err < 0)
-		return err;
+	if (!(priv->led->enable & JL1XXX_LED_STATIC_OP_DIS)) {
+		err = jl1xxx_led_static_op_set(phydev);
+		if (err < 0)
+			return err;
+	}
 
 	return 0;
 }
 
 /* Get fast link down for jl2xxx */
-int jl2xxx_ethtool_get_fld(struct phy_device *phydev, u8 *msecs)
+int jl2xxx_fld_dynamic_op_get(struct phy_device *phydev, u8 *msecs)
 {
-	struct jl2xxx_priv *priv = phydev->priv;
 	int ret;
 	u16 val;
-
-	/* Ethtool get is dynamic mode exclusive function */
-	if (priv->fld->enable & JL2XXX_FLD_DYNAMIC_OP_DIS)
-		return 0;
 
 	jlsemi_write_page(phydev, JL2XXX_PAGE128);
 	ret = phy_read(phydev, JL2XXX_FLD_CTRL_REG);
@@ -546,15 +546,12 @@ int jl2xxx_ethtool_get_fld(struct phy_device *phydev, u8 *msecs)
 	return 0;
 }
 
-static int jl2xxx_fld_ctrl_set(struct phy_device *phydev)
+static int jl2xxx_fld_static_op_set(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
 	int err;
 
-	if (priv->fld->enable & JL2XXX_FLD_STATIC_OP_DIS)
-		return 0;
-
-	err = jl2xxx_ethtool_set_fld(phydev, &priv->fld->delay);
+	err = jl2xxx_fld_dynamic_op_set(phydev, &priv->fld->delay);
 	if (err < 0)
 		return err;
 
@@ -562,7 +559,7 @@ static int jl2xxx_fld_ctrl_set(struct phy_device *phydev)
 }
 
 /* Set fast link down for jl2xxx */
-int jl2xxx_ethtool_set_fld(struct phy_device *phydev, const u8 *msecs)
+int jl2xxx_fld_dynamic_op_set(struct phy_device *phydev, const u8 *msecs)
 {
 	u16 val;
 	int ret;
@@ -600,15 +597,20 @@ int jl2xxx_ethtool_set_fld(struct phy_device *phydev, const u8 *msecs)
 
 int jl2xxx_static_op_init(struct phy_device *phydev)
 {
+	struct jl2xxx_priv *priv = phydev->priv;
 	int err;
 
-	err = jl2xxx_led_ctrl_set(phydev);
-	if (err < 0)
-		return err;
+	if (!(priv->led->enable & JL2XXX_LED_STATIC_OP_DIS)) {
+		err = jl2xxx_led_static_op_set(phydev);
+		if (err < 0)
+			return err;
+	}
 
-	err = jl2xxx_fld_ctrl_set(phydev);
-	if (err < 0)
-		return err;
+	if (!(priv->fld->enable & JL2XXX_FLD_STATIC_OP_DIS)) {
+		err = jl2xxx_fld_static_op_set(phydev);
+		if (err < 0)
+			return err;
+	}
 
 	return 0;
 }

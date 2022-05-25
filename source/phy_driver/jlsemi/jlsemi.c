@@ -230,7 +230,7 @@ static int jl2xxx_get_tunable(struct phy_device *phydev,
 	switch (tuna->id) {
 	case ETHTOOL_PHY_FAST_LINK_DOWN:
 		if (!(priv->fld->enable & JL2XXX_FLD_DYNAMIC_OP_DIS))
-			return jl2xxx_ethtool_get_fld(phydev, data);
+			return jl2xxx_fld_dynamic_op_get(phydev, data);
 		else
 			return 0;
 	default:
@@ -248,7 +248,7 @@ static int jl2xxx_set_tunable(struct phy_device *phydev,
 	switch (tuna->id) {
 	case ETHTOOL_PHY_FAST_LINK_DOWN:
 		if (!(priv->fld->enable & JL2XXX_FLD_DYNAMIC_OP_DIS))
-			return jl2xxx_ethtool_set_fld(phydev, data);
+			return jl2xxx_fld_dynamic_op_set(phydev, data);
 		else
 			return 0;
 	default:
