@@ -91,37 +91,45 @@ static int jl2xxx_led_ctrl_set(struct phy_device *phydev)
 	struct jl2xxx_priv *priv = phydev->priv;
 	int err;
 
-	if (!priv->led->enable)
+	if (priv->led->enable & JL2XXX_LED_STATIC_OP_DIS)
 		return 0;
 
 	/* Set led mode */
-	err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE3332,
-				      JL2XXX_LED_CTRL_REG,
-				      JL2XXX_SUPP_LED_MODE,
-				      priv->led->mode);
-	if (err < 0)
-		return err;
+	if (priv->led->enable & JL2XXX_LED_MODE_EN) {
+		err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE3332,
+					      JL2XXX_LED_CTRL_REG,
+					      JL2XXX_SUPP_LED_MODE,
+					      priv->led->mode);
+		if (err < 0)
+			return err;
+	}
 	/* Set led period */
-	err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE4096,
-				      JL2XXX_LED_BLINK_REG,
-				      LED_PERIOD_MASK,
-				      LEDPERIOD(priv->led->global_period));
-	if (err < 0)
-		return err;
+	if (priv->led->enable & JL2XXX_LED_GLOABL_PERIOD_EN) {
+		err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE4096,
+					      JL2XXX_LED_BLINK_REG,
+					      LED_PERIOD_MASK,
+					      LEDPERIOD(priv->led->global_period));
+		if (err < 0)
+			return err;
+	}
 	/* Set led on time */
-	err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE4096,
-				      JL2XXX_LED_BLINK_REG,
-				      LED_ON_MASK,
-				      LEDON(priv->led->global_on));
-	if (err < 0)
-		return err;
+	if (priv->led->enable & JL2XXX_LED_GLOBAL_ON_EN) {
+		err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE4096,
+					      JL2XXX_LED_BLINK_REG,
+					      LED_ON_MASK,
+					      LEDON(priv->led->global_on));
+		if (err < 0)
+			return err;
+	}
 	/* Set led polarity */
-	err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE4096,
-				      JL2XXX_LED_POLARITY_REG,
-				      JL2XXX_SUPP_LED_POLARITY,
-				      priv->led->polarity);
-	if (err < 0)
-		return err;
+	if (priv->led->enable & JL2XXX_LED_POLARITY_EN) {
+		err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE4096,
+					      JL2XXX_LED_POLARITY_REG,
+					      JL2XXX_SUPP_LED_POLARITY,
+					      priv->led->polarity);
+		if (err < 0)
+			return err;
+	}
 
 	return 0;
 }
@@ -131,41 +139,48 @@ int jl1xxx_led_ctrl_set(struct phy_device *phydev)
 	struct jl1xxx_priv *priv = phydev->priv;
 	int err;
 
-	if (!priv->led->enable)
+	if (priv->led->enable & JL1XXX_LED_STATIC_OP_DIS)
 		return 0;
 
 	/* Enable LED operation */
 	jlsemi_set_bits(phydev, JL1XXX_PAGE7, JL1XXX_LED_REG, JL1XXX_LED_EN);
 
 	/* Set led mode */
-	err = jlsemi_modify_paged_reg(phydev, JL1XXX_PAGE129,
-				      JL1XXX_LED_MODE_REG,
-				      JL1XXX_SUPP_LED_MODE,
-				      priv->led->mode);
-	if (err < 0)
-		return err;
-
+	if (priv->led->enable & JL1XXX_LED_MODE_EN) {
+		err = jlsemi_modify_paged_reg(phydev, JL1XXX_PAGE129,
+					      JL1XXX_LED_MODE_REG,
+					      JL1XXX_SUPP_LED_MODE,
+					      priv->led->mode);
+		if (err < 0)
+			return err;
+	}
 	/* Set led period */
-	err = jlsemi_modify_paged_reg(phydev, JL1XXX_PAGE24,
-				      JL1XXX_LED_BLINK_REG,
-				      LED_PERIOD_MASK,
-				      LEDPERIOD(priv->led->global_period));
-	if (err < 0)
-		return err;
+	if (priv->led->enable & JL1XXX_LED_GLOABL_PERIOD_EN) {
+		err = jlsemi_modify_paged_reg(phydev, JL1XXX_PAGE24,
+					      JL1XXX_LED_BLINK_REG,
+					      LED_PERIOD_MASK,
+					      LEDPERIOD(priv->led->global_period));
+		if (err < 0)
+			return err;
+	}
 	/* Set led on time */
-	err = jlsemi_modify_paged_reg(phydev, JL1XXX_PAGE24,
-				      JL1XXX_LED_BLINK_REG,
-				      LED_ON_MASK,
-				      LEDON(priv->led->global_on));
-	if (err < 0)
-		return err;
+	if (priv->led->enable & JL1XXX_LED_GLOBAL_ON_EN) {
+		err = jlsemi_modify_paged_reg(phydev, JL1XXX_PAGE24,
+					      JL1XXX_LED_BLINK_REG,
+					      LED_ON_MASK,
+					      LEDON(priv->led->global_on));
+		if (err < 0)
+			return err;
+	}
 	/*Set led gpio output */
-	err = jlsemi_modify_paged_reg(phydev, JL1XXX_PAGE128,
-				      JL1XXX_LED_GPIO_REG,
-				      JL1XXX_SUPP_GPIO,
-				      priv->led->gpio_output);
-	if (err < 0)
-		return err;
+	if (priv->led->enable & JL1XXX_LED_GPIO_OUT_EN) {
+		err = jlsemi_modify_paged_reg(phydev, JL1XXX_PAGE128,
+					      JL1XXX_LED_GPIO_REG,
+					      JL1XXX_SUPP_GPIO,
+					      priv->led->gpio_output);
+		if (err < 0)
+			return err;
+	}
 
 	return 0;
 }
@@ -177,7 +192,7 @@ static int jl2xxx_dts_led_cfg_get(struct phy_device *phydev)
 	struct device_node *of_node = dev->of_node;
 	int err;
 
-	err = of_property_read_u8(of_node, "jl2xxx,led-enable",
+	err = of_property_read_u16(of_node, "jl2xxx,led-enable",
 				  &priv->led->enable);
 	if (err < 0)
 		return err;
@@ -212,13 +227,13 @@ static int jl2xxx_dts_fld_cfg_get(struct phy_device *phydev)
 	struct device_node *of_node = dev->of_node;
 	int err;
 
-	err = of_property_read_u8(of_node, "jl2xxx,fld-enable",
-				  &priv->fld->enable);
+	err = of_property_read_u16(of_node, "jl2xxx,fld-enable",
+				   &priv->fld->enable);
 	if (err < 0)
 		return err;
 
 	err = of_property_read_u8(of_node, "jl2xxx,fld-delay",
-				   &priv->fld->delay);
+				  &priv->fld->delay);
 	if (err < 0)
 		return err;
 
@@ -232,8 +247,8 @@ static int jl1xxx_dts_led_cfg_get(struct phy_device *phydev)
 	struct device_node *of_node = dev->of_node;
 	int err;
 
-	err = of_property_read_u8(of_node, "jl1xxx,led-enable",
-				  &priv->led->enable);
+	err = of_property_read_u16(of_node, "jl1xxx,led-enable",
+				   &priv->led->enable);
 	if (err < 0)
 		return err;
 
@@ -266,7 +281,7 @@ static int jl2xxx_c_marcro_led_cfg_get(struct phy_device *phydev)
 
 	/* Config LED */
 	struct jl_led_ctrl led_cfg = {
-		.enable		= LED_CTRL_EN,
+		.enable		= JL2XXX_LED_CTRL_EN,
 		.mode		= JL2XXX_CFG_LED_MODE,
 		.global_period	= JL2XXX_GLOBAL_PERIOD_MS,
 		.global_on	= JL2XXX_GLOBAL_ON_MS,
@@ -298,7 +313,7 @@ static int jl1xxx_c_marcro_led_cfg_get(struct phy_device *phydev)
 
 	/* Config LED */
 	struct jl_led_ctrl led_cfg = {
-		.enable		= LED_CTRL_EN,
+		.enable		= JL1XXX_LED_CTRL_EN,
 		.mode		= JL1XXX_CFG_LED_MODE,
 		.global_period	= JL1XXX_GLOBAL_PERIOD_MS,
 		.global_on	= JL1XXX_GLOBAL_ON_MS,
@@ -409,12 +424,12 @@ static int jl2xxx_fld_operation_args(struct phy_device *phydev)
 	else if (mode->static_op == STATIC_C_MACRO)
 		jl2xxx_c_marcro_fld_cfg_get(phydev);
 	else
-		JLSEMI_PHY_MSG("jl2xxx fld static operation not support\n");
+		priv->fld->enable |= JL2XXX_FLD_STATIC_OP_DIS;
 
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
 		jl2xxx_ethtool_cfg_get(phydev);
 	else
-		JLSEMI_PHY_MSG("jl2xxx fld dynamic operation not support\n");
+		priv->fld->enable |= JL2XXX_FLD_DYNAMIC_OP_DIS;
 
 	return 0;
 }
@@ -430,12 +445,12 @@ static int jl2xxx_led_operation_args(struct phy_device *phydev)
 	else if (mode->static_op == STATIC_C_MACRO)
 		jl2xxx_c_marcro_led_cfg_get(phydev);
 	else
-		JLSEMI_PHY_MSG("jl2xxx led static operation not support\n");
+		priv->led->enable |= JL2XXX_LED_STATIC_OP_DIS;
 
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
 		jl2xxx_ethtool_cfg_get(phydev);
 	else
-		JLSEMI_PHY_MSG("jl2xxx led dynamic operation not support\n");
+		priv->led->enable |= JL2XXX_LED_DYNAMIC_OP_DIS;
 
 	return 0;
 }
@@ -451,12 +466,12 @@ static int jl1xxx_led_operation_args(struct phy_device *phydev)
 	else if (mode->static_op == STATIC_C_MACRO)
 		jl1xxx_c_marcro_led_cfg_get(phydev);
 	else
-		JLSEMI_PHY_MSG("jl1xxx led static operation not support\n");
+		priv->led->enable |= JL1XXX_LED_STATIC_OP_DIS;
 
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
 		jl1xxx_ethtool_cfg_get(phydev);
 	else
-		JLSEMI_PHY_MSG("jl1xxx led dynamic operation not support\n");
+		priv->led->enable |= JL1XXX_LED_DYNAMIC_OP_DIS;
 
 	return 0;
 }
@@ -490,8 +505,13 @@ int jl1xxx_static_op_init(struct phy_device *phydev)
 /* Get fast link down for jl2xxx */
 int jl2xxx_ethtool_get_fld(struct phy_device *phydev, u8 *msecs)
 {
-	u16 val;
+	struct jl2xxx_priv *priv = phydev->priv;
 	int ret;
+	u16 val;
+
+	/* Ethtool get is dynamic mode exclusive function */
+	if (priv->fld->enable & JL2XXX_FLD_DYNAMIC_OP_DIS)
+		return 0;
 
 	jlsemi_write_page(phydev, JL2XXX_PAGE128);
 	ret = phy_read(phydev, JL2XXX_FLD_CTRL_REG);
@@ -525,12 +545,13 @@ int jl2xxx_ethtool_get_fld(struct phy_device *phydev, u8 *msecs)
 
 	return 0;
 }
+
 static int jl2xxx_fld_ctrl_set(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
 	int err;
 
-	if (!priv->fld->enable)
+	if (priv->fld->enable & JL2XXX_FLD_STATIC_OP_DIS)
 		return 0;
 
 	err = jl2xxx_ethtool_set_fld(phydev, &priv->fld->delay);

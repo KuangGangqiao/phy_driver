@@ -81,7 +81,7 @@ struct jl_config_mode {
 };
 
 struct jl_led_ctrl {
-	u8 enable;			/* LED control enable */
+	u16 enable;			/* LED control enable */
 	u16 mode;			/* LED work mode */
 	u16 global_period;		/* LED global twinkle period */
 	u16 global_on;			/* LED global twinkle hold on time */
@@ -91,7 +91,7 @@ struct jl_led_ctrl {
 };
 
 struct jl_fld_ctrl {
-	u8 enable;			/* Fast link down control enable */
+	u16 enable;			/* Fast link down control enable */
 	u8 delay;			/* Fast link down time */
 	struct jl_config_mode *op;	/* Fast link down config operation mode */
 };

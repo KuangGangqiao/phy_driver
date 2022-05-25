@@ -225,23 +225,37 @@ static int jl2xxx_set_wol(struct phy_device *phydev,
 static int jl2xxx_get_tunable(struct phy_device *phydev,
 			      struct ethtool_tunable *tuna, void *data)
 {
+	struct jl2xxx_priv *priv = phydev->priv;
+
 	switch (tuna->id) {
 	case ETHTOOL_PHY_FAST_LINK_DOWN:
-		return jl2xxx_ethtool_get_fld(phydev, data);
+		if (!(priv->fld->enable & JL2XXX_FLD_DYNAMIC_OP_DIS))
+			return jl2xxx_ethtool_get_fld(phydev, data);
+		else
+			return 0;
 	default:
 		return -EOPNOTSUPP;
 	}
+
+	return 0;
 }
 
 static int jl2xxx_set_tunable(struct phy_device *phydev,
 			      struct ethtool_tunable *tuna, const void *data)
 {
+	struct jl2xxx_priv *priv = phydev->priv;
+
 	switch (tuna->id) {
 	case ETHTOOL_PHY_FAST_LINK_DOWN:
-		return jl2xxx_ethtool_set_fld(phydev, data);
+		if (!(priv->fld->enable & JL2XXX_FLD_DYNAMIC_OP_DIS))
+			return jl2xxx_ethtool_set_fld(phydev, data);
+		else
+			return 0;
 	default:
 		return -EOPNOTSUPP;
 	}
+
+	return 0;
 }
 
 static void jl2xxx_remove(struct phy_device *phydev)

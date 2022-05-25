@@ -26,7 +26,7 @@ Example for jl1xxx:
 		reg = <0>;
 		led {
 			compatible		= "jl1xxx-led";
-			jl1xxx,led-enable	= <LED_CTRL_EN>;
+			jl1xxx,led-enable	= <JL1XXX_LED_CTRL_EN>;
 			jl1xxx,led-mode		= <JL1XXX_CFG_LED_MODE>;
 			jl1xxx,led-period	= <JL1XXX_GLOBAL_PERIOD_MS>;
 			jl1xxx,led-on		= <JL1xxx_GLOBAL_ON_MS>;
