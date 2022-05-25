@@ -72,10 +72,6 @@ static int jl1xxx_config_intr(struct phy_device *phydev)
 
 static int jl1xxx_read_status(struct phy_device *phydev)
 {
-	/* Keep automatic clear WOL event */
-	if (jl1xxx_wol_reveive_check(phydev))
-		jl1xxx_wol_clear(phydev);
-
 	return genphy_read_status(phydev);
 }
 
