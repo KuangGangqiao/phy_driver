@@ -334,6 +334,19 @@ static int jl2xxx_led_operation_mode(struct phy_device *phydev)
 	return 0;
 }
 
+static int jl2xxx_ethtool_cfg_get(struct phy_device *phydev)
+{
+	/* Ethtool does not need to get the initialization configuration */
+	return 0;
+}
+
+static int jl1xxx_ethtool_cfg_get(struct phy_device *phydev)
+{
+	/* Ethtool does not need to get the initialization configuration */
+	return 0;
+}
+
+
 static int jl1xxx_led_operation_args(struct phy_device *phydev)
 {
 	struct jl1xxx_priv *priv = phydev->priv;
@@ -409,18 +422,6 @@ static int jl2xxx_c_marcro_fld_cfg_get(struct phy_device *phydev)
 
 	priv->fld = &fld_cfg;
 
-	return 0;
-}
-
-static int jl2xxx_ethtool_cfg_get(struct phy_device *phydev)
-{
-	/* Ethtool does not need to get the initialization configuration */
-	return 0;
-}
-
-static int jl1xxx_ethtool_cfg_get(struct phy_device *phydev)
-{
-	/* Ethtool does not need to get the initialization configuration */
 	return 0;
 }
 
@@ -765,9 +766,9 @@ int jl2xxx_enable_wol(struct phy_device *phydev, bool enable)
 	return 0;
 }
 
-int jl2xxx_setup_wol_high_polarity(struct phy_device *phydev, bool high)
+int jl2xxx_setup_wol_active_low_polarity(struct phy_device *phydev, bool low)
 {
-	if (high)
+	if (low)
 		jlsemi_set_bits(phydev, JL2XXX_WOL_STAS_PAGE,
 				JL2XXX_WOL_STAS_REG, JL2XXX_WOL_POLARITY);
 	else

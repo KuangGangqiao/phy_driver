@@ -151,7 +151,7 @@ int jl2xxx_config_phy_info(struct phy_device *phydev,
 
 int jl2xxx_enable_wol(struct phy_device *phydev, bool enable);
 
-int jl2xxx_setup_wol_high_polarity(struct phy_device *phydev, bool high);
+int jl2xxx_setup_wol_active_low_polarity(struct phy_device *phydev, bool low);
 
 /********************** Convenience function for phy **********************/
 

@@ -198,7 +198,7 @@ static int jl2xxx_set_wol(struct phy_device *phydev,
 		if (err < 0)
 			return err;
 
-		err = jl2xxx_setup_wol_high_polarity(phydev, true);
+		err = jl2xxx_setup_wol_active_low_polarity(phydev, true);
 		if (err < 0)
 			return err;
 
@@ -210,7 +210,7 @@ static int jl2xxx_set_wol(struct phy_device *phydev,
 		if (err < 0)
 			return err;
 
-		err = jl2xxx_setup_wol_high_polarity(phydev, true);
+		err = jl2xxx_setup_wol_active_low_polarity(phydev, true);
 		if (err < 0)
 			return err;
 
