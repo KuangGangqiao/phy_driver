@@ -72,6 +72,10 @@ static int jl1xxx_config_intr(struct phy_device *phydev)
 
 static int jl1xxx_read_status(struct phy_device *phydev)
 {
+	/* Keep automatic clear WOL event */
+	if (jl1xxx_wol_reveive_check(phydev))
+		jl1xxx_wol_clear(phydev);
+
 	return genphy_read_status(phydev);
 }
 
@@ -81,6 +85,43 @@ static void jl1xxx_remove(struct phy_device *phydev)
 
 	if (priv)
 		kfree(priv);
+}
+
+static void jl1xxx_get_wol(struct phy_device *phydev,
+			   struct ethtool_wolinfo *wol)
+{
+	int wol_en;
+
+	wol->supported = WAKE_MAGIC;
+	wol->wolopts = 0;
+
+	wol_en = jlsemi_fetch_bit(phydev, JL1XXX_PAGE129,
+				  JL1XXX_WOL_CTRL_REG, JL1XXX_WOL_DIS);
+
+	if (!wol_en)
+		wol->wolopts |= WAKE_MAGIC;
+}
+
+static int jl1xxx_set_wol(struct phy_device *phydev,
+			  struct ethtool_wolinfo *wol)
+{
+	int err;
+
+	if (wol->wolopts & WAKE_MAGIC) {
+		err = jl1xxx_wol_enable(phydev, true);
+		if (err < 0)
+			return err;
+
+		err = jl1xxx_wol_clear(phydev);
+		if (err < 0)
+			return err;
+
+		err = jl1xxx_wol_store_mac_addr(phydev);
+		if (err < 0)
+			return err;
+	}
+
+	return 0;
 }
 
 static int jl1xxx_suspend(struct phy_device *phydev)
@@ -280,6 +321,8 @@ static struct phy_driver jlsemi_drivers[] = {
 		.read_status	= jl1xxx_read_status,
 		.config_init    = jl1xxx_config_init,
 		.remove		= jl1xxx_remove,
+		.get_wol	= jl1xxx_get_wol,
+		.set_wol	= jl1xxx_set_wol,
 		.suspend        = jl1xxx_suspend,
 		.resume         = jl1xxx_resume,
 	},
@@ -303,7 +346,6 @@ static struct phy_driver jlsemi_drivers[] = {
 		.set_wol	= jl2xxx_set_wol,
 		.get_tunable	= jl2xxx_get_tunable,
 		.set_tunable	= jl2xxx_set_tunable,
-
 	},
 };
 

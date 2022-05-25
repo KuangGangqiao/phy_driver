@@ -22,14 +22,17 @@
 #define JL1XXX_LED_REG		19
 #define JL1XXX_LED_EN		BIT(3)
 
-#define JL1XXX_PAGE129		129
-#define JL1XXX_LED_MODE_REG	24
+#define JL1XXX_PAGE7		7
+#define JL1XXX_RMII_CTRL_REG	16
+#define JL1XXX_RMII_OUT		BIT(12)
+#define JL1XXX_RMII_MODE	BIT(3)
 
 #define JL1XXX_PAGE24		24
 #define JL1XXX_LED_BLINK_REG	25
 
 #define JL1XXX_PAGE128		128
 #define JL1XXX_LED_GPIO_REG	29
+#define JL1XXX_WOL_CTRL_REG	28
 
 #define JL2XXX_PAGE3332		3332
 #define JL2XXX_LED_CTRL_REG	16
@@ -551,6 +554,88 @@ int jl2xxx_fld_dynamic_op_set(struct phy_device *phydev, const u8 *msecs)
 			      JL2XXX_FLD_EN);
 	if (ret < 0)
 		return ret;
+
+	return 0;
+}
+
+int jl1xxx_wol_cfg_rmii(struct phy_device *phydev)
+{
+	int err;
+	/* WOL Function should be in RMII Mode, the rmii
+	 * clock direction should be output */
+	err = jlsemi_modify_paged_reg(phydev, JL1XXX_PAGE7,
+				      JL1XXX_RMII_CTRL_REG,
+				      JL1XXX_RMII_OUT,
+				      JL1XXX_RMII_MODE);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
+int jl1xxx_wol_clear(struct phy_device *phydev)
+{
+	jlsemi_set_bits(phydev, JL1XXX_PAGE129,
+			JL1XXX_WOL_CTRL_REG, JL1XXX_WOL_CLEAR);
+
+	jlsemi_clear_bits(phydev, JL1XXX_PAGE129,
+			  JL1XXX_WOL_CTRL_REG, JL1XXX_WOL_CLEAR);
+
+	return 0;
+}
+
+bool jl1xxx_wol_reveive_check(struct phy_device *phydev)
+{
+	if (jlsemi_fetch_bit(phydev, JL1XXX_PAGE129,
+			     JL1XXX_WOL_CTRL_REG, JL1xxx_WOL_RECEIVE))
+		return true;
+	else
+		return false;
+
+}
+
+int jl1xxx_wol_enable(struct phy_device *phydev, bool enable)
+{
+	if (enable)
+		jlsemi_clear_bits(phydev, JL1XXX_PAGE129,
+				  JL1XXX_WOL_CTRL_REG, JL1XXX_WOL_DIS);
+	else
+		jlsemi_set_bits(phydev, JL1XXX_PAGE129,
+				JL1XXX_WOL_CTRL_REG, JL1XXX_WOL_DIS);
+
+	return 0;
+}
+int jl1xxx_wol_store_mac_addr(struct phy_device *phydev)
+{
+	int err;
+
+	jlsemi_write_page(phydev, JL1XXX_PAGE129);
+
+	/* Store the device address for the magic packet */
+	err = phy_write(phydev, JL1XXX_MAC_ADDR2_REG,
+			((ADDR8_HIGH_TO_LOW(
+			  phydev->attached_dev->dev_addr[0]) << 8) |
+			  ADDR8_HIGH_TO_LOW(
+			  phydev->attached_dev->dev_addr[1])));
+	if (err < 0)
+		return err;
+	err = phy_write(phydev, JL1XXX_MAC_ADDR1_REG,
+			((ADDR8_HIGH_TO_LOW(
+			  phydev->attached_dev->dev_addr[2]) << 8) |
+			  ADDR8_HIGH_TO_LOW(
+			  phydev->attached_dev->dev_addr[3])));
+	if (err < 0)
+		return err;
+	err = phy_write(phydev, JL1XXX_MAC_ADDR0_REG,
+			((ADDR8_HIGH_TO_LOW(
+			  phydev->attached_dev->dev_addr[4]) << 8) |
+			  ADDR8_HIGH_TO_LOW(
+			  phydev->attached_dev->dev_addr[5])));
+	if (err < 0)
+		return err;
+
+	/* change page to 0 */
+	jlsemi_write_page(phydev, JL1XXX_PAGE0);
 
 	return 0;
 }

@@ -25,6 +25,17 @@
 #define JL2XXX_PHY_ID		0x937c4032
 #define JLSEMI_PHY_ID_MASK	0xfffffff0
 
+#define JL1XXX_PAGE129		129
+#define JL1XXX_LED_MODE_REG	24
+#define JL1XXX_MAC_ADDR0_REG	25
+#define JL1XXX_MAC_ADDR1_REG	26
+#define JL1XXX_MAC_ADDR2_REG	27
+#define JL1XXX_WOL_CTRL_REG	28
+#define JL1XXX_WOL_DIS		BIT(15)
+#define JL1XXX_WOL_CLEAR	BIT(1)
+#define JL1xxx_WOL_RECEIVE	BIT(0)
+#define ADDR8_HIGH_TO_LOW(n)	((n >> 4) | (n << 4))
+
 #define JL2XXX_RGMII_CTRL_PAGE	0x00ab
 #define JL2XXX_RGMII_CTRL_REG	0x0011
 #define JL2XXX_RGMII_TX_RSTN	BIT(14)
@@ -99,12 +110,14 @@ struct jl_fld_ctrl {
 struct jl1xxx_priv {
 	struct jl_led_ctrl *led;
 	bool static_inited;
+	u16 wol_en;
 };
 
 struct jl2xxx_priv {
 	struct jl_led_ctrl *led;
 	struct jl_fld_ctrl *fld;
 	bool static_inited;
+	u16 wol_en;
 	u16 rx_delay;			/* Rgmii rx delay */
 	u16 tx_delay;			/* Rgmii tx delay */
 	u16 clk_125m_en;
@@ -118,6 +131,16 @@ struct jl2xxx_priv {
 
 
 /************************* JLSemi iteration code *************************/
+int jl1xxx_wol_cfg_rmii(struct phy_device *phydev);
+
+int jl1xxx_wol_clear(struct phy_device *phydev);
+
+bool jl1xxx_wol_reveive_check(struct phy_device *phydev);
+
+int jl1xxx_wol_enable(struct phy_device *phydev, bool enable);
+
+int jl1xxx_wol_store_mac_addr(struct phy_device *phydev);
+
 int jl2xxx_fld_dynamic_op_get(struct phy_device *phydev, u8 *msecs);
 
 int jl2xxx_fld_dynamic_op_set(struct phy_device *phydev, const u8 *msecs);
