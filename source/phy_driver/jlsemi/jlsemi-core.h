@@ -25,6 +25,20 @@
 #define JL2XXX_PHY_ID		0x937c4032
 #define JLSEMI_PHY_ID_MASK	0xfffffff0
 
+#define JL1XXX_PAGE0		0
+#define JL1XXX_PAGE7		7
+#define JL1XXX_INTR_REG		19
+#define JL1XXX_INTR_LINK	BIT(13)
+#define JL1XXX_INTR_AN_ERR	BIT(11)
+#define JL1XXX_LED_REG		19
+#define JL1XXX_LED_EN		BIT(3)
+#define JL1XXX_INTR_STATUS_REG	30
+
+#define JL1XXX_PAGE7		7
+#define JL1XXX_RMII_CTRL_REG	16
+#define JL1XXX_RMII_OUT		BIT(12)
+#define JL1XXX_RMII_MODE	BIT(3)
+
 #define JL1XXX_PAGE129		129
 #define JL1XXX_LED_MODE_REG	24
 #define JL1XXX_MAC_ADDR0_REG	25
@@ -67,6 +81,24 @@
 #define JL2XXX_WOL_POLARITY	BIT(14)
 #define JL2XXX_WOL_EN		BIT(6)
 #define JL2XXX_WOL_CTL_EN	BIT(15)
+
+#define JL2XXX_PAGE2626		2626
+#define JL2XXX_INTR_CTL_REG	18
+#define JL2XXX_INTR_LINK_CHANGE	BIT(4)
+#define JL2XXX_INTR_AN_COMPLETE	BIT(3)
+#define JL2XXX_INTR_AN_PAGE	BIT(2)
+#define JL2XXX_INTR_AN_ERR	BIT(0)
+
+#define JL2XXX_PAGE2627		2627
+#define JL2XXX_INTR_STATUS_REG	29
+
+#define JL2XXX_PAGE158		158
+#define JL2XXX_INTR_PIN_REG	16
+#define JL2XXX_INTR_PIN_EN	BIT(14)
+
+#define JL2XXX_PAGE160		160
+#define JL2XXX_PIN_EN_REG	21
+#define JL2XXX_PIN_OUTPUT	BIT(11)
 
 #define LED_PERIOD_MASK		0xff00
 #define LEDPERIOD(n)		(n << 8) & LED_PERIOD_MASK
@@ -112,9 +144,15 @@ struct jl_wol_ctrl {
 	struct jl_config_mode *op;
 };
 
+struct jl_intr_ctrl {
+	u16 enable;
+	struct jl_config_mode *op;
+};
+
 struct jl1xxx_priv {
 	struct jl_led_ctrl *led;
 	struct jl_wol_ctrl *wol;
+	struct jl_intr_ctrl *intr;
 	bool static_inited;
 };
 
@@ -122,6 +160,7 @@ struct jl2xxx_priv {
 	struct jl_led_ctrl *led;
 	struct jl_fld_ctrl *fld;
 	struct jl_wol_ctrl *wol;
+	struct jl_intr_ctrl *intr;
 	bool static_inited;
 	u16 rx_delay;			/* Rgmii rx delay */
 	u16 tx_delay;			/* Rgmii tx delay */
@@ -136,6 +175,14 @@ struct jl2xxx_priv {
 
 
 /************************* JLSemi iteration code *************************/
+int jl2xxx_intr_ack_event(struct phy_device *phydev);
+
+int jl2xxx_intr_static_op_set(struct phy_device *phydev);
+
+int jl1xxx_intr_ack_event(struct phy_device *phydev);
+
+int jl1xxx_intr_static_op_set(struct phy_device *phydev);
+
 int jl2xxx_wol_dynamic_op_get(struct phy_device *phydev);
 
 int jl2xxx_wol_dynamic_op_set(struct phy_device *phydev);

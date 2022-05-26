@@ -62,11 +62,27 @@ static int jl1xxx_config_init(struct phy_device *phydev)
 
 static int jl1xxx_ack_interrupt(struct phy_device *phydev)
 {
+	int err;
+
+	err = jl1xxx_intr_ack_event(phydev);
+	if (err < 0)
+		return err;
+
 	return 0;
 }
 
 static int jl1xxx_config_intr(struct phy_device *phydev)
 {
+	int err;
+
+	err = jl1xxx_ack_interrupt(phydev);
+	if (err < 0)
+		return err;
+
+	err = jl1xxx_intr_static_op_set(phydev);
+	if (err < 0)
+		return err;
+
 	return 0;
 }
 
@@ -175,11 +191,27 @@ static int jl2xxx_config_init(struct phy_device *phydev)
 
 static int jl2xxx_ack_interrupt(struct phy_device *phydev)
 {
+	int err;
+
+	err = jl2xxx_intr_ack_event(phydev);
+	if (err < 0)
+		return err;
+
 	return 0;
 }
 
 static int jl2xxx_config_intr(struct phy_device *phydev)
 {
+	int err;
+
+	err = jl2xxx_ack_interrupt(phydev);
+	if (err < 0)
+		return err;
+
+	err = jl2xxx_intr_static_op_set(phydev);
+	if (err < 0)
+		return err;
+
 	return 0;
 }
 

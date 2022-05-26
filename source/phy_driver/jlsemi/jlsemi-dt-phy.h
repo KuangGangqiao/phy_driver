@@ -77,6 +77,21 @@
 #define JL1XXX_WOL_CTRL_EN	(JL1XXX_WOL_STATIC_OP_DIS | \
 				 JL1XXX_WOL_DYNAMIC_OP_DIS)
 
+/* PHY peration mode select */
+#define JL1XXX_INTR_C_MACRO_MODE	true
+
+#define JL1XXX_INTR_DEVICE_TREE_MODE	true
+
+#define JL1XXX_INTR_ETHTOOL_MODE	true
+
+#define JL1XXX_INTR_STATIC_OP_DIS	(1 << 0)
+#define JL1XXX_INTR_DYNAMIC_OP_DIS	(1 << 1)
+#define JL1XXX_INTR_LINK_CHANGE_EN	(1 << 2)
+#define JL1XXX_INTR_AN_ERR_EN		(1 << 3)
+
+#define JL1XXX_INTR_CTRL_EN	(JL1XXX_WOL_STATIC_OP_DIS | \
+				 JL1XXX_INTR_LINK_CHANGE_EN)
+
 /**********************************jl2xxx*********************************/
 #define JL2XXX_LED0_LINK10		(1 << 0)
 #define JL2XXX_LED0_LINK100		(1 << 1)
@@ -160,6 +175,23 @@
 
 #define JL2XXX_WOL_CTRL_EN	(JL2XXX_WOL_STATIC_OP_DIS | \
 				 JL2XXX_WOL_DYNAMIC_OP_DIS)
+
+/* PHY peration mode select */
+#define JL2XXX_INTR_C_MACRO_MODE	true
+
+#define JL2XXX_INTR_DEVICE_TREE_MODE	true
+
+#define JL2XXX_INTR_ETHTOOL_MODE	true
+
+#define JL2XXX_INTR_STATIC_OP_DIS	(1 << 0)
+#define JL2XXX_INTR_DYNAMIC_OP_DIS	(1 << 1)
+#define JL2XXX_INTR_LINK_CHANGE_EN	(1 << 2)
+#define JL2XXX_INTR_AN_ERR_EN		(1 << 3)
+#define JL2XXX_INTR_AN_COMPLETE_EN	(1 << 4)
+#define JL2XXX_INTR_AN_PAGE_RECE	(1 << 5)
+
+#define JL2XXX_INTR_CTRL_EN	(JL2XXX_WOL_STATIC_OP_DIS | \
+				 JL2XXX_INTR_LINK_CHANGE_EN)
 
 #endif
 
