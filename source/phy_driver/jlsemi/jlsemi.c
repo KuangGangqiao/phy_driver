@@ -36,7 +36,7 @@ static int jl1xxx_probe(struct phy_device *phydev)
 	/* Select operation mode */
 	jl1xxx_operation_mode_select(phydev);
 
-	err = jl1xxx_operation_get(phydev);
+	err = jl1xxx_operation_args_get(phydev);
 	if (err < 0)
 		return err;
 
@@ -149,7 +149,7 @@ static int jl2xxx_probe(struct phy_device *phydev)
 	/* Select operation mode */
 	jl2xxx_operation_mode_select(phydev);
 
-	err = jl2xxx_operation_get(phydev);
+	err = jl2xxx_operation_args_get(phydev);
 	if (err < 0)
 		return err;
 

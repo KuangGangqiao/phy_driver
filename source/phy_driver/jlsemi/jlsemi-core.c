@@ -948,7 +948,7 @@ int jl2xxx_operation_mode_select(struct phy_device *phydev)
 	return 0;
 }
 
-int jl1xxx_operation_get(struct phy_device *phydev)
+int jl1xxx_operation_args_get(struct phy_device *phydev)
 {
 	jl1xxx_led_operation_args(phydev);
 	jl1xxx_wol_operation_args(phydev);
@@ -956,7 +956,7 @@ int jl1xxx_operation_get(struct phy_device *phydev)
 	return 0;
 }
 
-int jl2xxx_operation_get(struct phy_device *phydev)
+int jl2xxx_operation_args_get(struct phy_device *phydev)
 {
 	jl2xxx_led_operation_args(phydev);
 	jl2xxx_fld_operation_args(phydev);
