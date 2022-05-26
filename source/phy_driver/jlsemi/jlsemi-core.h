@@ -107,17 +107,22 @@ struct jl_fld_ctrl {
 	struct jl_config_mode *op;	/* Fast link down config operation mode */
 };
 
+struct jl_wol_ctrl {
+	u16 enable;
+	struct jl_config_mode *op;
+};
+
 struct jl1xxx_priv {
 	struct jl_led_ctrl *led;
+	struct jl_wol_ctrl *wol;
 	bool static_inited;
-	u16 wol_en;
 };
 
 struct jl2xxx_priv {
 	struct jl_led_ctrl *led;
 	struct jl_fld_ctrl *fld;
+	struct jl_wol_ctrl *wol;
 	bool static_inited;
-	u16 wol_en;
 	u16 rx_delay;			/* Rgmii rx delay */
 	u16 tx_delay;			/* Rgmii tx delay */
 	u16 clk_125m_en;
@@ -131,15 +136,13 @@ struct jl2xxx_priv {
 
 
 /************************* JLSemi iteration code *************************/
-int jl1xxx_wol_cfg_rmii(struct phy_device *phydev);
+int jl2xxx_wol_dynamic_op_get(struct phy_device *phydev);
 
-int jl1xxx_wol_clear(struct phy_device *phydev);
+int jl2xxx_wol_dynamic_op_set(struct phy_device *phydev);
 
-bool jl1xxx_wol_reveive_check(struct phy_device *phydev);
+int jl1xxx_wol_dynamic_op_get(struct phy_device *phydev);
 
-int jl1xxx_wol_enable(struct phy_device *phydev, bool enable);
-
-int jl1xxx_wol_store_mac_addr(struct phy_device *phydev);
+int jl1xxx_wol_dynamic_op_set(struct phy_device *phydev);
 
 int jl2xxx_fld_dynamic_op_get(struct phy_device *phydev, u8 *msecs);
 
@@ -163,18 +166,10 @@ int jlsemi_aneg_done(struct phy_device *phydev);
 
 int jl2xxx_pre_init(struct phy_device *phydev);
 
-int jl2xxx_clear_wol_event(struct phy_device *phydev);
-
-int jl2xxx_store_mac_addr(struct phy_device *phydev);
-
 int jl2xxx_software_version(struct phy_device *phydev);
 
 int jl2xxx_config_phy_info(struct phy_device *phydev,
 			   struct jl2xxx_priv *jl2xxx);
-
-int jl2xxx_enable_wol(struct phy_device *phydev, bool enable);
-
-int jl2xxx_setup_wol_active_low_polarity(struct phy_device *phydev, bool low);
 
 /********************** Convenience function for phy **********************/
 

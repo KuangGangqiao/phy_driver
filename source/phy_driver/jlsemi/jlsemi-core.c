@@ -223,6 +223,21 @@ static int jl1xxx_dts_led_cfg_get(struct phy_device *phydev)
 	return 0;
 }
 
+static int jl1xxx_dts_wol_cfg_get(struct phy_device *phydev)
+{
+	struct jl1xxx_priv *priv = phydev->priv;
+	struct device *dev = &phydev->mdio.dev;
+	struct device_node *of_node = dev->of_node;
+	int err;
+
+	err = of_property_read_u16(of_node, "jl1xxx,wol-enable",
+				   &priv->wol->enable);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
 static int jl2xxx_dts_led_cfg_get(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
@@ -276,6 +291,20 @@ static int jl1xxx_c_marcro_led_cfg_get(struct phy_device *phydev)
 	return 0;
 }
 
+static int jl1xxx_c_marcro_wol_cfg_get(struct phy_device *phydev)
+{
+	struct jl1xxx_priv *priv = phydev->priv;
+
+	/* Config WOL */
+	struct jl_wol_ctrl wol_cfg = {
+		.enable		= JL1XXX_WOL_CTRL_EN,
+	};
+
+	priv->wol = &wol_cfg;
+
+	return 0;
+}
+
 static int jl2xxx_c_marcro_led_cfg_get(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
@@ -315,6 +344,26 @@ static int jl1xxx_led_operation_mode(struct phy_device *phydev)
 	return 0;
 }
 
+static int jl1xxx_wol_operation_mode(struct phy_device *phydev)
+{
+	struct jl1xxx_priv *priv = phydev->priv;
+	struct jl_wol_ctrl *ctrl = priv->wol;
+	struct jl_config_mode *mode = ctrl->op;
+
+	if (JL1XXX_WOL_C_MACRO_MODE)
+		mode->static_op = STATIC_C_MACRO;
+	else if (JL1XXX_WOL_DEVICE_TREE_MODE)
+		mode->static_op = STATIC_DEVICE_TREE;
+	else
+		mode->static_op = STATIC_NONE;
+
+	if (JL1XXX_WOL_ETHTOOL_MODE)
+		mode->dynamic_op = DYNAMIC_ETHTOOL;
+	else
+		mode->dynamic_op = DYNAMIC_NONE;
+
+	return 0;
+}
 
 static int jl2xxx_led_operation_mode(struct phy_device *phydev)
 {
@@ -349,6 +398,26 @@ static int jl1xxx_ethtool_cfg_get(struct phy_device *phydev)
 	return 0;
 }
 
+static int jl1xxx_wol_operation_args(struct phy_device *phydev)
+{
+	struct jl1xxx_priv *priv = phydev->priv;
+	struct jl_wol_ctrl *ctrl = priv->wol;
+	struct jl_config_mode *mode = ctrl->op;
+
+	if (mode->static_op == STATIC_DEVICE_TREE)
+		jl1xxx_dts_wol_cfg_get(phydev);
+	else if (mode->static_op == STATIC_C_MACRO)
+		jl1xxx_c_marcro_wol_cfg_get(phydev);
+	else
+		priv->wol->enable |= JL1XXX_WOL_STATIC_OP_DIS;
+
+	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
+		jl1xxx_ethtool_cfg_get(phydev);
+	else
+		priv->wol->enable |= JL1XXX_WOL_DYNAMIC_OP_DIS;
+
+	return 0;
+}
 
 static int jl1xxx_led_operation_args(struct phy_device *phydev)
 {
@@ -413,6 +482,21 @@ static int jl2xxx_dts_fld_cfg_get(struct phy_device *phydev)
 	return 0;
 }
 
+static int jl2xxx_dts_wol_cfg_get(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	struct device *dev = &phydev->mdio.dev;
+	struct device_node *of_node = dev->of_node;
+	int err;
+
+	err = of_property_read_u16(of_node, "jl2xxx,wol-enable",
+				   &priv->wol->enable);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
 static int jl2xxx_c_marcro_fld_cfg_get(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
@@ -424,6 +508,19 @@ static int jl2xxx_c_marcro_fld_cfg_get(struct phy_device *phydev)
 	};
 
 	priv->fld = &fld_cfg;
+
+	return 0;
+}
+
+static int jl2xxx_c_marcro_wol_cfg_get(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+
+	struct jl_wol_ctrl wol_cfg = {
+		.enable		= JL2XXX_WOL_CTRL_EN,
+	};
+
+	priv->wol = &wol_cfg;
 
 	return 0;
 }
@@ -442,6 +539,27 @@ static int jl2xxx_fld_operation_mode(struct phy_device *phydev)
 		mode->static_op = STATIC_NONE;
 
 	if (JL2XXX_FLD_ETHTOOL_MODE)
+		mode->dynamic_op = DYNAMIC_ETHTOOL;
+	else
+		mode->dynamic_op = DYNAMIC_NONE;
+
+	return 0;
+}
+
+static int jl2xxx_wol_operation_mode(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	struct jl_wol_ctrl *ctrl = priv->wol;
+	struct jl_config_mode *mode = ctrl->op;
+
+	if (JL2XXX_WOL_C_MACRO_MODE)
+		mode->static_op = STATIC_C_MACRO;
+	else if (JL2XXX_WOL_DEVICE_TREE_MODE)
+		mode->static_op = STATIC_DEVICE_TREE;
+	else
+		mode->static_op = STATIC_NONE;
+
+	if (JL2XXX_WOL_ETHTOOL_MODE)
 		mode->dynamic_op = DYNAMIC_ETHTOOL;
 	else
 		mode->dynamic_op = DYNAMIC_NONE;
@@ -470,6 +588,27 @@ static int jl2xxx_fld_operation_args(struct phy_device *phydev)
 	return 0;
 }
 
+static int jl2xxx_wol_operation_args(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	struct jl_wol_ctrl *ctrl = priv->wol;
+	struct jl_config_mode *mode = ctrl->op;
+
+	if (mode->static_op == STATIC_DEVICE_TREE)
+		jl2xxx_dts_wol_cfg_get(phydev);
+	else if (mode->static_op == STATIC_C_MACRO)
+		jl2xxx_c_marcro_wol_cfg_get(phydev);
+	else
+		priv->fld->enable |= JL2XXX_FLD_STATIC_OP_DIS;
+
+	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
+		jl2xxx_ethtool_cfg_get(phydev);
+	else
+		priv->fld->enable |= JL2XXX_FLD_DYNAMIC_OP_DIS;
+
+	return 0;
+}
+
 static int jl2xxx_fld_static_op_set(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
@@ -478,6 +617,155 @@ static int jl2xxx_fld_static_op_set(struct phy_device *phydev)
 	err = jl2xxx_fld_dynamic_op_set(phydev, &priv->fld->delay);
 	if (err < 0)
 		return err;
+
+	return 0;
+}
+
+static int jl1xxx_wol_cfg_rmii(struct phy_device *phydev)
+{
+	int err;
+	/* WOL Function should be in RMII Mode, the rmii
+	 * clock direction should be output */
+	err = jlsemi_modify_paged_reg(phydev, JL1XXX_PAGE7,
+				      JL1XXX_RMII_CTRL_REG,
+				      JL1XXX_RMII_OUT,
+				      JL1XXX_RMII_MODE);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
+static int jl1xxx_wol_clear(struct phy_device *phydev)
+{
+	jlsemi_set_bits(phydev, JL1XXX_PAGE129,
+			JL1XXX_WOL_CTRL_REG, JL1XXX_WOL_CLEAR);
+
+	jlsemi_clear_bits(phydev, JL1XXX_PAGE129,
+			  JL1XXX_WOL_CTRL_REG, JL1XXX_WOL_CLEAR);
+
+	return 0;
+}
+
+static bool jl1xxx_wol_receive_check(struct phy_device *phydev)
+{
+	if (jlsemi_fetch_bit(phydev, JL1XXX_PAGE129,
+			     JL1XXX_WOL_CTRL_REG, JL1xxx_WOL_RECEIVE))
+		return true;
+	else
+		return false;
+
+}
+
+static int jl1xxx_wol_enable(struct phy_device *phydev, bool enable)
+{
+	if (enable)
+		jlsemi_clear_bits(phydev, JL1XXX_PAGE129,
+				  JL1XXX_WOL_CTRL_REG, JL1XXX_WOL_DIS);
+	else
+		jlsemi_set_bits(phydev, JL1XXX_PAGE129,
+				JL1XXX_WOL_CTRL_REG, JL1XXX_WOL_DIS);
+
+	return 0;
+}
+static int jl1xxx_wol_store_mac_addr(struct phy_device *phydev)
+{
+	int err;
+
+	jlsemi_write_page(phydev, JL1XXX_PAGE129);
+
+	/* Store the device address for the magic packet */
+	err = phy_write(phydev, JL1XXX_MAC_ADDR2_REG,
+			((ADDR8_HIGH_TO_LOW(
+			  phydev->attached_dev->dev_addr[0]) << 8) |
+			  ADDR8_HIGH_TO_LOW(
+			  phydev->attached_dev->dev_addr[1])));
+	if (err < 0)
+		return err;
+	err = phy_write(phydev, JL1XXX_MAC_ADDR1_REG,
+			((ADDR8_HIGH_TO_LOW(
+			  phydev->attached_dev->dev_addr[2]) << 8) |
+			  ADDR8_HIGH_TO_LOW(
+			  phydev->attached_dev->dev_addr[3])));
+	if (err < 0)
+		return err;
+	err = phy_write(phydev, JL1XXX_MAC_ADDR0_REG,
+			((ADDR8_HIGH_TO_LOW(
+			  phydev->attached_dev->dev_addr[4]) << 8) |
+			  ADDR8_HIGH_TO_LOW(
+			  phydev->attached_dev->dev_addr[5])));
+	if (err < 0)
+		return err;
+
+	/* change page to 0 */
+	jlsemi_write_page(phydev, JL1XXX_PAGE0);
+
+	return 0;
+}
+
+static int jl2xxx_wol_enable(struct phy_device *phydev, bool enable)
+{
+	if (enable) {
+		jlsemi_set_bits(phydev, JL2XXX_WOL_STAS_PAGE,
+				JL2XXX_WOL_STAS_REG, JL2XXX_WOL_EN);
+		jlsemi_clear_bits(phydev, JL2XXX_WOL_STAS_PAGE,
+				  JL2XXX_WOL_STAS_REG, JL2XXX_WOL_CTL_EN);
+	} else {
+		jlsemi_clear_bits(phydev, JL2XXX_WOL_STAS_PAGE,
+				  JL2XXX_WOL_STAS_REG, JL2XXX_WOL_EN);
+	}
+	jlsemi_soft_reset(phydev);
+
+	return 0;
+}
+
+static int jl2xxx_wol_active_low_polarity(struct phy_device *phydev, bool low)
+{
+	if (low)
+		jlsemi_set_bits(phydev, JL2XXX_WOL_STAS_PAGE,
+				JL2XXX_WOL_STAS_REG, JL2XXX_WOL_POLARITY);
+	else
+		jlsemi_clear_bits(phydev, JL2XXX_WOL_STAS_PAGE,
+				  JL2XXX_WOL_STAS_REG, JL2XXX_WOL_POLARITY);
+
+	return 0;
+}
+
+static int jl2xxx_wol_clear(struct phy_device *phydev)
+{
+	jlsemi_set_bits(phydev, JL2XXX_WOL_STAS_PAGE,
+			JL2XXX_WOL_STAS_REG, JL2XXX_WOL_EVENT);
+	jlsemi_clear_bits(phydev, JL2XXX_WOL_STAS_PAGE,
+			  JL2XXX_WOL_STAS_REG, JL2XXX_WOL_EVENT);
+
+	return 0;
+}
+
+static int jl2xxx_store_mac_addr(struct phy_device *phydev)
+{
+	int err;
+
+	jlsemi_write_page(phydev, JL2XXX_WOL_STAS_PAGE);
+
+	/* Store the device address for the magic packet */
+	err = phy_write(phydev, JL2XXX_MAC_ADDR2_REG,
+			((phydev->attached_dev->dev_addr[0] << 8) |
+			  phydev->attached_dev->dev_addr[1]));
+	if (err < 0)
+		return err;
+	err = phy_write(phydev, JL2XXX_MAC_ADDR1_REG,
+			((phydev->attached_dev->dev_addr[2] << 8) |
+			  phydev->attached_dev->dev_addr[3]));
+	if (err < 0)
+		return err;
+	err = phy_write(phydev, JL2XXX_MAC_ADDR0_REG,
+			((phydev->attached_dev->dev_addr[4] << 8) |
+			  phydev->attached_dev->dev_addr[5]));
+	if (err < 0)
+		return err;
+
+	/* change page to 0 */
+	jlsemi_write_page(phydev, JL2XXX_BASIC_PAGE);
 
 	return 0;
 }
@@ -558,84 +846,84 @@ int jl2xxx_fld_dynamic_op_set(struct phy_device *phydev, const u8 *msecs)
 	return 0;
 }
 
-int jl1xxx_wol_cfg_rmii(struct phy_device *phydev)
+int jl1xxx_wol_dynamic_op_get(struct phy_device *phydev)
 {
-	int err;
-	/* WOL Function should be in RMII Mode, the rmii
-	 * clock direction should be output */
-	err = jlsemi_modify_paged_reg(phydev, JL1XXX_PAGE7,
-				      JL1XXX_RMII_CTRL_REG,
-				      JL1XXX_RMII_OUT,
-				      JL1XXX_RMII_MODE);
-	if (err < 0)
-		return err;
-
-	return 0;
-}
-
-int jl1xxx_wol_clear(struct phy_device *phydev)
-{
-	jlsemi_set_bits(phydev, JL1XXX_PAGE129,
-			JL1XXX_WOL_CTRL_REG, JL1XXX_WOL_CLEAR);
-
-	jlsemi_clear_bits(phydev, JL1XXX_PAGE129,
-			  JL1XXX_WOL_CTRL_REG, JL1XXX_WOL_CLEAR);
-
-	return 0;
-}
-
-bool jl1xxx_wol_reveive_check(struct phy_device *phydev)
-{
-	if (jlsemi_fetch_bit(phydev, JL1XXX_PAGE129,
-			     JL1XXX_WOL_CTRL_REG, JL1xxx_WOL_RECEIVE))
-		return true;
-	else
-		return false;
-
-}
-
-int jl1xxx_wol_enable(struct phy_device *phydev, bool enable)
-{
-	if (enable)
-		jlsemi_clear_bits(phydev, JL1XXX_PAGE129,
-				  JL1XXX_WOL_CTRL_REG, JL1XXX_WOL_DIS);
-	else
-		jlsemi_set_bits(phydev, JL1XXX_PAGE129,
+	return jlsemi_fetch_bit(phydev, JL1XXX_PAGE129,
 				JL1XXX_WOL_CTRL_REG, JL1XXX_WOL_DIS);
-
-	return 0;
 }
-int jl1xxx_wol_store_mac_addr(struct phy_device *phydev)
+
+int jl2xxx_wol_dynamic_op_get(struct phy_device *phydev)
+{
+	return jlsemi_fetch_bit(phydev, JL2XXX_WOL_CTL_PAGE,
+				JL2XXX_WOL_CTL_REG, JL2XXX_WOL_EN);
+}
+
+static int jl1xxx_wol_static_op_set(struct phy_device *phydev)
 {
 	int err;
 
-	jlsemi_write_page(phydev, JL1XXX_PAGE129);
-
-	/* Store the device address for the magic packet */
-	err = phy_write(phydev, JL1XXX_MAC_ADDR2_REG,
-			((ADDR8_HIGH_TO_LOW(
-			  phydev->attached_dev->dev_addr[0]) << 8) |
-			  ADDR8_HIGH_TO_LOW(
-			  phydev->attached_dev->dev_addr[1])));
-	if (err < 0)
-		return err;
-	err = phy_write(phydev, JL1XXX_MAC_ADDR1_REG,
-			((ADDR8_HIGH_TO_LOW(
-			  phydev->attached_dev->dev_addr[2]) << 8) |
-			  ADDR8_HIGH_TO_LOW(
-			  phydev->attached_dev->dev_addr[3])));
-	if (err < 0)
-		return err;
-	err = phy_write(phydev, JL1XXX_MAC_ADDR0_REG,
-			((ADDR8_HIGH_TO_LOW(
-			  phydev->attached_dev->dev_addr[4]) << 8) |
-			  ADDR8_HIGH_TO_LOW(
-			  phydev->attached_dev->dev_addr[5])));
+	err = jl1xxx_wol_dynamic_op_set(phydev);
 	if (err < 0)
 		return err;
 
-	/* change page to 0 */
-	jlsemi_write_page(phydev, JL1XXX_PAGE0);
+	return 0;
+}
+
+static int jl2xxx_wol_static_op_set(struct phy_device *phydev)
+{
+	int err;
+
+	err = jl2xxx_wol_dynamic_op_set(phydev);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
+int jl1xxx_wol_dynamic_op_set(struct phy_device *phydev)
+{
+	int err;
+
+	err = jl1xxx_wol_cfg_rmii(phydev);
+	if (err < 0)
+		return err;
+
+	err = jl1xxx_wol_enable(phydev, true);
+	if (err < 0)
+		return err;
+
+	err = jl1xxx_wol_store_mac_addr(phydev);
+	if (err < 0)
+		return err;
+
+	if (jl1xxx_wol_receive_check(phydev)) {
+		err = jl1xxx_wol_clear(phydev);
+		if (err < 0)
+			return err;
+	}
+
+	return 0;
+}
+
+int jl2xxx_wol_dynamic_op_set(struct phy_device *phydev)
+{
+	int err;
+
+	err = jl2xxx_wol_enable(phydev, true);
+	if (err < 0)
+		return err;
+
+	err = jl2xxx_wol_clear(phydev);
+	if (err < 0)
+		return err;
+
+	err = jl2xxx_wol_active_low_polarity(phydev, true);
+	if (err < 0)
+		return err;
+
+	err = jl2xxx_store_mac_addr(phydev);
+	if (err < 0)
+		return err;
 
 	return 0;
 }
@@ -643,6 +931,7 @@ int jl1xxx_wol_store_mac_addr(struct phy_device *phydev)
 int jl1xxx_operation_mode_select(struct phy_device *phydev)
 {
 	jl1xxx_led_operation_mode(phydev);
+	jl1xxx_wol_operation_mode(phydev);
 
 	return 0;
 }
@@ -651,6 +940,7 @@ int jl2xxx_operation_mode_select(struct phy_device *phydev)
 {
 	jl2xxx_led_operation_mode(phydev);
 	jl2xxx_fld_operation_mode(phydev);
+	jl2xxx_wol_operation_mode(phydev);
 
 	return 0;
 }
@@ -658,6 +948,7 @@ int jl2xxx_operation_mode_select(struct phy_device *phydev)
 int jl1xxx_operation_get(struct phy_device *phydev)
 {
 	jl1xxx_led_operation_args(phydev);
+	jl1xxx_wol_operation_args(phydev);
 
 	return 0;
 }
@@ -666,6 +957,7 @@ int jl2xxx_operation_get(struct phy_device *phydev)
 {
 	jl2xxx_led_operation_args(phydev);
 	jl2xxx_fld_operation_args(phydev);
+	jl2xxx_wol_operation_args(phydev);
 
 	return 0;
 }
@@ -677,6 +969,12 @@ int jl1xxx_static_op_init(struct phy_device *phydev)
 
 	if (!(priv->led->enable & JL1XXX_LED_STATIC_OP_DIS)) {
 		err = jl1xxx_led_static_op_set(phydev);
+		if (err < 0)
+			return err;
+	}
+
+	if (!(priv->wol->enable & JL1XXX_WOL_STATIC_OP_DIS)) {
+		err = jl1xxx_wol_static_op_set(phydev);
 		if (err < 0)
 			return err;
 	}
@@ -697,6 +995,12 @@ int jl2xxx_static_op_init(struct phy_device *phydev)
 
 	if (!(priv->fld->enable & JL2XXX_FLD_STATIC_OP_DIS)) {
 		err = jl2xxx_fld_static_op_set(phydev);
+		if (err < 0)
+			return err;
+	}
+
+	if (!(priv->wol->enable & JL2XXX_WOL_STATIC_OP_DIS)) {
+		err = jl2xxx_wol_static_op_set(phydev);
 		if (err < 0)
 			return err;
 	}
@@ -832,73 +1136,6 @@ int jlsemi_soft_reset(struct phy_device *phydev)
 
 int jlsemi_aneg_done(struct phy_device *phydev)
 {
-	return 0;
-}
-
-int jl2xxx_enable_wol(struct phy_device *phydev, bool enable)
-{
-	if (enable) {
-		jlsemi_set_bits(phydev, JL2XXX_WOL_STAS_PAGE,
-				JL2XXX_WOL_STAS_REG, JL2XXX_WOL_EN);
-		jlsemi_clear_bits(phydev, JL2XXX_WOL_STAS_PAGE,
-				  JL2XXX_WOL_STAS_REG, JL2XXX_WOL_CTL_EN);
-	} else {
-		jlsemi_clear_bits(phydev, JL2XXX_WOL_STAS_PAGE,
-				  JL2XXX_WOL_STAS_REG, JL2XXX_WOL_EN);
-	}
-	jlsemi_soft_reset(phydev);
-
-	return 0;
-}
-
-int jl2xxx_setup_wol_active_low_polarity(struct phy_device *phydev, bool low)
-{
-	if (low)
-		jlsemi_set_bits(phydev, JL2XXX_WOL_STAS_PAGE,
-				JL2XXX_WOL_STAS_REG, JL2XXX_WOL_POLARITY);
-	else
-		jlsemi_clear_bits(phydev, JL2XXX_WOL_STAS_PAGE,
-				  JL2XXX_WOL_STAS_REG, JL2XXX_WOL_POLARITY);
-
-	return 0;
-}
-
-int jl2xxx_clear_wol_event(struct phy_device *phydev)
-{
-	jlsemi_set_bits(phydev, JL2XXX_WOL_STAS_PAGE,
-			JL2XXX_WOL_STAS_REG, JL2XXX_WOL_EVENT);
-	jlsemi_clear_bits(phydev, JL2XXX_WOL_STAS_PAGE,
-			  JL2XXX_WOL_STAS_REG, JL2XXX_WOL_EVENT);
-
-	return 0;
-}
-
-int jl2xxx_store_mac_addr(struct phy_device *phydev)
-{
-	int err;
-
-	jlsemi_write_page(phydev, JL2XXX_WOL_STAS_PAGE);
-
-	/* Store the device address for the magic packet */
-	err = phy_write(phydev, JL2XXX_MAC_ADDR2_REG,
-			((phydev->attached_dev->dev_addr[0] << 8) |
-			  phydev->attached_dev->dev_addr[1]));
-	if (err < 0)
-		return err;
-	err = phy_write(phydev, JL2XXX_MAC_ADDR1_REG,
-			((phydev->attached_dev->dev_addr[2] << 8) |
-			  phydev->attached_dev->dev_addr[3]));
-	if (err < 0)
-		return err;
-	err = phy_write(phydev, JL2XXX_MAC_ADDR0_REG,
-			((phydev->attached_dev->dev_addr[4] << 8) |
-			  phydev->attached_dev->dev_addr[5]));
-	if (err < 0)
-		return err;
-
-	/* change page to 0 */
-	jlsemi_write_page(phydev, JL2XXX_BASIC_PAGE);
-
 	return 0;
 }
 

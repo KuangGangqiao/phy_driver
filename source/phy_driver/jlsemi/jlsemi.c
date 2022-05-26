@@ -86,35 +86,32 @@ static void jl1xxx_remove(struct phy_device *phydev)
 static void jl1xxx_get_wol(struct phy_device *phydev,
 			   struct ethtool_wolinfo *wol)
 {
+	struct jl1xxx_priv *priv = phydev->priv;
 	int wol_en;
 
-	wol->supported = WAKE_MAGIC;
-	wol->wolopts = 0;
+	if (!(priv->wol->enable & JL1XXX_WOL_DYNAMIC_OP_DIS)) {
+		wol->supported = WAKE_MAGIC;
+		wol->wolopts = 0;
 
-	wol_en = jlsemi_fetch_bit(phydev, JL1XXX_PAGE129,
-				  JL1XXX_WOL_CTRL_REG, JL1XXX_WOL_DIS);
+		wol_en = jl1xxx_wol_dynamic_op_get(phydev);
 
-	if (!wol_en)
-		wol->wolopts |= WAKE_MAGIC;
+		if (!wol_en)
+			wol->wolopts |= WAKE_MAGIC;
+	}
 }
 
 static int jl1xxx_set_wol(struct phy_device *phydev,
 			  struct ethtool_wolinfo *wol)
 {
+	struct jl1xxx_priv *priv = phydev->priv;
 	int err;
 
-	if (wol->wolopts & WAKE_MAGIC) {
-		err = jl1xxx_wol_enable(phydev, true);
-		if (err < 0)
-			return err;
-
-		err = jl1xxx_wol_clear(phydev);
-		if (err < 0)
-			return err;
-
-		err = jl1xxx_wol_store_mac_addr(phydev);
-		if (err < 0)
-			return err;
+	if (!(priv->wol->enable & JL1XXX_WOL_DYNAMIC_OP_DIS)) {
+		if (wol->wolopts & WAKE_MAGIC) {
+			err = jl1xxx_wol_dynamic_op_set(phydev);
+			if (err < 0)
+				return err;
+		}
 	}
 
 	return 0;
@@ -209,51 +206,32 @@ static int jl2xxx_resume(struct phy_device *phydev)
 static void jl2xxx_get_wol(struct phy_device *phydev,
 			   struct ethtool_wolinfo *wol)
 {
+	struct jl2xxx_priv *priv = phydev->priv;
 	int wol_en;
 
-	wol->supported = WAKE_MAGIC;
-	wol->wolopts = 0;
+	if (!(priv->wol->enable & JL2XXX_WOL_DYNAMIC_OP_DIS)) {
+		wol->supported = WAKE_MAGIC;
+		wol->wolopts = 0;
 
-	wol_en = jlsemi_fetch_bit(phydev, JL2XXX_WOL_CTL_PAGE,
-				  JL2XXX_WOL_CTL_REG, JL2XXX_WOL_EN);
+		wol_en = jl2xxx_wol_dynamic_op_get(phydev);
 
-	if (wol_en)
-		wol->wolopts |= WAKE_MAGIC;
+		if (wol_en)
+			wol->wolopts |= WAKE_MAGIC;
+	}
 }
 
 static int jl2xxx_set_wol(struct phy_device *phydev,
 			  struct ethtool_wolinfo *wol)
 {
+	struct jl2xxx_priv *priv = phydev->priv;
 	int err;
 
-	if (wol->wolopts & WAKE_MAGIC) {
-		err = jl2xxx_enable_wol(phydev, true);
-		if (err < 0)
-			return err;
-
-		err = jl2xxx_clear_wol_event(phydev);
-		if (err < 0)
-			return err;
-
-		err = jl2xxx_setup_wol_active_low_polarity(phydev, true);
-		if (err < 0)
-			return err;
-
-		err = jl2xxx_store_mac_addr(phydev);
-		if (err < 0)
-			return err;
-	} else {
-		err = jl2xxx_enable_wol(phydev, false);
-		if (err < 0)
-			return err;
-
-		err = jl2xxx_setup_wol_active_low_polarity(phydev, true);
-		if (err < 0)
-			return err;
-
-		err = jl2xxx_clear_wol_event(phydev);
-		if (err < 0)
-			return err;
+	if (!(priv->wol->enable & JL2XXX_WOL_DYNAMIC_OP_DIS)) {
+		if (wol->wolopts & WAKE_MAGIC) {
+			err = jl2xxx_wol_dynamic_op_set(phydev);
+			if (err < 0)
+				return err;
+		}
 	}
 
 	return 0;

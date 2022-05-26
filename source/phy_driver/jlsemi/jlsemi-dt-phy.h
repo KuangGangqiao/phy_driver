@@ -63,6 +63,20 @@
 
 #define JL1XXX_LED_ETHTOOL_MODE		true
 
+
+/* PHY peration mode select */
+#define JL1XXX_WOL_C_MACRO_MODE		true
+
+#define JL1XXX_WOL_DEVICE_TREE_MODE	true
+
+#define JL1XXX_WOL_ETHTOOL_MODE		true
+
+#define JL1XXX_WOL_STATIC_OP_DIS	(1 << 0)
+#define JL1XXX_WOL_DYNAMIC_OP_DIS	(1 << 1)
+
+#define JL1XXX_WOL_CTRL_EN	(JL1XXX_WOL_STATIC_OP_DIS | \
+				 JL1XXX_WOL_DYNAMIC_OP_DIS)
+
 /**********************************jl2xxx*********************************/
 #define JL2XXX_LED0_LINK10		(1 << 0)
 #define JL2XXX_LED0_LINK100		(1 << 1)
@@ -133,6 +147,19 @@
 #define JL2XXX_FLD_DEVICE_TREE_MODE	false
 #define JL2XXX_FLD_ETHTOOL_MODE		true
 
+
+/* PHY peration mode select */
+#define JL2XXX_WOL_C_MACRO_MODE		true
+
+#define JL2XXX_WOL_DEVICE_TREE_MODE	true
+
+#define JL2XXX_WOL_ETHTOOL_MODE		true
+
+#define JL2XXX_WOL_STATIC_OP_DIS	(1 << 0)
+#define JL2XXX_WOL_DYNAMIC_OP_DIS	(1 << 1)
+
+#define JL2XXX_WOL_CTRL_EN	(JL2XXX_WOL_STATIC_OP_DIS | \
+				 JL2XXX_WOL_DYNAMIC_OP_DIS)
 
 #endif
 

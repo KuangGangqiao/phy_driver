@@ -32,6 +32,10 @@ Example for jl1xxx:
 			jl1xxx,led-on		= <JL1xxx_GLOBAL_ON_MS>;
 			jl1xxx,led-gpio		= <JL1XXXX_CFG_GPIO>;
 		};
+		wol {
+			compatible		= "jl1xxx-wol";
+			jl1xxx,wol-enable	= <JL1XXX_WOL_CTRL_EN>;
+		};
 	};
 
 Example for jl2xxx:
@@ -56,6 +60,10 @@ Example for jl2xxx:
 			"jl2xxx,fld-enable"	= <JL2XXX_FLD_CTRL_EN>
 			"jl2xxx,fld-delay"	= <JL2XXX_FLD_DELAY>
 		}
+		wol {
+			compatible		= "jl2xxx-wol";
+			jl2xxx,wol-enable	= <JL2XXX_WOL_CTRL_EN>;
+		};
 	};
 
 
