@@ -84,9 +84,6 @@ static int jl1xxx_led_static_op_set(struct phy_device *phydev)
 	struct jl1xxx_priv *priv = phydev->priv;
 	int err;
 
-	if (priv->led->enable & JL1XXX_LED_STATIC_OP_DIS)
-		return 0;
-
 	/* Enable LED operation */
 	jlsemi_set_bits(phydev, JL1XXX_PAGE7,
 			JL1XXX_LED_REG, JL1XXX_LED_EN);
@@ -136,9 +133,6 @@ static int jl2xxx_led_static_op_set(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
 	int err;
-
-	if (priv->led->enable & JL2XXX_LED_STATIC_OP_DIS)
-		return 0;
 
 	/* Set led mode */
 	if (priv->led->enable & JL2XXX_LED_MODE_EN) {
@@ -452,12 +446,12 @@ static int jl1xxx_wol_operation_args(struct phy_device *phydev)
 	else if (mode->static_op == STATIC_C_MACRO)
 		jl1xxx_c_marcro_wol_cfg_get(phydev);
 	else
-		priv->wol->enable |= JL1XXX_WOL_STATIC_OP_DIS;
+		priv->wol->enable |= JL1XXX_WOL_STATIC_OP_EN;
 
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
 		jl1xxx_ethtool_cfg_get(phydev);
 	else
-		priv->wol->enable |= JL1XXX_WOL_DYNAMIC_OP_DIS;
+		priv->wol->enable |= JL1XXX_WOL_DYNAMIC_OP_EN;
 
 	return 0;
 }
@@ -473,12 +467,12 @@ static int jl1xxx_intr_operation_args(struct phy_device *phydev)
 	else if (mode->static_op == STATIC_C_MACRO)
 		jl1xxx_c_marcro_intr_cfg_get(phydev);
 	else
-		priv->wol->enable |= JL1XXX_WOL_STATIC_OP_DIS;
+		priv->wol->enable |= JL1XXX_WOL_STATIC_OP_EN;
 
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
 		jl1xxx_ethtool_cfg_get(phydev);
 	else
-		priv->wol->enable |= JL1XXX_WOL_DYNAMIC_OP_DIS;
+		priv->wol->enable |= JL1XXX_WOL_DYNAMIC_OP_EN;
 
 	return 0;
 }
@@ -494,12 +488,12 @@ static int jl1xxx_led_operation_args(struct phy_device *phydev)
 	else if (mode->static_op == STATIC_C_MACRO)
 		jl1xxx_c_marcro_led_cfg_get(phydev);
 	else
-		priv->led->enable |= JL1XXX_LED_STATIC_OP_DIS;
+		priv->led->enable |= JL1XXX_LED_STATIC_OP_EN;
 
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
 		jl1xxx_ethtool_cfg_get(phydev);
 	else
-		priv->led->enable |= JL1XXX_LED_DYNAMIC_OP_DIS;
+		priv->led->enable |= JL1XXX_LED_DYNAMIC_OP_EN;
 
 	return 0;
 }
@@ -515,12 +509,12 @@ static int jl2xxx_led_operation_args(struct phy_device *phydev)
 	else if (mode->static_op == STATIC_C_MACRO)
 		jl2xxx_c_marcro_led_cfg_get(phydev);
 	else
-		priv->led->enable |= JL2XXX_LED_STATIC_OP_DIS;
+		priv->led->enable |= JL2XXX_LED_STATIC_OP_EN;
 
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
 		jl2xxx_ethtool_cfg_get(phydev);
 	else
-		priv->led->enable |= JL2XXX_LED_DYNAMIC_OP_DIS;
+		priv->led->enable |= JL2XXX_LED_DYNAMIC_OP_EN;
 
 	return 0;
 }
@@ -670,12 +664,12 @@ static int jl2xxx_fld_operation_args(struct phy_device *phydev)
 	else if (mode->static_op == STATIC_C_MACRO)
 		jl2xxx_c_marcro_fld_cfg_get(phydev);
 	else
-		priv->fld->enable |= JL2XXX_FLD_STATIC_OP_DIS;
+		priv->fld->enable |= JL2XXX_FLD_STATIC_OP_EN;
 
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
 		jl2xxx_ethtool_cfg_get(phydev);
 	else
-		priv->fld->enable |= JL2XXX_FLD_DYNAMIC_OP_DIS;
+		priv->fld->enable |= JL2XXX_FLD_DYNAMIC_OP_EN;
 
 	return 0;
 }
@@ -691,12 +685,12 @@ static int jl2xxx_wol_operation_args(struct phy_device *phydev)
 	else if (mode->static_op == STATIC_C_MACRO)
 		jl2xxx_c_marcro_wol_cfg_get(phydev);
 	else
-		priv->fld->enable |= JL2XXX_FLD_STATIC_OP_DIS;
+		priv->fld->enable |= JL2XXX_FLD_STATIC_OP_EN;
 
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
 		jl2xxx_ethtool_cfg_get(phydev);
 	else
-		priv->fld->enable |= JL2XXX_FLD_DYNAMIC_OP_DIS;
+		priv->fld->enable |= JL2XXX_FLD_DYNAMIC_OP_EN;
 
 	return 0;
 }
@@ -712,12 +706,12 @@ static int jl2xxx_intr_operation_args(struct phy_device *phydev)
 	else if (mode->static_op == STATIC_C_MACRO)
 		jl2xxx_c_marcro_intr_cfg_get(phydev);
 	else
-		priv->intr->enable |= JL2XXX_INTR_STATIC_OP_DIS;
+		priv->intr->enable |= JL2XXX_INTR_STATIC_OP_EN;
 
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
 		jl2xxx_ethtool_cfg_get(phydev);
 	else
-		priv->intr->enable |= JL2XXX_INTR_DYNAMIC_OP_DIS;
+		priv->intr->enable |= JL2XXX_INTR_DYNAMIC_OP_EN;
 
 	return 0;
 }
@@ -895,7 +889,7 @@ int jl2xxx_fld_dynamic_op_get(struct phy_device *phydev, u8 *msecs)
 	if (ret < 0)
 		return ret;
 
-	if (!(ret & JL2XXX_FLD_EN)) {
+	if (ret & JL2XXX_FLD_EN) {
 		*msecs = ETHTOOL_PHY_FAST_LINK_DOWN_OFF;
 		return 0;
 	}
@@ -988,7 +982,7 @@ int jl1xxx_intr_ack_event(struct phy_device *phydev)
 	int err;
 
 	if (phydev->interrupts == PHY_INTERRUPT_ENABLED)
-		if (!(priv->intr->enable & JL1XXX_INTR_STATIC_OP_DIS)) {
+		if (priv->intr->enable & JL1XXX_INTR_STATIC_OP_EN) {
 			err = phy_read(phydev, JL1XXX_INTR_STATUS_REG);
 			if (err < 0)
 				return err;
@@ -1203,19 +1197,19 @@ int jl1xxx_static_op_init(struct phy_device *phydev)
 	struct jl2xxx_priv *priv = phydev->priv;
 	int err;
 
-	if (!(priv->led->enable & JL1XXX_LED_STATIC_OP_DIS)) {
+	if (priv->led->enable & JL1XXX_LED_STATIC_OP_EN) {
 		err = jl1xxx_led_static_op_set(phydev);
 		if (err < 0)
 			return err;
 	}
 
-	if (!(priv->wol->enable & JL1XXX_WOL_STATIC_OP_DIS)) {
+	if (priv->wol->enable & JL1XXX_WOL_STATIC_OP_EN) {
 		err = jl1xxx_wol_static_op_set(phydev);
 		if (err < 0)
 			return err;
 	}
 
-	if (!(priv->wol->enable & JL1XXX_INTR_STATIC_OP_DIS)) {
+	if (priv->wol->enable & JL1XXX_INTR_STATIC_OP_EN) {
 		err = jl1xxx_intr_static_op_set(phydev);
 		if (err < 0)
 			return err;
@@ -1229,25 +1223,25 @@ int jl2xxx_static_op_init(struct phy_device *phydev)
 	struct jl2xxx_priv *priv = phydev->priv;
 	int err;
 
-	if (!(priv->led->enable & JL2XXX_LED_STATIC_OP_DIS)) {
+	if (priv->led->enable & JL2XXX_LED_STATIC_OP_EN) {
 		err = jl2xxx_led_static_op_set(phydev);
 		if (err < 0)
 			return err;
 	}
 
-	if (!(priv->fld->enable & JL2XXX_FLD_STATIC_OP_DIS)) {
+	if (priv->fld->enable & JL2XXX_FLD_STATIC_OP_EN) {
 		err = jl2xxx_fld_static_op_set(phydev);
 		if (err < 0)
 			return err;
 	}
 
-	if (!(priv->wol->enable & JL2XXX_WOL_STATIC_OP_DIS)) {
+	if (priv->wol->enable & JL2XXX_WOL_STATIC_OP_EN) {
 		err = jl2xxx_wol_static_op_set(phydev);
 		if (err < 0)
 			return err;
 	}
 
-	if (!(priv->intr->enable & JL2XXX_INTR_STATIC_OP_DIS)) {
+	if (priv->intr->enable & JL2XXX_INTR_STATIC_OP_EN) {
 		err = jl2xxx_intr_static_op_set(phydev);
 		if (err < 0)
 			return err;
