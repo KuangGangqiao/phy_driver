@@ -1079,8 +1079,9 @@ int jl2xxx_downshift_dynamic_op_set(struct phy_device *phydev, u8 cnt)
 					JL2XXX_DSFT_CTRL_REG,
 					JL2XXX_DSFT_EN);
 	} else {
-		val = JL2XXX_DSFT_EN;
-		val |= (cnt - 1) & JL2XXX_DSFT_AN_MASK;
+		val = ((cnt - 1) & JL2XXX_DSFT_AN_MASK) | JL2XXX_DSFT_EN |
+			JL2XXX_DSFT_SMART_EN | JL2XXX_DSFT_TWO_WIRE_EN |
+			JL2XXX_DSFT_STL_CNT(12);
 		err = jlsemi_modify_paged_reg(phydev, JL2XXX_BASIC_PAGE,
 					      JL2XXX_DSFT_CTRL_REG,
 					      JL2XXX_DSFT_AN_MASK, val);
