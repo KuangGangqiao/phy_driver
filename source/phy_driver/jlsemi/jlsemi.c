@@ -280,6 +280,11 @@ static int jl2xxx_get_tunable(struct phy_device *phydev,
 			return jl2xxx_fld_dynamic_op_get(phydev, data);
 		else
 			return 0;
+	case ETHTOOL_PHY_DOWNSHIFT:
+		if (priv->downshift->enable & JL2XXX_DSFT_DYNAMIC_OP_EN)
+			return jl2xxx_downshift_dynamic_op_get(phydev, data);
+		else
+			return 0;
 	default:
 		return -EOPNOTSUPP;
 	}
@@ -296,6 +301,12 @@ static int jl2xxx_set_tunable(struct phy_device *phydev,
 	case ETHTOOL_PHY_FAST_LINK_DOWN:
 		if (priv->fld->enable & JL2XXX_FLD_DYNAMIC_OP_EN)
 			return jl2xxx_fld_dynamic_op_set(phydev, data);
+		else
+			return 0;
+	case ETHTOOL_PHY_DOWNSHIFT:
+		if (priv->downshift->enable & JL2XXX_DSFT_DYNAMIC_OP_EN)
+			return jl2xxx_downshift_dynamic_op_set(phydev,
+							       *(const u8 *)data);
 		else
 			return 0;
 	default:

@@ -570,6 +570,26 @@ static int jl2xxx_dts_intr_cfg_get(struct phy_device *phydev)
 	return 0;
 }
 
+static int jl2xxx_dts_downshift_cfg_get(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	struct device *dev = &phydev->mdio.dev;
+	struct device_node *of_node = dev->of_node;
+	int err;
+
+	err = of_property_read_u16(of_node, "jl2xxx,downshift-enable",
+				   &priv->downshift->enable);
+	if (err < 0)
+		return err;
+
+	err = of_property_read_u8(of_node, "jl2xxx,downshift-count",
+				   &priv->downshift->count);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
 static int jl2xxx_c_marcro_fld_cfg_get(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
@@ -611,6 +631,20 @@ static int jl2xxx_c_marcro_intr_cfg_get(struct phy_device *phydev)
 	return 0;
 }
 
+static int jl2xxx_c_marcro_downshift_cfg_get(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+
+	struct jl_downshift_ctrl downshift_cfg = {
+		.enable		= JL2XXX_DSFT_CTRL_EN,
+		.count		= JL2XXX_DSFT_AN_CNT,
+	};
+
+	priv->downshift = &downshift_cfg;
+
+	return 0;
+}
+
 static int jl2xxx_fld_operation_mode(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
@@ -632,6 +666,27 @@ static int jl2xxx_fld_operation_mode(struct phy_device *phydev)
 	return 0;
 }
 
+static int jl2xxx_intr_operation_mode(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	struct jl_intr_ctrl *ctrl = priv->intr;
+	struct jl_config_mode *mode = ctrl->op;
+
+	if (JL2XXX_INTR_C_MACRO_MODE)
+		mode->static_op = STATIC_C_MACRO;
+	else if (JL2XXX_INTR_DEVICE_TREE_MODE)
+		mode->static_op = STATIC_DEVICE_TREE;
+	else
+		mode->static_op = STATIC_NONE;
+
+	if (JL2XXX_INTR_ETHTOOL_MODE)
+		mode->dynamic_op = DYNAMIC_ETHTOOL;
+	else
+		mode->dynamic_op = DYNAMIC_NONE;
+
+	return 0;
+}
+
 static int jl2xxx_wol_operation_mode(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
@@ -646,6 +701,27 @@ static int jl2xxx_wol_operation_mode(struct phy_device *phydev)
 		mode->static_op = STATIC_NONE;
 
 	if (JL2XXX_WOL_ETHTOOL_MODE)
+		mode->dynamic_op = DYNAMIC_ETHTOOL;
+	else
+		mode->dynamic_op = DYNAMIC_NONE;
+
+	return 0;
+}
+
+static int jl2xxx_downshift_operation_mode(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	struct jl_downshift_ctrl *ctrl = priv->downshift;
+	struct jl_config_mode *mode = ctrl->op;
+
+	if (JL2XXX_DSFT_C_MACRO_MODE)
+		mode->static_op = STATIC_C_MACRO;
+	else if (JL2XXX_DSFT_DEVICE_TREE_MODE)
+		mode->static_op = STATIC_DEVICE_TREE;
+	else
+		mode->static_op = STATIC_NONE;
+
+	if (JL2XXX_DSFT_ETHTOOL_MODE)
 		mode->dynamic_op = DYNAMIC_ETHTOOL;
 	else
 		mode->dynamic_op = DYNAMIC_NONE;
@@ -712,6 +788,27 @@ static int jl2xxx_intr_operation_args(struct phy_device *phydev)
 		jl2xxx_ethtool_cfg_get(phydev);
 	else
 		priv->intr->enable |= JL2XXX_INTR_DYNAMIC_OP_EN;
+
+	return 0;
+}
+
+static int jl2xxx_downshift_operation_args(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	struct jl_downshift_ctrl *ctrl = priv->downshift;
+	struct jl_config_mode *mode = ctrl->op;
+
+	if (mode->static_op == STATIC_DEVICE_TREE)
+		jl2xxx_dts_downshift_cfg_get(phydev);
+	else if (mode->static_op == STATIC_C_MACRO)
+		jl2xxx_c_marcro_downshift_cfg_get(phydev);
+	else
+		priv->downshift->enable |= JL2XXX_DSFT_STATIC_OP_EN;
+
+	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
+		jl2xxx_ethtool_cfg_get(phydev);
+	else
+		priv->intr->enable |= JL2XXX_DSFT_DYNAMIC_OP_EN;
 
 	return 0;
 }
@@ -953,6 +1050,61 @@ int jl2xxx_fld_dynamic_op_set(struct phy_device *phydev, const u8 *msecs)
 	return 0;
 }
 
+int jl2xxx_downshift_dynamic_op_get(struct phy_device *phydev, u8 *data)
+{
+	int val, cnt, enable;
+
+	jlsemi_write_page(phydev, JL2XXX_BASIC_PAGE);
+	val = phy_read(phydev, JL2XXX_DSFT_CTRL_REG);
+	if (val < 0)
+		return val;
+
+	enable = val & JL2XXX_DSFT_EN;
+	cnt = (val & JL2XXX_DSFT_AN_MASK) + 1;
+
+	*data = enable ? cnt : DOWNSHIFT_DEV_DISABLE;
+
+	return 0;
+}
+
+int jl2xxx_downshift_dynamic_op_set(struct phy_device *phydev, u8 cnt)
+{
+	int val, err;
+
+	if (cnt > JL2XXX_DSFT_CNT_MAX)
+		return -E2BIG;
+
+	if (!cnt) {
+		err = jlsemi_clear_bits(phydev, JL2XXX_BASIC_PAGE,
+					JL2XXX_DSFT_CTRL_REG,
+					JL2XXX_DSFT_EN);
+	} else {
+		val = JL2XXX_DSFT_EN;
+		val |= (cnt - 1) & JL2XXX_DSFT_AN_MASK;
+		err = jlsemi_modify_paged_reg(phydev, JL2XXX_BASIC_PAGE,
+					      JL2XXX_DSFT_CTRL_REG,
+					      JL2XXX_DSFT_AN_MASK, val);
+	}
+
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
+int jl2xxx_downshift_static_op_set(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	int err;
+
+	err = jl2xxx_downshift_dynamic_op_set(phydev,
+					      priv->downshift->count);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
 int jl1xxx_wol_dynamic_op_get(struct phy_device *phydev)
 {
 	return jlsemi_fetch_bit(phydev, JL1XXX_PAGE129,
@@ -1169,6 +1321,8 @@ int jl2xxx_operation_mode_select(struct phy_device *phydev)
 	jl2xxx_led_operation_mode(phydev);
 	jl2xxx_fld_operation_mode(phydev);
 	jl2xxx_wol_operation_mode(phydev);
+	jl2xxx_intr_operation_mode(phydev);
+	jl2xxx_downshift_operation_mode(phydev);
 
 	return 0;
 }
@@ -1188,6 +1342,7 @@ int jl2xxx_operation_args_get(struct phy_device *phydev)
 	jl2xxx_fld_operation_args(phydev);
 	jl2xxx_wol_operation_args(phydev);
 	jl2xxx_intr_operation_args(phydev);
+	jl2xxx_downshift_operation_args(phydev);
 
 	return 0;
 }
@@ -1243,6 +1398,12 @@ int jl2xxx_static_op_init(struct phy_device *phydev)
 
 	if (priv->intr->enable & JL2XXX_INTR_STATIC_OP_EN) {
 		err = jl2xxx_intr_static_op_set(phydev);
+		if (err < 0)
+			return err;
+	}
+
+	if (priv->downshift->enable & JL2XXX_DSFT_STATIC_OP_EN) {
+		err = jl2xxx_downshift_static_op_set(phydev);
 		if (err < 0)
 			return err;
 	}

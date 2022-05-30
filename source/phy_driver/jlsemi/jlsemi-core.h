@@ -65,6 +65,14 @@
 #define JL2XXX_SPEED_LSB	BIT(13)
 #define JL2XXX_AUTONEG_EN	BIT(12)
 #define JL2XXX_SPEED_MSB	BIT(6)
+#define JL2XXX_DSFT_CTRL_REG	17
+#define JL2XXX_DSFT_EN		BIT(12)
+#define JL2XXX_DSFT_SMART_EN	BIT(13)
+#define JL2XXX_DSFT_TWO_WIRE_EN	BIT(12)
+#define JL2XXX_DSFT_STL_MASK	GENMASK(5, 9)
+#define JL2XXX_DSFT_STL_CNT(n)	(n << 5) & JL2XXX_DSFT_STL_MASK
+#define JL2XXX_DSFT_AN_MASK	0x001f
+#define JL2XXX_DSFT_CNT_MAX	32
 
 #define JL2XXX_PATCH		0x00ad
 #define JL2XXX_PATCH_REG	0x0010
@@ -149,6 +157,12 @@ struct jl_intr_ctrl {
 	struct jl_config_mode *op;
 };
 
+struct jl_downshift_ctrl {
+	u16 enable;
+	u8 count;
+	struct jl_config_mode *op;
+};
+
 struct jl1xxx_priv {
 	struct jl_led_ctrl *led;
 	struct jl_wol_ctrl *wol;
@@ -161,6 +175,7 @@ struct jl2xxx_priv {
 	struct jl_fld_ctrl *fld;
 	struct jl_wol_ctrl *wol;
 	struct jl_intr_ctrl *intr;
+	struct jl_downshift_ctrl *downshift;
 	bool static_inited;
 	u16 rx_delay;			/* Rgmii rx delay */
 	u16 tx_delay;			/* Rgmii tx delay */
@@ -175,6 +190,10 @@ struct jl2xxx_priv {
 
 
 /************************* JLSemi iteration code *************************/
+int jl2xxx_downshift_dynamic_op_get(struct phy_device *phydev, u8 *data);
+
+int jl2xxx_downshift_dynamic_op_set(struct phy_device *phydev, u8 cnt);
+
 int jl2xxx_intr_ack_event(struct phy_device *phydev);
 
 int jl2xxx_intr_static_op_set(struct phy_device *phydev);
