@@ -36,6 +36,10 @@ Example for jl1xxx:
 			compatible		= "jl1xxx-wol";
 			jl1xxx,wol-enable	= <JL1XXX_WOL_CTRL_EN>;
 		};
+		interrupt {
+			compatible		= "jl1xxx-interrupt";
+			jl1xxx,interrupt-enable	= <JL1XXX_INTR_CTRL_EN>;
+		};
 	};
 
 Example for jl2xxx:
@@ -63,6 +67,10 @@ Example for jl2xxx:
 		wol {
 			compatible		= "jl2xxx-wol";
 			jl2xxx,wol-enable	= <JL2XXX_WOL_CTRL_EN>;
+		};
+		interrupt {
+			compatible		= "jl2xxx-interrupt";
+			jl2xxx,interrupt-enable	= <JL2XXX_INTR_CTRL_EN>;
 		};
 		downshift {
 			compatible		= "jl2xxx-downshift";

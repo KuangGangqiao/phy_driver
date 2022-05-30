@@ -232,7 +232,7 @@ static int jl1xxx_dts_intr_cfg_get(struct phy_device *phydev)
 	struct device_node *of_node = dev->of_node;
 	int err;
 
-	err = of_property_read_u16(of_node, "jl1xxx,intr-enable",
+	err = of_property_read_u16(of_node, "jl1xxx,interrupt-enable",
 				   &priv->intr->enable);
 	if (err < 0)
 		return err;
@@ -562,7 +562,7 @@ static int jl2xxx_dts_intr_cfg_get(struct phy_device *phydev)
 	struct device_node *of_node = dev->of_node;
 	int err;
 
-	err = of_property_read_u16(of_node, "jl2xxx,intr-enable",
+	err = of_property_read_u16(of_node, "jl2xxx,interrupt-enable",
 				   &priv->intr->enable);
 	if (err < 0)
 		return err;
