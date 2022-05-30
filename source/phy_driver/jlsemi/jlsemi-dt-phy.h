@@ -37,6 +37,13 @@
 #define JL1XXX_LED_GLOBAL_ON_EN		(1 << 4)
 #define JL1XXX_LED_GPIO_OUT_EN		(1 << 5)
 
+/* PHY peration mode select */
+#define JL1XXX_LED_C_MACRO_MODE		true
+
+#define JL1XXX_LED_DEVICE_TREE_MODE	true
+
+#define JL1XXX_LED_ETHTOOL_MODE		true
+
 #define JL1XXX_LED_CTRL_EN	(JL1XXX_LED_STATIC_OP_EN | \
 				 JL1XXX_LED_DYNAMIC_OP_EN)
 
@@ -55,13 +62,6 @@
 
 /* PHY LED Global Hold On */
 #define JL1XXX_GLOBAL_ON_MS		0x8
-
-/* PHY peration mode select */
-#define JL1XXX_LED_C_MACRO_MODE		true
-
-#define JL1XXX_LED_DEVICE_TREE_MODE	true
-
-#define JL1XXX_LED_ETHTOOL_MODE		true
 
 
 /* PHY peration mode select */
@@ -89,7 +89,7 @@
 #define JL1XXX_INTR_LINK_CHANGE_EN	(1 << 2)
 #define JL1XXX_INTR_AN_ERR_EN		(1 << 3)
 
-#define JL1XXX_INTR_CTRL_EN	(JL1XXX_WOL_STATIC_OP_EN | \
+#define JL1XXX_INTR_CTRL_EN	(JL1XXX_INTR_STATIC_OP_EN | \
 				 JL1XXX_INTR_LINK_CHANGE_EN)
 
 /**********************************jl2xxx*********************************/
@@ -120,6 +120,13 @@
 #define JL2XXX_LED_GLOBAL_ON_EN		(1 << 4)
 #define JL2XXX_LED_POLARITY_EN		(1 << 5)
 
+/* PHY peration mode select */
+#define JL2XXX_LED_C_MACRO_MODE		true
+
+#define JL2XXX_LED_DEVICE_TREE_MODE	true
+
+#define JL2XXX_LED_ETHTOOL_MODE		true
+
 #define JL2XXX_LED_CTRL_EN	(JL2XXX_LED_STATIC_OP_EN | \
 				 JL2XXX_LED_DYNAMIC_OP_EN)
 
@@ -140,13 +147,10 @@
 /* PHY LED Global Hold On */
 #define JL2XXX_GLOBAL_ON_MS		0x2
 
-/* PHY peration mode select */
-#define JL2XXX_LED_C_MACRO_MODE		true
-
-#define JL2XXX_LED_DEVICE_TREE_MODE	true
-
-#define JL2XXX_LED_ETHTOOL_MODE		true
-
+/* PHY fast link down peration mode select */
+#define JL2XXX_FLD_C_MACRO_MODE		true
+#define JL2XXX_FLD_DEVICE_TREE_MODE	false
+#define JL2XXX_FLD_ETHTOOL_MODE		true
 
 #define JL2XXX_FLD_STATIC_OP_EN		(1 << 0)
 #define JL2XXX_FLD_DYNAMIC_OP_EN	(1 << 1)
@@ -154,14 +158,7 @@
 
 #define JL2XXX_FLD_CTRL_EN		(JL2XXX_FLD_STATIC_OP_EN | \
 					 JL2XXX_FLD_DYNAMIC_OP_EN)
-
 #define JL2XXX_FLD_DELAY		0
-
-/* PHY fast link down peration mode select */
-#define JL2XXX_FLD_C_MACRO_MODE		true
-#define JL2XXX_FLD_DEVICE_TREE_MODE	false
-#define JL2XXX_FLD_ETHTOOL_MODE		true
-
 
 /* PHY peration mode select */
 #define JL2XXX_WOL_C_MACRO_MODE		true
@@ -190,8 +187,24 @@
 #define JL2XXX_INTR_AN_COMPLETE_EN	(1 << 4)
 #define JL2XXX_INTR_AN_PAGE_RECE	(1 << 5)
 
-#define JL2XXX_INTR_CTRL_EN	(JL2XXX_WOL_STATIC_OP_EN | \
+#define JL2XXX_INTR_CTRL_EN	(JL2XXX_INTR_STATIC_OP_EN | \
 				 JL2XXX_INTR_LINK_CHANGE_EN)
+
+
+/* PHY peration mode select */
+#define JL2XXX_DSFT_C_MACRO_MODE	true
+
+#define JL2XXX_DSFT_DEVICE_TREE_MODE	true
+
+#define JL2XXX_DSFT_ETHTOOL_MODE	true
+
+#define JL2XXX_DSFT_STATIC_OP_EN	(1 << 0)
+#define JL2XXX_DSFT_DYNAMIC_OP_EN	(1 << 1)
+
+#define JL2XXX_DSFT_CTRL_EN	(JL2XXX_DSFT_STATIC_OP_EN | \
+				 JL2XXX_DSFT_DYNAMIC_OP_EN)
+
+#define JL2XXX_DSFT_AN_CNT		3
 
 #endif
 
