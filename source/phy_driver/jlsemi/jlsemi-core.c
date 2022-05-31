@@ -423,18 +423,6 @@ static int jl2xxx_led_operation_mode(struct phy_device *phydev)
 	return 0;
 }
 
-static int jl2xxx_ethtool_cfg_get(struct phy_device *phydev)
-{
-	/* Ethtool does not need to get the initialization configuration */
-	return 0;
-}
-
-static int jl1xxx_ethtool_cfg_get(struct phy_device *phydev)
-{
-	/* Ethtool does not need to get the initialization configuration */
-	return 0;
-}
-
 static int jl1xxx_wol_operation_args(struct phy_device *phydev)
 {
 	struct jl1xxx_priv *priv = phydev->priv;
@@ -449,7 +437,7 @@ static int jl1xxx_wol_operation_args(struct phy_device *phydev)
 		priv->wol->enable &= ~JL1XXX_WOL_STATIC_OP_EN;
 
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
-		jl1xxx_ethtool_cfg_get(phydev);
+		priv->wol->enable |= JL1XXX_WOL_DYNAMIC_OP_EN;
 	else
 		priv->wol->enable &= ~JL1XXX_WOL_DYNAMIC_OP_EN;
 
@@ -470,7 +458,7 @@ static int jl1xxx_intr_operation_args(struct phy_device *phydev)
 		priv->intr->enable &= ~JL1XXX_INTR_STATIC_OP_EN;
 
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
-		jl1xxx_ethtool_cfg_get(phydev);
+		priv->intr->enable |= JL1XXX_INTR_DYNAMIC_OP_EN;
 	else
 		priv->intr->enable &= ~JL1XXX_INTR_DYNAMIC_OP_EN;
 
@@ -491,7 +479,7 @@ static int jl1xxx_led_operation_args(struct phy_device *phydev)
 		priv->led->enable &= ~JL1XXX_LED_STATIC_OP_EN;
 
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
-		jl1xxx_ethtool_cfg_get(phydev);
+		priv->led->enable |= JL1XXX_LED_DYNAMIC_OP_EN;
 	else
 		priv->led->enable &= ~JL1XXX_LED_DYNAMIC_OP_EN;
 
@@ -512,7 +500,7 @@ static int jl2xxx_led_operation_args(struct phy_device *phydev)
 		priv->led->enable &= ~JL2XXX_LED_STATIC_OP_EN;
 
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
-		jl2xxx_ethtool_cfg_get(phydev);
+		priv->led->enable |= JL2XXX_LED_DYNAMIC_OP_EN;
 	else
 		priv->led->enable &= ~JL2XXX_LED_DYNAMIC_OP_EN;
 
@@ -743,7 +731,7 @@ static int jl2xxx_fld_operation_args(struct phy_device *phydev)
 		priv->fld->enable &= ~JL2XXX_FLD_STATIC_OP_EN;
 
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
-		jl2xxx_ethtool_cfg_get(phydev);
+		priv->fld->enable |= JL2XXX_FLD_DYNAMIC_OP_EN;
 	else
 		priv->fld->enable &= ~JL2XXX_FLD_DYNAMIC_OP_EN;
 
@@ -764,7 +752,7 @@ static int jl2xxx_wol_operation_args(struct phy_device *phydev)
 		priv->wol->enable &= ~JL2XXX_WOL_STATIC_OP_EN;
 
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
-		jl2xxx_ethtool_cfg_get(phydev);
+		priv->wol->enable |= JL2XXX_WOL_DYNAMIC_OP_EN;
 	else
 		priv->wol->enable &= ~JL2XXX_WOL_DYNAMIC_OP_EN;
 
@@ -785,7 +773,7 @@ static int jl2xxx_intr_operation_args(struct phy_device *phydev)
 		priv->intr->enable &= ~JL2XXX_INTR_STATIC_OP_EN;
 
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
-		jl2xxx_ethtool_cfg_get(phydev);
+		priv->intr->enable |= JL2XXX_INTR_DYNAMIC_OP_EN;
 	else
 		priv->intr->enable &= ~JL2XXX_INTR_DYNAMIC_OP_EN;
 
@@ -806,7 +794,7 @@ static int jl2xxx_downshift_operation_args(struct phy_device *phydev)
 		priv->downshift->enable &= ~JL2XXX_DSFT_STATIC_OP_EN;
 
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
-		jl2xxx_ethtool_cfg_get(phydev);
+		priv->downshift->enable |= JL2XXX_DSFT_DYNAMIC_OP_EN;
 	else
 		priv->downshift->enable &= ~JL2XXX_DSFT_DYNAMIC_OP_EN;
 
