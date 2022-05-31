@@ -10,7 +10,7 @@
 #ifndef _DT_BINDINGS_JLSEMI_PHY_H
 #define _DT_BINDINGS_JLSEMI_PHY_H
 
-/******************************** JL1XXX-LED ************************************/
+/**************************** JL1XXX-LED *********************************/
 /* PHY LED Modes */
 #define JL1XXX_LED0_STRAP		(1 << 0)
 #define JL1XXX_LED0_EEE			(1 << 1)
@@ -39,7 +39,7 @@
 #define JL1XXX_LED_GLOBAL_ON_EN		(1 << 4)
 #define JL1XXX_LED_GPIO_OUT_EN		(1 << 5)
 
-/* PHY LED operation mode select */
+/* PHY LED Operation Mode Select */
 #define JL1XXX_LED_C_MACRO_MODE		true
 #define JL1XXX_LED_DEVICE_TREE_MODE	true
 #define JL1XXX_LED_ETHTOOL_MODE		false
@@ -64,12 +64,12 @@
 #define JL1XXX_GLOBAL_ON_MS		0x8
 /**************************************************************************/
 
-/****************************** JL1XXX-WOL *********************************/
+/****************************** JL1XXX-WOL ********************************/
 /* PHY WOL Control Enable Mask */
 #define JL1XXX_WOL_STATIC_OP_EN		(1 << 0)
 #define JL1XXX_WOL_DYNAMIC_OP_EN	(1 << 1)
 
-/* PHY WOL peration mode select */
+/* PHY WOL Operation Mode Select */
 #define JL1XXX_WOL_C_MACRO_MODE		true
 #define JL1XXX_WOL_DEVICE_TREE_MODE	true
 #define JL1XXX_WOL_ETHTOOL_MODE		true
@@ -79,7 +79,7 @@
 
 /*************************************************************************/
 
-/****************************** JL1XXX-INTR ******************************/
+/***************************** JL1XXX-INTR *******************************/
 /* PHY Interrupt Control Enable Mask */
 #define JL1XXX_INTR_STATIC_OP_EN	(1 << 0)
 #define JL1XXX_INTR_DYNAMIC_OP_EN	(1 << 1)
@@ -95,7 +95,7 @@
 				 JL1XXX_INTR_LINK_CHANGE_EN)
 /*************************************************************************/
 
-/******************************** JL2XXX-LED *****************************/
+/**************************** JL2XXX-LED *********************************/
 /* PHY LED Modes */
 #define JL2XXX_LED0_LINK10		(1 << 0)
 #define JL2XXX_LED0_LINK100		(1 << 1)
@@ -151,7 +151,7 @@
 #define JL2XXX_GLOBAL_ON_MS		0x2
 /*************************************************************************/
 
-/******************************** JL2XXX-FLD *****************************/
+/**************************** JL2XXX-FLD *********************************/
 /* PHY Fast Link Down Control Enable Mask */
 #define JL2XXX_FLD_STATIC_OP_EN		(1 << 0)
 #define JL2XXX_FLD_DYNAMIC_OP_EN	(1 << 1)
@@ -167,7 +167,7 @@
 #define JL2XXX_FLD_DELAY		0
 /*************************************************************************/
 
-/******************************** JL2XXX-WOL *****************************/
+/**************************** JL2XXX-WOL *********************************/
 /* PHY WOL Control Enable Mask */
 #define JL2XXX_WOL_STATIC_OP_EN		(1 << 0)
 #define JL2XXX_WOL_DYNAMIC_OP_EN	(1 << 1)
@@ -181,7 +181,7 @@
 				 JL2XXX_WOL_DYNAMIC_OP_EN)
 /*************************************************************************/
 
-/******************************** JL2XXX-INTR ****************************/
+/**************************** JL2XXX-INTR ********************************/
 /* PHY Interrupt Control Enable Mask */
 #define JL2XXX_INTR_STATIC_OP_EN	(1 << 0)
 #define JL2XXX_INTR_DYNAMIC_OP_EN	(1 << 1)
@@ -199,7 +199,7 @@
 				 JL2XXX_INTR_LINK_CHANGE_EN)
 /*************************************************************************/
 
-/******************************** JL2XXX-DSFT ****************************/
+/**************************** JL2XXX-DSFT ********************************/
 /* PHY Downshift Control Enable Mask */
 #define JL2XXX_DSFT_STATIC_OP_EN	(1 << 0)
 #define JL2XXX_DSFT_DYNAMIC_OP_EN	(1 << 1)
