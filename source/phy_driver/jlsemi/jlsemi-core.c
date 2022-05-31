@@ -441,11 +441,11 @@ static int jl1xxx_wol_operation_args(struct phy_device *phydev)
 	struct jl_wol_ctrl *ctrl = priv->wol;
 	struct jl_config_mode *mode = ctrl->op;
 
-	if (mode->static_op == STATIC_DEVICE_TREE)
-		jl1xxx_dts_wol_cfg_get(phydev);
-	else if (mode->static_op == STATIC_C_MACRO)
+	if (mode->static_op == STATIC_C_MACRO)
 		jl1xxx_c_marcro_wol_cfg_get(phydev);
-	else
+	else if (mode->static_op == STATIC_DEVICE_TREE)
+		jl1xxx_dts_wol_cfg_get(phydev);
+	else if (mode->static_op == STATIC_NONE)
 		priv->wol->enable &= ~JL1XXX_WOL_STATIC_OP_EN;
 
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
@@ -462,11 +462,11 @@ static int jl1xxx_intr_operation_args(struct phy_device *phydev)
 	struct jl_intr_ctrl *ctrl = priv->intr;
 	struct jl_config_mode *mode = ctrl->op;
 
-	if (mode->static_op == STATIC_DEVICE_TREE)
-		jl1xxx_dts_intr_cfg_get(phydev);
-	else if (mode->static_op == STATIC_C_MACRO)
+	if (mode->static_op == STATIC_C_MACRO)
 		jl1xxx_c_marcro_intr_cfg_get(phydev);
-	else
+	else if (mode->static_op == STATIC_DEVICE_TREE)
+		jl1xxx_dts_intr_cfg_get(phydev);
+	else if (mode->static_op == STATIC_NONE)
 		priv->intr->enable &= ~JL1XXX_INTR_STATIC_OP_EN;
 
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
@@ -483,11 +483,11 @@ static int jl1xxx_led_operation_args(struct phy_device *phydev)
 	struct jl_led_ctrl *ctrl = priv->led;
 	struct jl_config_mode *mode = ctrl->op;
 
-	if (mode->static_op == STATIC_DEVICE_TREE)
-		jl1xxx_dts_led_cfg_get(phydev);
-	else if (mode->static_op == STATIC_C_MACRO)
+	if (mode->static_op == STATIC_C_MACRO)
 		jl1xxx_c_marcro_led_cfg_get(phydev);
-	else
+	else if (mode->static_op == STATIC_DEVICE_TREE)
+		jl1xxx_dts_led_cfg_get(phydev);
+	else if (mode->static_op == STATIC_NONE)
 		priv->led->enable &= ~JL1XXX_LED_STATIC_OP_EN;
 
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
@@ -504,11 +504,11 @@ static int jl2xxx_led_operation_args(struct phy_device *phydev)
 	struct jl_led_ctrl *ctrl = priv->led;
 	struct jl_config_mode *mode = ctrl->op;
 
-	if (mode->static_op == STATIC_DEVICE_TREE)
-		jl2xxx_dts_led_cfg_get(phydev);
-	else if (mode->static_op == STATIC_C_MACRO)
+	if (mode->static_op == STATIC_C_MACRO)
 		jl2xxx_c_marcro_led_cfg_get(phydev);
-	else
+	else if (mode->static_op == STATIC_DEVICE_TREE)
+		jl2xxx_dts_led_cfg_get(phydev);
+	else if (mode->static_op == STATIC_NONE)
 		priv->led->enable &= ~JL2XXX_LED_STATIC_OP_EN;
 
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
@@ -735,11 +735,11 @@ static int jl2xxx_fld_operation_args(struct phy_device *phydev)
 	struct jl_fld_ctrl *ctrl = priv->fld;
 	struct jl_config_mode *mode = ctrl->op;
 
-	if (mode->static_op == STATIC_DEVICE_TREE)
-		jl2xxx_dts_fld_cfg_get(phydev);
-	else if (mode->static_op == STATIC_C_MACRO)
+	if (mode->static_op == STATIC_C_MACRO)
 		jl2xxx_c_marcro_fld_cfg_get(phydev);
-	else
+	else if (mode->static_op == STATIC_DEVICE_TREE)
+		jl2xxx_dts_fld_cfg_get(phydev);
+	else if (mode->static_op == STATIC_NONE)
 		priv->fld->enable &= ~JL2XXX_FLD_STATIC_OP_EN;
 
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
@@ -756,11 +756,11 @@ static int jl2xxx_wol_operation_args(struct phy_device *phydev)
 	struct jl_wol_ctrl *ctrl = priv->wol;
 	struct jl_config_mode *mode = ctrl->op;
 
-	if (mode->static_op == STATIC_DEVICE_TREE)
-		jl2xxx_dts_wol_cfg_get(phydev);
-	else if (mode->static_op == STATIC_C_MACRO)
+	if (mode->static_op == STATIC_C_MACRO)
 		jl2xxx_c_marcro_wol_cfg_get(phydev);
-	else
+	else if (mode->static_op == STATIC_DEVICE_TREE)
+		jl2xxx_dts_wol_cfg_get(phydev);
+	else if (mode->static_op == STATIC_NONE)
 		priv->wol->enable &= ~JL2XXX_WOL_STATIC_OP_EN;
 
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
@@ -781,7 +781,7 @@ static int jl2xxx_intr_operation_args(struct phy_device *phydev)
 		jl2xxx_dts_intr_cfg_get(phydev);
 	else if (mode->static_op == STATIC_C_MACRO)
 		jl2xxx_c_marcro_intr_cfg_get(phydev);
-	else
+	else if (mode->static_op == STATIC_NONE)
 		priv->intr->enable &= ~JL2XXX_INTR_STATIC_OP_EN;
 
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
@@ -798,11 +798,11 @@ static int jl2xxx_downshift_operation_args(struct phy_device *phydev)
 	struct jl_downshift_ctrl *ctrl = priv->downshift;
 	struct jl_config_mode *mode = ctrl->op;
 
-	if (mode->static_op == STATIC_DEVICE_TREE)
-		jl2xxx_dts_downshift_cfg_get(phydev);
-	else if (mode->static_op == STATIC_C_MACRO)
+	if (mode->static_op == STATIC_C_MACRO)
 		jl2xxx_c_marcro_downshift_cfg_get(phydev);
-	else
+	else if (mode->static_op == STATIC_DEVICE_TREE)
+		jl2xxx_dts_downshift_cfg_get(phydev);
+	else if (mode->static_op == STATIC_NONE)
 		priv->downshift->enable &= ~JL2XXX_DSFT_STATIC_OP_EN;
 
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
