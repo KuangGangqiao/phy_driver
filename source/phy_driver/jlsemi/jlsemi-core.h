@@ -138,44 +138,44 @@ struct jl_led_ctrl {
 	u16 global_on;			/* LED global twinkle hold on time */
 	u16 gpio_output;		/* LED is used as gpio output */
 	u16 polarity;			/* LED polarity */
-	struct jl_config_mode *op;	/* LED config operation mode */
+	struct jl_config_mode op;	/* LED config operation mode */
 };
 
 struct jl_fld_ctrl {
 	u16 enable;			/* Fast link down control enable */
 	u8 delay;			/* Fast link down time */
-	struct jl_config_mode *op;	/* Fast link down config operation mode */
+	struct jl_config_mode op;	/* Fast link down config operation mode */
 };
 
 struct jl_wol_ctrl {
 	u16 enable;
-	struct jl_config_mode *op;
+	struct jl_config_mode op;
 };
 
 struct jl_intr_ctrl {
 	u16 enable;
-	struct jl_config_mode *op;
+	struct jl_config_mode op;
 };
 
 struct jl_downshift_ctrl {
 	u16 enable;
 	u8 count;
-	struct jl_config_mode *op;
+	struct jl_config_mode op;
 };
 
 struct jl1xxx_priv {
-	struct jl_led_ctrl *led;
-	struct jl_wol_ctrl *wol;
-	struct jl_intr_ctrl *intr;
+	struct jl_led_ctrl led;
+	struct jl_wol_ctrl wol;
+	struct jl_intr_ctrl intr;
 	bool static_inited;
 };
 
 struct jl2xxx_priv {
-	struct jl_led_ctrl *led;
-	struct jl_fld_ctrl *fld;
-	struct jl_wol_ctrl *wol;
-	struct jl_intr_ctrl *intr;
-	struct jl_downshift_ctrl *downshift;
+	struct jl_led_ctrl led;
+	struct jl_fld_ctrl fld;
+	struct jl_wol_ctrl wol;
+	struct jl_intr_ctrl intr;
+	struct jl_downshift_ctrl downshift;
 	bool static_inited;
 	u16 rx_delay;			/* Rgmii rx delay */
 	u16 tx_delay;			/* Rgmii tx delay */

@@ -89,39 +89,39 @@ static int jl1xxx_led_static_op_set(struct phy_device *phydev)
 			JL1XXX_LED_REG, JL1XXX_LED_EN);
 
 	/* Set led mode */
-	if (priv->led->enable & JL1XXX_LED_MODE_EN) {
+	if (priv->led.enable & JL1XXX_LED_MODE_EN) {
 		err = jlsemi_modify_paged_reg(phydev, JL1XXX_PAGE129,
 					      JL1XXX_LED_MODE_REG,
 					      JL1XXX_SUPP_LED_MODE,
-					      priv->led->mode);
+					      priv->led.mode);
 		if (err < 0)
 			return err;
 	}
 	/* Set led period */
-	if (priv->led->enable & JL1XXX_LED_GLOABL_PERIOD_EN) {
+	if (priv->led.enable & JL1XXX_LED_GLOABL_PERIOD_EN) {
 		err = jlsemi_modify_paged_reg(phydev, JL1XXX_PAGE24,
 					      JL1XXX_LED_BLINK_REG,
 					      LED_PERIOD_MASK,
 					      LEDPERIOD(
-					      priv->led->global_period));
+					      priv->led.global_period));
 		if (err < 0)
 			return err;
 	}
 	/* Set led on time */
-	if (priv->led->enable & JL1XXX_LED_GLOBAL_ON_EN) {
+	if (priv->led.enable & JL1XXX_LED_GLOBAL_ON_EN) {
 		err = jlsemi_modify_paged_reg(phydev, JL1XXX_PAGE24,
 					      JL1XXX_LED_BLINK_REG,
 					      LED_ON_MASK,
-					      LEDON(priv->led->global_on));
+					      LEDON(priv->led.global_on));
 		if (err < 0)
 			return err;
 	}
 	/*Set led gpio output */
-	if (priv->led->enable & JL1XXX_LED_GPIO_OUT_EN) {
+	if (priv->led.enable & JL1XXX_LED_GPIO_OUT_EN) {
 		err = jlsemi_modify_paged_reg(phydev, JL1XXX_PAGE128,
 					      JL1XXX_LED_GPIO_REG,
 					      JL1XXX_SUPP_GPIO,
-					      priv->led->gpio_output);
+					      priv->led.gpio_output);
 		if (err < 0)
 			return err;
 	}
@@ -135,39 +135,39 @@ static int jl2xxx_led_static_op_set(struct phy_device *phydev)
 	int err;
 
 	/* Set led mode */
-	if (priv->led->enable & JL2XXX_LED_MODE_EN) {
+	if (priv->led.enable & JL2XXX_LED_MODE_EN) {
 		err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE3332,
 					      JL2XXX_LED_CTRL_REG,
 					      JL2XXX_SUPP_LED_MODE,
-					      priv->led->mode);
+					      priv->led.mode);
 		if (err < 0)
 			return err;
 	}
 	/* Set led period */
-	if (priv->led->enable & JL2XXX_LED_GLOABL_PERIOD_EN) {
+	if (priv->led.enable & JL2XXX_LED_GLOABL_PERIOD_EN) {
 		err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE4096,
 					      JL2XXX_LED_BLINK_REG,
 					      LED_PERIOD_MASK,
 					      LEDPERIOD(
-					      priv->led->global_period));
+					      priv->led.global_period));
 		if (err < 0)
 			return err;
 	}
 	/* Set led on time */
-	if (priv->led->enable & JL2XXX_LED_GLOBAL_ON_EN) {
+	if (priv->led.enable & JL2XXX_LED_GLOBAL_ON_EN) {
 		err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE4096,
 					      JL2XXX_LED_BLINK_REG,
 					      LED_ON_MASK,
-					      LEDON(priv->led->global_on));
+					      LEDON(priv->led.global_on));
 		if (err < 0)
 			return err;
 	}
 	/* Set led polarity */
-	if (priv->led->enable & JL2XXX_LED_POLARITY_EN) {
+	if (priv->led.enable & JL2XXX_LED_POLARITY_EN) {
 		err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE4096,
 					      JL2XXX_LED_POLARITY_REG,
 					      JL2XXX_SUPP_LED_POLARITY,
-					      priv->led->polarity);
+					      priv->led.polarity);
 		if (err < 0)
 			return err;
 	}
@@ -183,27 +183,27 @@ static int jl1xxx_dts_led_cfg_get(struct phy_device *phydev)
 	int err;
 
 	err = of_property_read_u16(of_node, "jl1xxx,led-enable",
-				   &priv->led->enable);
+				   &priv->led.enable);
 	if (err < 0)
 		return err;
 
 	err = of_property_read_u16(of_node, "jl1xxx,led-mode",
-				   &priv->led->mode);
+				   &priv->led.mode);
 	if (err < 0)
 		return err;
 
 	err = of_property_read_u16(of_node, "jl1xxx,led-period",
-				   &priv->led->global_period);
+				   &priv->led.global_period);
 	if (err < 0)
 		return err;
 
 	err = of_property_read_u16(of_node, "jl1xxx,led-on",
-				   &priv->led->global_on);
+				   &priv->led.global_on);
 	if (err < 0)
 		return err;
 
 	err = of_property_read_u16(of_node, "jl1xxx,led-gpio",
-				   &priv->led->gpio_output);
+				   &priv->led.gpio_output);
 	if (err < 0)
 		return err;
 
@@ -218,7 +218,7 @@ static int jl1xxx_dts_wol_cfg_get(struct phy_device *phydev)
 	int err;
 
 	err = of_property_read_u16(of_node, "jl1xxx,wol-enable",
-				   &priv->wol->enable);
+				   &priv->wol.enable);
 	if (err < 0)
 		return err;
 
@@ -233,7 +233,7 @@ static int jl1xxx_dts_intr_cfg_get(struct phy_device *phydev)
 	int err;
 
 	err = of_property_read_u16(of_node, "jl1xxx,interrupt-enable",
-				   &priv->intr->enable);
+				   &priv->intr.enable);
 	if (err < 0)
 		return err;
 
@@ -248,27 +248,27 @@ static int jl2xxx_dts_led_cfg_get(struct phy_device *phydev)
 	int err;
 
 	err = of_property_read_u16(of_node, "jl2xxx,led-enable",
-				  &priv->led->enable);
+				  &priv->led.enable);
 	if (err < 0)
 		return err;
 
 	err = of_property_read_u16(of_node, "jl2xxx,led-mode",
-				   &priv->led->mode);
+				   &priv->led.mode);
 	if (err < 0)
 		return err;
 
 	err = of_property_read_u16(of_node, "jl2xxx,led-period",
-				   &priv->led->global_period);
+				   &priv->led.global_period);
 	if (err < 0)
 		return err;
 
 	err = of_property_read_u16(of_node, "jl2xxx,led-on",
-				   &priv->led->global_on);
+				   &priv->led.global_on);
 	if (err < 0)
 		return err;
 
 	err = of_property_read_u16(of_node, "jl2xxx,led-polarity",
-				   &priv->led->polarity);
+				   &priv->led.polarity);
 	if (err < 0)
 		return err;
 
@@ -288,7 +288,7 @@ static int jl1xxx_c_marcro_led_cfg_get(struct phy_device *phydev)
 		.gpio_output	= JL1XXX_CFG_GPIO,
 	};
 
-	priv->led = &led_cfg;
+	priv->led = led_cfg;
 
 	return 0;
 }
@@ -302,7 +302,7 @@ static int jl1xxx_c_marcro_wol_cfg_get(struct phy_device *phydev)
 		.enable		= JL1XXX_WOL_CTRL_EN,
 	};
 
-	priv->wol = &wol_cfg;
+	priv->wol = wol_cfg;
 
 	return 0;
 }
@@ -316,7 +316,7 @@ static int jl1xxx_c_marcro_intr_cfg_get(struct phy_device *phydev)
 		.enable		= JL1XXX_INTR_CTRL_EN,
 	};
 
-	priv->intr = &intr_cfg;
+	priv->intr = intr_cfg;
 
 	return 0;
 }
@@ -334,7 +334,7 @@ static int jl2xxx_c_marcro_led_cfg_get(struct phy_device *phydev)
 		.polarity	= JL2XXX_LED_POLARITY,
 	};
 
-	priv->led = &led_cfg;
+	priv->led = led_cfg;
 
 	return 0;
 }
@@ -342,8 +342,7 @@ static int jl2xxx_c_marcro_led_cfg_get(struct phy_device *phydev)
 static int jl1xxx_led_operation_mode(struct phy_device *phydev)
 {
 	struct jl1xxx_priv *priv = phydev->priv;
-	struct jl_led_ctrl *ctrl = priv->led;
-	struct jl_config_mode *mode = ctrl->op;
+	struct jl_config_mode *mode = &priv->led.op;
 
 	if (JL1XXX_LED_C_MACRO_MODE)
 		mode->static_op = STATIC_C_MACRO;
@@ -363,8 +362,7 @@ static int jl1xxx_led_operation_mode(struct phy_device *phydev)
 static int jl1xxx_wol_operation_mode(struct phy_device *phydev)
 {
 	struct jl1xxx_priv *priv = phydev->priv;
-	struct jl_wol_ctrl *ctrl = priv->wol;
-	struct jl_config_mode *mode = ctrl->op;
+	struct jl_config_mode *mode = &priv->wol.op;
 
 	if (JL1XXX_WOL_C_MACRO_MODE)
 		mode->static_op = STATIC_C_MACRO;
@@ -384,8 +382,7 @@ static int jl1xxx_wol_operation_mode(struct phy_device *phydev)
 static int jl1xxx_intr_operation_mode(struct phy_device *phydev)
 {
 	struct jl1xxx_priv *priv = phydev->priv;
-	struct jl_intr_ctrl *ctrl = priv->intr;
-	struct jl_config_mode *mode = ctrl->op;
+	struct jl_config_mode *mode = &priv->intr.op;
 
 	if (JL1XXX_INTR_C_MACRO_MODE)
 		mode->static_op = STATIC_C_MACRO;
@@ -405,8 +402,7 @@ static int jl1xxx_intr_operation_mode(struct phy_device *phydev)
 static int jl2xxx_led_operation_mode(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_led_ctrl *ctrl = priv->led;
-	struct jl_config_mode *mode = ctrl->op;
+	struct jl_config_mode *mode = &priv->led.op;
 
 	if (JL2XXX_LED_C_MACRO_MODE)
 		mode->static_op = STATIC_C_MACRO;
@@ -426,20 +422,19 @@ static int jl2xxx_led_operation_mode(struct phy_device *phydev)
 static int jl1xxx_wol_operation_args(struct phy_device *phydev)
 {
 	struct jl1xxx_priv *priv = phydev->priv;
-	struct jl_wol_ctrl *ctrl = priv->wol;
-	struct jl_config_mode *mode = ctrl->op;
+	struct jl_config_mode *mode = &priv->wol.op;
 
 	if (mode->static_op == STATIC_C_MACRO)
 		jl1xxx_c_marcro_wol_cfg_get(phydev);
 	else if (mode->static_op == STATIC_DEVICE_TREE)
 		jl1xxx_dts_wol_cfg_get(phydev);
 	else if (mode->static_op == STATIC_NONE)
-		priv->wol->enable &= ~JL1XXX_WOL_STATIC_OP_EN;
+		priv->wol.enable &= ~JL1XXX_WOL_STATIC_OP_EN;
 
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
-		priv->wol->enable |= JL1XXX_WOL_DYNAMIC_OP_EN;
+		priv->wol.enable |= JL1XXX_WOL_DYNAMIC_OP_EN;
 	else
-		priv->wol->enable &= ~JL1XXX_WOL_DYNAMIC_OP_EN;
+		priv->wol.enable &= ~JL1XXX_WOL_DYNAMIC_OP_EN;
 
 	return 0;
 }
@@ -447,20 +442,19 @@ static int jl1xxx_wol_operation_args(struct phy_device *phydev)
 static int jl1xxx_intr_operation_args(struct phy_device *phydev)
 {
 	struct jl1xxx_priv *priv = phydev->priv;
-	struct jl_intr_ctrl *ctrl = priv->intr;
-	struct jl_config_mode *mode = ctrl->op;
+	struct jl_config_mode *mode = &priv->intr.op;
 
 	if (mode->static_op == STATIC_C_MACRO)
 		jl1xxx_c_marcro_intr_cfg_get(phydev);
 	else if (mode->static_op == STATIC_DEVICE_TREE)
 		jl1xxx_dts_intr_cfg_get(phydev);
 	else if (mode->static_op == STATIC_NONE)
-		priv->intr->enable &= ~JL1XXX_INTR_STATIC_OP_EN;
+		priv->intr.enable &= ~JL1XXX_INTR_STATIC_OP_EN;
 
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
-		priv->intr->enable |= JL1XXX_INTR_DYNAMIC_OP_EN;
+		priv->intr.enable |= JL1XXX_INTR_DYNAMIC_OP_EN;
 	else
-		priv->intr->enable &= ~JL1XXX_INTR_DYNAMIC_OP_EN;
+		priv->intr.enable &= ~JL1XXX_INTR_DYNAMIC_OP_EN;
 
 	return 0;
 }
@@ -468,20 +462,19 @@ static int jl1xxx_intr_operation_args(struct phy_device *phydev)
 static int jl1xxx_led_operation_args(struct phy_device *phydev)
 {
 	struct jl1xxx_priv *priv = phydev->priv;
-	struct jl_led_ctrl *ctrl = priv->led;
-	struct jl_config_mode *mode = ctrl->op;
+	struct jl_config_mode *mode = &priv->led.op;
 
 	if (mode->static_op == STATIC_C_MACRO)
 		jl1xxx_c_marcro_led_cfg_get(phydev);
 	else if (mode->static_op == STATIC_DEVICE_TREE)
 		jl1xxx_dts_led_cfg_get(phydev);
 	else if (mode->static_op == STATIC_NONE)
-		priv->led->enable &= ~JL1XXX_LED_STATIC_OP_EN;
+		priv->led.enable &= ~JL1XXX_LED_STATIC_OP_EN;
 
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
-		priv->led->enable |= JL1XXX_LED_DYNAMIC_OP_EN;
+		priv->led.enable |= JL1XXX_LED_DYNAMIC_OP_EN;
 	else
-		priv->led->enable &= ~JL1XXX_LED_DYNAMIC_OP_EN;
+		priv->led.enable &= ~JL1XXX_LED_DYNAMIC_OP_EN;
 
 	return 0;
 }
@@ -489,20 +482,19 @@ static int jl1xxx_led_operation_args(struct phy_device *phydev)
 static int jl2xxx_led_operation_args(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_led_ctrl *ctrl = priv->led;
-	struct jl_config_mode *mode = ctrl->op;
+	struct jl_config_mode *mode = &priv->led.op;
 
 	if (mode->static_op == STATIC_C_MACRO)
 		jl2xxx_c_marcro_led_cfg_get(phydev);
 	else if (mode->static_op == STATIC_DEVICE_TREE)
 		jl2xxx_dts_led_cfg_get(phydev);
 	else if (mode->static_op == STATIC_NONE)
-		priv->led->enable &= ~JL2XXX_LED_STATIC_OP_EN;
+		priv->led.enable &= ~JL2XXX_LED_STATIC_OP_EN;
 
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
-		priv->led->enable |= JL2XXX_LED_DYNAMIC_OP_EN;
+		priv->led.enable |= JL2XXX_LED_DYNAMIC_OP_EN;
 	else
-		priv->led->enable &= ~JL2XXX_LED_DYNAMIC_OP_EN;
+		priv->led.enable &= ~JL2XXX_LED_DYNAMIC_OP_EN;
 
 	return 0;
 }
@@ -516,12 +508,12 @@ static int jl2xxx_dts_fld_cfg_get(struct phy_device *phydev)
 	int err;
 
 	err = of_property_read_u16(of_node, "jl2xxx,fld-enable",
-				   &priv->fld->enable);
+				   &priv->fld.enable);
 	if (err < 0)
 		return err;
 
 	err = of_property_read_u8(of_node, "jl2xxx,fld-delay",
-				  &priv->fld->delay);
+				  &priv->fld.delay);
 	if (err < 0)
 		return err;
 
@@ -536,7 +528,7 @@ static int jl2xxx_dts_wol_cfg_get(struct phy_device *phydev)
 	int err;
 
 	err = of_property_read_u16(of_node, "jl2xxx,wol-enable",
-				   &priv->wol->enable);
+				   &priv->wol.enable);
 	if (err < 0)
 		return err;
 
@@ -551,7 +543,7 @@ static int jl2xxx_dts_intr_cfg_get(struct phy_device *phydev)
 	int err;
 
 	err = of_property_read_u16(of_node, "jl2xxx,interrupt-enable",
-				   &priv->intr->enable);
+				   &priv->intr.enable);
 	if (err < 0)
 		return err;
 
@@ -566,12 +558,12 @@ static int jl2xxx_dts_downshift_cfg_get(struct phy_device *phydev)
 	int err;
 
 	err = of_property_read_u16(of_node, "jl2xxx,downshift-enable",
-				   &priv->downshift->enable);
+				   &priv->downshift.enable);
 	if (err < 0)
 		return err;
 
 	err = of_property_read_u8(of_node, "jl2xxx,downshift-count",
-				   &priv->downshift->count);
+				   &priv->downshift.count);
 	if (err < 0)
 		return err;
 
@@ -588,7 +580,7 @@ static int jl2xxx_c_marcro_fld_cfg_get(struct phy_device *phydev)
 		.delay		= JL2XXX_FLD_DELAY,
 	};
 
-	priv->fld = &fld_cfg;
+	priv->fld = fld_cfg;
 
 	return 0;
 }
@@ -601,7 +593,7 @@ static int jl2xxx_c_marcro_wol_cfg_get(struct phy_device *phydev)
 		.enable		= JL2XXX_WOL_CTRL_EN,
 	};
 
-	priv->wol = &wol_cfg;
+	priv->wol = wol_cfg;
 
 	return 0;
 }
@@ -614,7 +606,7 @@ static int jl2xxx_c_marcro_intr_cfg_get(struct phy_device *phydev)
 		.enable		= JL2XXX_INTR_CTRL_EN,
 	};
 
-	priv->intr = &intr_cfg;
+	priv->intr = intr_cfg;
 
 	return 0;
 }
@@ -628,7 +620,7 @@ static int jl2xxx_c_marcro_downshift_cfg_get(struct phy_device *phydev)
 		.count		= JL2XXX_DSFT_AN_CNT,
 	};
 
-	priv->downshift = &downshift_cfg;
+	priv->downshift = downshift_cfg;
 
 	return 0;
 }
@@ -636,8 +628,7 @@ static int jl2xxx_c_marcro_downshift_cfg_get(struct phy_device *phydev)
 static int jl2xxx_fld_operation_mode(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_fld_ctrl *ctrl = priv->fld;
-	struct jl_config_mode *mode = ctrl->op;
+	struct jl_config_mode *mode = &priv->fld.op;
 
 	if (JL2XXX_FLD_C_MACRO_MODE)
 		mode->static_op = STATIC_C_MACRO;
@@ -657,8 +648,7 @@ static int jl2xxx_fld_operation_mode(struct phy_device *phydev)
 static int jl2xxx_intr_operation_mode(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_intr_ctrl *ctrl = priv->intr;
-	struct jl_config_mode *mode = ctrl->op;
+	struct jl_config_mode *mode = &priv->intr.op;
 
 	if (JL2XXX_INTR_C_MACRO_MODE)
 		mode->static_op = STATIC_C_MACRO;
@@ -678,8 +668,7 @@ static int jl2xxx_intr_operation_mode(struct phy_device *phydev)
 static int jl2xxx_wol_operation_mode(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_wol_ctrl *ctrl = priv->wol;
-	struct jl_config_mode *mode = ctrl->op;
+	struct jl_config_mode *mode = &priv->wol.op;
 
 	if (JL2XXX_WOL_C_MACRO_MODE)
 		mode->static_op = STATIC_C_MACRO;
@@ -699,8 +688,7 @@ static int jl2xxx_wol_operation_mode(struct phy_device *phydev)
 static int jl2xxx_downshift_operation_mode(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_downshift_ctrl *ctrl = priv->downshift;
-	struct jl_config_mode *mode = ctrl->op;
+	struct jl_config_mode *mode = &priv->downshift.op;
 
 	if (JL2XXX_DSFT_C_MACRO_MODE)
 		mode->static_op = STATIC_C_MACRO;
@@ -720,20 +708,19 @@ static int jl2xxx_downshift_operation_mode(struct phy_device *phydev)
 static int jl2xxx_fld_operation_args(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_fld_ctrl *ctrl = priv->fld;
-	struct jl_config_mode *mode = ctrl->op;
+	struct jl_config_mode *mode = &priv->fld.op;
 
 	if (mode->static_op == STATIC_C_MACRO)
 		jl2xxx_c_marcro_fld_cfg_get(phydev);
 	else if (mode->static_op == STATIC_DEVICE_TREE)
 		jl2xxx_dts_fld_cfg_get(phydev);
 	else if (mode->static_op == STATIC_NONE)
-		priv->fld->enable &= ~JL2XXX_FLD_STATIC_OP_EN;
+		priv->fld.enable &= ~JL2XXX_FLD_STATIC_OP_EN;
 
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
-		priv->fld->enable |= JL2XXX_FLD_DYNAMIC_OP_EN;
+		priv->fld.enable |= JL2XXX_FLD_DYNAMIC_OP_EN;
 	else
-		priv->fld->enable &= ~JL2XXX_FLD_DYNAMIC_OP_EN;
+		priv->fld.enable &= ~JL2XXX_FLD_DYNAMIC_OP_EN;
 
 	return 0;
 }
@@ -741,20 +728,19 @@ static int jl2xxx_fld_operation_args(struct phy_device *phydev)
 static int jl2xxx_wol_operation_args(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_wol_ctrl *ctrl = priv->wol;
-	struct jl_config_mode *mode = ctrl->op;
+	struct jl_config_mode *mode = &priv->wol.op;
 
 	if (mode->static_op == STATIC_C_MACRO)
 		jl2xxx_c_marcro_wol_cfg_get(phydev);
 	else if (mode->static_op == STATIC_DEVICE_TREE)
 		jl2xxx_dts_wol_cfg_get(phydev);
 	else if (mode->static_op == STATIC_NONE)
-		priv->wol->enable &= ~JL2XXX_WOL_STATIC_OP_EN;
+		priv->wol.enable &= ~JL2XXX_WOL_STATIC_OP_EN;
 
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
-		priv->wol->enable |= JL2XXX_WOL_DYNAMIC_OP_EN;
+		priv->wol.enable |= JL2XXX_WOL_DYNAMIC_OP_EN;
 	else
-		priv->wol->enable &= ~JL2XXX_WOL_DYNAMIC_OP_EN;
+		priv->wol.enable &= ~JL2XXX_WOL_DYNAMIC_OP_EN;
 
 	return 0;
 }
@@ -762,20 +748,19 @@ static int jl2xxx_wol_operation_args(struct phy_device *phydev)
 static int jl2xxx_intr_operation_args(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_intr_ctrl *ctrl = priv->intr;
-	struct jl_config_mode *mode = ctrl->op;
+	struct jl_config_mode *mode = &priv->intr.op;
 
 	if (mode->static_op == STATIC_DEVICE_TREE)
 		jl2xxx_dts_intr_cfg_get(phydev);
 	else if (mode->static_op == STATIC_C_MACRO)
 		jl2xxx_c_marcro_intr_cfg_get(phydev);
 	else if (mode->static_op == STATIC_NONE)
-		priv->intr->enable &= ~JL2XXX_INTR_STATIC_OP_EN;
+		priv->intr.enable &= ~JL2XXX_INTR_STATIC_OP_EN;
 
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
-		priv->intr->enable |= JL2XXX_INTR_DYNAMIC_OP_EN;
+		priv->intr.enable |= JL2XXX_INTR_DYNAMIC_OP_EN;
 	else
-		priv->intr->enable &= ~JL2XXX_INTR_DYNAMIC_OP_EN;
+		priv->intr.enable &= ~JL2XXX_INTR_DYNAMIC_OP_EN;
 
 	return 0;
 }
@@ -783,20 +768,19 @@ static int jl2xxx_intr_operation_args(struct phy_device *phydev)
 static int jl2xxx_downshift_operation_args(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_downshift_ctrl *ctrl = priv->downshift;
-	struct jl_config_mode *mode = ctrl->op;
+	struct jl_config_mode *mode = &priv->downshift.op;
 
 	if (mode->static_op == STATIC_C_MACRO)
 		jl2xxx_c_marcro_downshift_cfg_get(phydev);
 	else if (mode->static_op == STATIC_DEVICE_TREE)
 		jl2xxx_dts_downshift_cfg_get(phydev);
 	else if (mode->static_op == STATIC_NONE)
-		priv->downshift->enable &= ~JL2XXX_DSFT_STATIC_OP_EN;
+		priv->downshift.enable &= ~JL2XXX_DSFT_STATIC_OP_EN;
 
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
-		priv->downshift->enable |= JL2XXX_DSFT_DYNAMIC_OP_EN;
+		priv->downshift.enable |= JL2XXX_DSFT_DYNAMIC_OP_EN;
 	else
-		priv->downshift->enable &= ~JL2XXX_DSFT_DYNAMIC_OP_EN;
+		priv->downshift.enable &= ~JL2XXX_DSFT_DYNAMIC_OP_EN;
 
 	return 0;
 }
@@ -806,7 +790,7 @@ static int jl2xxx_fld_static_op_set(struct phy_device *phydev)
 	struct jl2xxx_priv *priv = phydev->priv;
 	int err;
 
-	err = jl2xxx_fld_dynamic_op_set(phydev, &priv->fld->delay);
+	err = jl2xxx_fld_dynamic_op_set(phydev, &priv->fld.delay);
 	if (err < 0)
 		return err;
 
@@ -1087,7 +1071,7 @@ int jl2xxx_downshift_static_op_set(struct phy_device *phydev)
 	int err;
 
 	err = jl2xxx_downshift_dynamic_op_set(phydev,
-					      priv->downshift->count);
+					      priv->downshift.count);
 	if (err < 0)
 		return err;
 
@@ -1123,7 +1107,7 @@ int jl1xxx_intr_ack_event(struct phy_device *phydev)
 	int err;
 
 	if (phydev->interrupts == PHY_INTERRUPT_ENABLED)
-		if (priv->intr->enable & JL1XXX_INTR_STATIC_OP_EN) {
+		if (priv->intr.enable & JL1XXX_INTR_STATIC_OP_EN) {
 			err = phy_read(phydev, JL1XXX_INTR_STATUS_REG);
 			if (err < 0)
 				return err;
@@ -1139,9 +1123,9 @@ int jl1xxx_intr_static_op_set(struct phy_device *phydev)
 	int ret = 0;
 
 	if (phydev->interrupts == PHY_INTERRUPT_ENABLED) {
-		if (priv->intr->enable & JL1XXX_INTR_LINK_CHANGE_EN)
+		if (priv->intr.enable & JL1XXX_INTR_LINK_CHANGE_EN)
 			ret |= JL1XXX_INTR_LINK;
-		if (priv->intr->enable & JL1XXX_INTR_AN_ERR_EN)
+		if (priv->intr.enable & JL1XXX_INTR_AN_ERR_EN)
 			ret |= JL1XXX_INTR_AN_ERR;
 
 		err = jlsemi_set_bits(phydev, JL1XXX_PAGE7,
@@ -1149,10 +1133,10 @@ int jl1xxx_intr_static_op_set(struct phy_device *phydev)
 		if (err < 0)
 			return err;
 	} else {
-		if (priv->intr->enable & JL1XXX_INTR_LINK_CHANGE_EN)
+		if (priv->intr.enable & JL1XXX_INTR_LINK_CHANGE_EN)
 			ret |= JL1XXX_INTR_LINK;
 
-		if (priv->intr->enable & JL1XXX_INTR_AN_ERR_EN)
+		if (priv->intr.enable & JL1XXX_INTR_AN_ERR_EN)
 			ret |= JL1XXX_INTR_AN_ERR;
 
 		err = jlsemi_clear_bits(phydev, JL1XXX_PAGE7,
@@ -1245,13 +1229,13 @@ int jl2xxx_intr_static_op_set(struct phy_device *phydev)
 	int ret = 0;
 
 	if (phydev->interrupts == PHY_INTERRUPT_ENABLED) {
-		if (priv->intr->enable & JL2XXX_INTR_LINK_CHANGE_EN)
+		if (priv->intr.enable & JL2XXX_INTR_LINK_CHANGE_EN)
 			ret |= JL2XXX_INTR_LINK_CHANGE;
-		if (priv->intr->enable & JL2XXX_INTR_AN_ERR_EN)
+		if (priv->intr.enable & JL2XXX_INTR_AN_ERR_EN)
 			ret |= JL2XXX_INTR_AN_ERR;
-		if (priv->intr->enable & JL2XXX_INTR_AN_COMPLETE_EN)
+		if (priv->intr.enable & JL2XXX_INTR_AN_COMPLETE_EN)
 			ret |= JL2XXX_INTR_AN_COMPLETE;
-		if (priv->intr->enable & JL2XXX_INTR_AN_PAGE_RECE)
+		if (priv->intr.enable & JL2XXX_INTR_AN_PAGE_RECE)
 			ret |= JL2XXX_INTR_AN_PAGE;
 
 		err = jlsemi_set_bits(phydev, JL2XXX_PAGE2626,
@@ -1341,19 +1325,19 @@ int jl1xxx_static_op_init(struct phy_device *phydev)
 	struct jl2xxx_priv *priv = phydev->priv;
 	int err;
 
-	if (priv->led->enable & JL1XXX_LED_STATIC_OP_EN) {
+	if (priv->led.enable & JL1XXX_LED_STATIC_OP_EN) {
 		err = jl1xxx_led_static_op_set(phydev);
 		if (err < 0)
 			return err;
 	}
 
-	if (priv->wol->enable & JL1XXX_WOL_STATIC_OP_EN) {
+	if (priv->wol.enable & JL1XXX_WOL_STATIC_OP_EN) {
 		err = jl1xxx_wol_static_op_set(phydev);
 		if (err < 0)
 			return err;
 	}
 
-	if (priv->wol->enable & JL1XXX_INTR_STATIC_OP_EN) {
+	if (priv->wol.enable & JL1XXX_INTR_STATIC_OP_EN) {
 		err = jl1xxx_intr_static_op_set(phydev);
 		if (err < 0)
 			return err;
@@ -1367,31 +1351,31 @@ int jl2xxx_static_op_init(struct phy_device *phydev)
 	struct jl2xxx_priv *priv = phydev->priv;
 	int err;
 
-	if (priv->led->enable & JL2XXX_LED_STATIC_OP_EN) {
+	if (priv->led.enable & JL2XXX_LED_STATIC_OP_EN) {
 		err = jl2xxx_led_static_op_set(phydev);
 		if (err < 0)
 			return err;
 	}
 
-	if (priv->fld->enable & JL2XXX_FLD_STATIC_OP_EN) {
+	if (priv->fld.enable & JL2XXX_FLD_STATIC_OP_EN) {
 		err = jl2xxx_fld_static_op_set(phydev);
 		if (err < 0)
 			return err;
 	}
 
-	if (priv->wol->enable & JL2XXX_WOL_STATIC_OP_EN) {
+	if (priv->wol.enable & JL2XXX_WOL_STATIC_OP_EN) {
 		err = jl2xxx_wol_static_op_set(phydev);
 		if (err < 0)
 			return err;
 	}
 
-	if (priv->intr->enable & JL2XXX_INTR_STATIC_OP_EN) {
+	if (priv->intr.enable & JL2XXX_INTR_STATIC_OP_EN) {
 		err = jl2xxx_intr_static_op_set(phydev);
 		if (err < 0)
 			return err;
 	}
 
-	if (priv->downshift->enable & JL2XXX_DSFT_STATIC_OP_EN) {
+	if (priv->downshift.enable & JL2XXX_DSFT_STATIC_OP_EN) {
 		err = jl2xxx_downshift_static_op_set(phydev);
 		if (err < 0)
 			return err;

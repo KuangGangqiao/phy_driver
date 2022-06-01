@@ -105,7 +105,7 @@ static void jl1xxx_get_wol(struct phy_device *phydev,
 	struct jl1xxx_priv *priv = phydev->priv;
 	int wol_en;
 
-	if (priv->wol->enable & JL1XXX_WOL_DYNAMIC_OP_EN) {
+	if (priv->wol.enable & JL1XXX_WOL_DYNAMIC_OP_EN) {
 		wol->supported = WAKE_MAGIC;
 		wol->wolopts = 0;
 
@@ -122,7 +122,7 @@ static int jl1xxx_set_wol(struct phy_device *phydev,
 	struct jl1xxx_priv *priv = phydev->priv;
 	int err;
 
-	if (priv->wol->enable & JL1XXX_WOL_DYNAMIC_OP_EN) {
+	if (priv->wol.enable & JL1XXX_WOL_DYNAMIC_OP_EN) {
 		if (wol->wolopts & WAKE_MAGIC) {
 			err = jl1xxx_wol_dynamic_op_set(phydev);
 			if (err < 0)
@@ -241,7 +241,7 @@ static void jl2xxx_get_wol(struct phy_device *phydev,
 	struct jl2xxx_priv *priv = phydev->priv;
 	int wol_en;
 
-	if (priv->wol->enable & JL2XXX_WOL_DYNAMIC_OP_EN) {
+	if (priv->wol.enable & JL2XXX_WOL_DYNAMIC_OP_EN) {
 		wol->supported = WAKE_MAGIC;
 		wol->wolopts = 0;
 
@@ -258,7 +258,7 @@ static int jl2xxx_set_wol(struct phy_device *phydev,
 	struct jl2xxx_priv *priv = phydev->priv;
 	int err;
 
-	if (priv->wol->enable & JL2XXX_WOL_DYNAMIC_OP_EN) {
+	if (priv->wol.enable & JL2XXX_WOL_DYNAMIC_OP_EN) {
 		if (wol->wolopts & WAKE_MAGIC) {
 			err = jl2xxx_wol_dynamic_op_set(phydev);
 			if (err < 0)
@@ -276,12 +276,12 @@ static int jl2xxx_get_tunable(struct phy_device *phydev,
 
 	switch (tuna->id) {
 	case ETHTOOL_PHY_FAST_LINK_DOWN:
-		if (priv->fld->enable & JL2XXX_FLD_DYNAMIC_OP_EN)
+		if (priv->fld.enable & JL2XXX_FLD_DYNAMIC_OP_EN)
 			return jl2xxx_fld_dynamic_op_get(phydev, data);
 		else
 			return 0;
 	case ETHTOOL_PHY_DOWNSHIFT:
-		if (priv->downshift->enable & JL2XXX_DSFT_DYNAMIC_OP_EN)
+		if (priv->downshift.enable & JL2XXX_DSFT_DYNAMIC_OP_EN)
 			return jl2xxx_downshift_dynamic_op_get(phydev, data);
 		else
 			return 0;
@@ -299,12 +299,12 @@ static int jl2xxx_set_tunable(struct phy_device *phydev,
 
 	switch (tuna->id) {
 	case ETHTOOL_PHY_FAST_LINK_DOWN:
-		if (priv->fld->enable & JL2XXX_FLD_DYNAMIC_OP_EN)
+		if (priv->fld.enable & JL2XXX_FLD_DYNAMIC_OP_EN)
 			return jl2xxx_fld_dynamic_op_set(phydev, data);
 		else
 			return 0;
 	case ETHTOOL_PHY_DOWNSHIFT:
-		if (priv->downshift->enable & JL2XXX_DSFT_DYNAMIC_OP_EN)
+		if (priv->downshift.enable & JL2XXX_DSFT_DYNAMIC_OP_EN)
 			return jl2xxx_downshift_dynamic_op_set(phydev,
 							       *(const u8 *)data);
 		else
