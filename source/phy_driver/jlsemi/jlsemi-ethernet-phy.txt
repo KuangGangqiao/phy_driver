@@ -77,6 +77,12 @@ Example for jl2xxx:
 			jl2xxx,downshift-enable	= <JL2XXX_DSFT_CTRL_EN>;
 			jl2xxx,downshift-count	= <JL2XXX_DSFT_AN_CNT>;
 		};
+		rgmii {
+			compatible		= "jl2xxx-rgmii";
+			jl2xxx,rgmii-enable	= <JL2XXX_RGMII_CTRL_EN>;
+			jl2xxx,rgmii-tx-delay	= <JL2XXX_RGMII_TX_DLY_2NS>;
+			jl2xxx,rgmii-rx-delay	= <JL2XXX_RGMII_RX_DLY_2NS>;
+		};
 
 	};
 

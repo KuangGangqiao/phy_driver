@@ -51,7 +51,6 @@
 #define ADDR8_HIGH_TO_LOW(n)	((n >> 4) | (n << 4))
 
 #define JL2XXX_RGMII_CTRL_PAGE	0x00ab
-#define JL2XXX_RGMII_CTRL_REG	0x0011
 #define JL2XXX_RGMII_TX_RSTN	BIT(14)
 #define JL2XXX_RGMII_ERR_STAS	BIT(3)
 #define JL2XXX_RGMII_TX_EN	BIT(1)
@@ -108,6 +107,9 @@
 #define JL2XXX_PIN_EN_REG	21
 #define JL2XXX_PIN_OUTPUT	BIT(11)
 
+#define JL2XXX_PAGE3336		3336
+#define JL2XXX_RGMII_CTRL_REG	17
+
 #define LED_PERIOD_MASK		0xff00
 #define LEDPERIOD(n)		(n << 8) & LED_PERIOD_MASK
 #define LED_ON_MASK		0x00ff
@@ -163,6 +165,13 @@ struct jl_downshift_ctrl {
 	struct jl_config_mode op;
 };
 
+struct jl_rgmii_ctrl {
+	u16 enable;
+	u16 rx_delay;
+	u16 tx_delay;
+	struct jl_config_mode op;
+};
+
 struct jl1xxx_priv {
 	struct jl_led_ctrl led;
 	struct jl_wol_ctrl wol;
@@ -176,9 +185,8 @@ struct jl2xxx_priv {
 	struct jl_wol_ctrl wol;
 	struct jl_intr_ctrl intr;
 	struct jl_downshift_ctrl downshift;
+	struct jl_rgmii_ctrl rgmii;
 	bool static_inited;
-	u16 rx_delay;			/* Rgmii rx delay */
-	u16 tx_delay;			/* Rgmii tx delay */
 	u16 clk_125m_en;
 	u16 sw_info;
 };

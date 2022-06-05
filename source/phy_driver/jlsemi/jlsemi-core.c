@@ -570,6 +570,31 @@ static int jl2xxx_dts_downshift_cfg_get(struct phy_device *phydev)
 	return 0;
 }
 
+static int jl2xxx_dts_rgmii_cfg_get(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	struct device *dev = &phydev->mdio.dev;
+	struct device_node *of_node = dev->of_node;
+	int err;
+
+	err = of_property_read_u16(of_node, "jl2xxx,rgmii-enable",
+				   &priv->rgmii.enable);
+	if (err < 0)
+		return err;
+
+	err = of_property_read_u16(of_node, "jl2xxx,rgmii-tx-delay",
+				   &priv->rgmii.tx_delay);
+	if (err < 0)
+		return err;
+
+	err = of_property_read_u16(of_node, "jl2xxx,rgmii-rx-delay",
+				   &priv->rgmii.rx_delay);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
 static int jl2xxx_c_marcro_fld_cfg_get(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
@@ -621,6 +646,21 @@ static int jl2xxx_c_marcro_downshift_cfg_get(struct phy_device *phydev)
 	};
 
 	priv->downshift = downshift_cfg;
+
+	return 0;
+}
+
+static int jl2xxx_c_marcro_rgmii_cfg_get(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+
+	struct jl_rgmii_ctrl rgmii_cfg = {
+		.enable		= JL2XXX_RGMII_CTRL_EN,
+		.rx_delay	= JL2XXX_RGMII_RX_DLY_2NS,
+		.tx_delay	= JL2XXX_RGMII_TX_DLY_2NS,
+	};
+
+	priv->rgmii = rgmii_cfg;
 
 	return 0;
 }
@@ -781,6 +821,26 @@ static int jl2xxx_downshift_operation_args(struct phy_device *phydev)
 		priv->downshift.enable |= JL2XXX_DSFT_DYNAMIC_OP_EN;
 	else
 		priv->downshift.enable &= ~JL2XXX_DSFT_DYNAMIC_OP_EN;
+
+	return 0;
+}
+
+static int jl2xxx_rgmii_operation_args(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	struct jl_config_mode *mode = &priv->rgmii.op;
+
+	if (mode->static_op == STATIC_C_MACRO)
+		jl2xxx_c_marcro_rgmii_cfg_get(phydev);
+	else if (mode->static_op == STATIC_DEVICE_TREE)
+		jl2xxx_dts_rgmii_cfg_get(phydev);
+	else if (mode->static_op == STATIC_NONE)
+		priv->rgmii.enable &= ~JL2XXX_RGMII_STATIC_OP_EN;
+
+	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
+		priv->rgmii.enable |= JL2XXX_RGMII_DYNAMIC_OP_EN;
+	else
+		priv->rgmii.enable &= ~JL2XXX_RGMII_DYNAMIC_OP_EN;
 
 	return 0;
 }
@@ -1078,6 +1138,30 @@ int jl2xxx_downshift_static_op_set(struct phy_device *phydev)
 	return 0;
 }
 
+int jl2xxx_rgmii_static_op_set(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	int err;
+
+	if (priv->rgmii.enable & JL2XXX_RGMII_TX_DLY_EN) {
+		err = jlsemi_set_bits(phydev, JL2XXX_PAGE3336,
+				      JL2XXX_RGMII_CTRL_REG,
+				      priv->rgmii.tx_delay);
+		if (err < 0)
+			return err;
+	}
+
+	if (priv->rgmii.enable & JL2XXX_RGMII_RX_DLY_EN) {
+		err = jlsemi_set_bits(phydev, JL2XXX_PAGE3336,
+				      JL2XXX_RGMII_CTRL_REG,
+				      priv->rgmii.rx_delay);
+		if (err < 0)
+			return err;
+	}
+
+	return 0;
+}
+
 int jl1xxx_wol_dynamic_op_get(struct phy_device *phydev)
 {
 	return jlsemi_fetch_bit(phydev, JL1XXX_PAGE129,
@@ -1316,6 +1400,7 @@ int jl2xxx_operation_args_get(struct phy_device *phydev)
 	jl2xxx_wol_operation_args(phydev);
 	jl2xxx_intr_operation_args(phydev);
 	jl2xxx_downshift_operation_args(phydev);
+	jl2xxx_rgmii_operation_args(phydev);
 
 	return 0;
 }
@@ -1377,6 +1462,12 @@ int jl2xxx_static_op_init(struct phy_device *phydev)
 
 	if (priv->downshift.enable & JL2XXX_DSFT_STATIC_OP_EN) {
 		err = jl2xxx_downshift_static_op_set(phydev);
+		if (err < 0)
+			return err;
+	}
+
+	if (priv->rgmii.enable & JL2XXX_RGMII_STATIC_OP_EN) {
+		err = jl2xxx_rgmii_static_op_set(phydev);
 		if (err < 0)
 			return err;
 	}

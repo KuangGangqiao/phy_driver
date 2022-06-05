@@ -215,5 +215,26 @@
 #define JL2XXX_DSFT_AN_CNT		3
 /*************************************************************************/
 
+/**************************** JL2XXX-RGMII ********************************/
+/* PHY RGMII Control Mode Enable Mask */
+#define JL2XXX_RGMII_STATIC_OP_EN	(1 << 0)
+#define JL2XXX_RGMII_DYNAMIC_OP_EN	(1 << 1)
+#define JL2XXX_RGMII_TX_DLY_EN		(1 << 2)
+#define JL2XXX_RGMII_RX_DLY_EN		(1 << 3)
+/* PHY RGMII DELAY BIT */
+#define JL2XXX_RGMII_TX_DLY_2NS		(1 << 8)
+#define JL2XXX_RGMII_RX_DLY_2NS		(1 << 9)
+
+
+/* PHY RGMII Operation Mode Select */
+#define JL2XXX_RGMII_C_MACRO_MODE	true
+#define JL2XXX_RGMII_DEVICE_TREE_MODE	true
+#define JL2XXX_RGMII_ETHTOOL_MODE	false
+
+#define JL2XXX_RGMII_CTRL_EN	(JL2XXX_RGMII_STATIC_OP_EN | \
+				 JL2XXX_RGMII_TX_DLY_EN)
+
+/*************************************************************************/
+
 #endif
 
