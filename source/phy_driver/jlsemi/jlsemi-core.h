@@ -72,6 +72,9 @@
 #define JL2XXX_DSFT_STL_CNT(n)	((n << 5) & JL2XXX_DSFT_STL_MASK)
 #define JL2XXX_DSFT_AN_MASK	0x001f
 #define JL2XXX_DSFT_CNT_MAX	32
+#define JL2XXX_PHY_INFO_REG	29
+#define JL2XXX_PATCH_MASK	0xffff
+#define JL2XXX_SW_MASK		0xffff
 
 #define JL2XXX_PATCH		0x00ad
 #define JL2XXX_PATCH_REG	0x0010
@@ -121,6 +124,26 @@
 #define LEDON(n)		(n << 0) & LED_ON_MASK
 
 /*************************************************************************/
+struct jl_hw_stat {
+	const char *string;
+	u8 reg;
+	u16 page;
+	u16 mask;
+};
+
+static const struct jl_hw_stat jl2xxx_hw_stats[] = {
+	{
+		.string	= "phy_patch_version",
+		.reg	= JL2XXX_PATCH_REG,
+		.page	= JL2XXX_PATCH,
+		.mask	= JL2XXX_PATCH_MASK,
+	}, {
+		.string	= "phy_software_version",
+		.reg	= JL2XXX_PHY_INFO_REG,
+		.page	= JL2XXX_BASIC_PAGE,
+		.mask	= JL2XXX_SW_MASK,
+	},
+};
 
 enum jl_static_op_mode {
 	STATIC_NONE		= 0,
@@ -204,9 +227,10 @@ struct jl2xxx_priv {
 	struct jl_rgmii_ctrl rgmii;
 	struct jl_patch_ctrl patch;
 	struct jl_clk_ctrl clk;
+	const struct jl_hw_stat *hw_stats;
 	bool static_inited;
-	u16 clk_125m_en;
-	u16 sw_info;
+	int nstats;
+	u64 *stats;
 };
 
 /* macros to simplify debug checking */
@@ -219,6 +243,8 @@ struct jl2xxx_priv {
 int jl2xxx_downshift_dynamic_op_get(struct phy_device *phydev, u8 *data);
 
 int jl2xxx_downshift_dynamic_op_set(struct phy_device *phydev, u8 cnt);
+
+int jlsemi_read_paged(struct phy_device *phydev, int page, u32 regnum);
 
 int jl2xxx_intr_ack_event(struct phy_device *phydev);
 
@@ -257,11 +283,6 @@ int jlsemi_soft_reset(struct phy_device *phydev);
 int jlsemi_aneg_done(struct phy_device *phydev);
 
 int jl2xxx_pre_init(struct phy_device *phydev);
-
-int jl2xxx_software_version(struct phy_device *phydev);
-
-int jl2xxx_config_phy_info(struct phy_device *phydev,
-			   struct jl2xxx_priv *jl2xxx);
 
 /********************** Convenience function for phy **********************/
 

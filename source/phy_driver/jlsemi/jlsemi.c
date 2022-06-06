@@ -152,10 +152,6 @@ static int jl2xxx_probe(struct phy_device *phydev)
 	if (!jl2xxx)
 		return -ENOMEM;
 
-	err = jl2xxx_config_phy_info(phydev, jl2xxx);
-	if (err < 0)
-		return err;
-
 	phydev->priv = jl2xxx;
 
 	/* Select operation mode */
@@ -166,6 +162,11 @@ static int jl2xxx_probe(struct phy_device *phydev)
 		return err;
 
 	jl2xxx->static_inited = false;
+	jl2xxx->nstats = ARRAY_SIZE(jl2xxx_hw_stats);
+	jl2xxx->hw_stats = jl2xxx_hw_stats;
+	jl2xxx->stats = kcalloc(jl2xxx->nstats, sizeof(u64), GFP_KERNEL);
+	if (!jl2xxx->stats)
+		return -ENOMEM;
 
 	return 0;
 }
@@ -312,10 +313,54 @@ static int jl2xxx_set_tunable(struct phy_device *phydev,
 	return 0;
 }
 
+static u64 jl2xxx_get_stat(struct phy_device *phydev, int i)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	int val;
+
+	val = jlsemi_read_paged(phydev, priv->hw_stats[i].page,
+				priv->hw_stats[i].reg);
+	if (val < 0)
+		return U64_MAX;
+
+	val = val & priv->hw_stats[i].mask;
+	priv->stats[i] += val;
+
+	return priv->stats[i];
+}
+
+static void jl2xxx_get_stats(struct phy_device *phydev,
+			    struct ethtool_stats *stats, u64 *data)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	int i;
+
+	if (!priv)
+		return;
+
+	for (i = 0; i < priv->nstats; i++)
+		data[i] = jl2xxx_get_stat(phydev, i);
+}
+
+static void jl2xxx_get_strings(struct phy_device *phydev, u8 *data)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	int i;
+
+	if (!priv)
+		return;
+
+	for (i = 0; i < priv->nstats; i++)
+		strlcpy(data + i * ETH_GSTRING_LEN,
+			priv->hw_stats[i].string, ETH_GSTRING_LEN);
+}
+
 static void jl2xxx_remove(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
 
+	if (priv->stats)
+		kfree(priv->stats);
 	if (priv)
 		kfree(priv);
 }
@@ -359,6 +404,8 @@ static struct phy_driver jlsemi_drivers[] = {
 		.set_wol	= jl2xxx_set_wol,
 		.get_tunable	= jl2xxx_get_tunable,
 		.set_tunable	= jl2xxx_set_tunable,
+		.get_stats	= jl2xxx_get_stats,
+		.get_strings	= jl2xxx_get_strings,
 	},
 };
 

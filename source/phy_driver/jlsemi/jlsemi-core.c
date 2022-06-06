@@ -1889,23 +1889,6 @@ int jlsemi_aneg_done(struct phy_device *phydev)
 	return 0;
 }
 
-int jl2xxx_config_phy_info(struct phy_device *phydev,
-			   struct jl2xxx_priv *jl2xxx)
-{
-	int val, major, minor;
-
-	val = phy_read(phydev, 29);
-	if (val < 0)
-		return val;
-
-	major = (val >> 7) & 0x1f;
-	minor = (val >> 0) & 0x7f;
-	/* major enlarge 10 */
-	jl2xxx->sw_info = major * 10 + minor;
-
-	return 0;
-}
-
 /********************** Convenience function for phy **********************/
 
 /**
@@ -2100,6 +2083,25 @@ int jlsemi_fetch_bit(struct phy_device *phydev,
 			return ret;
 		ret = ((ret & val) == val) ? 1 : 0;
 	}
+
+	return __jlsemi_restore_page(phydev, oldpage, ret);
+}
+
+/**
+ * jlsemi_read_paged() - Convenience function for reading a paged register
+ * @phydev: a pointer to a &struct phy_device
+ * @page: the page for the phy
+ * @regnum: register number
+ *
+ * Same rules as for phy_read().
+ */
+int jlsemi_read_paged(struct phy_device *phydev, int page, u32 regnum)
+{
+	int ret = 0, oldpage;
+
+	oldpage = __jlsemi_select_page(phydev, page);
+	if (oldpage >= 0)
+		ret = __phy_read(phydev, regnum);
 
 	return __jlsemi_restore_page(phydev, oldpage, ret);
 }
