@@ -603,7 +603,7 @@ static int jl2xxx_dts_patch_cfg_get(struct phy_device *phydev)
 	int err;
 
 	err = of_property_read_u16(of_node, "jl2xxx,patch-enable",
-				   &priv->rgmii.enable);
+				   &priv->patch.enable);
 	if (err < 0)
 		return err;
 
