@@ -156,6 +156,16 @@ enum jl_dynamic_op_mode {
 	DYNAMIC_ETHTOOL		= 1,
 };
 
+enum jl_work_mode {
+	UTP_RGMII_MODE		= 0,
+	FIBER_RGMII_MODE	= 1,
+	UTP_FIBER_RGMII_MODE	= 2,
+	UTP_SGMII_MODE		= 3,
+	PHY_SGMII_RGMII_MODE	= 4,
+	MAC_SGMII_RGMII_MODE	= 5,
+	UTP_FIBER_FORCE_MODE	= 6,
+};
+
 struct jl_config_mode {
 	enum jl_static_op_mode static_op;
 	enum jl_dynamic_op_mode dynamic_op;
@@ -210,6 +220,11 @@ struct jl_clk_ctrl {
 	struct jl_config_mode op;
 };
 
+struct jl_work_mode_ctrl {
+	u16 enable;
+	enum jl_work_mode work_mode;
+	struct jl_config_mode op;
+};
 
 struct jl1xxx_priv {
 	struct jl_led_ctrl led;
@@ -231,6 +246,7 @@ struct jl2xxx_priv {
 	bool static_inited;
 	int nstats;
 	u64 *stats;
+	struct jl_work_mode_ctrl work_mode;
 };
 
 /* macros to simplify debug checking */
