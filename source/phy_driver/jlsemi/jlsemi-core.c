@@ -773,6 +773,26 @@ static int jl2xxx_downshift_operation_mode(struct phy_device *phydev)
 	return 0;
 }
 
+static int jl2xxx_rgmii_operation_mode(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	struct jl_config_mode *mode = &priv->rgmii.op;
+
+	if (JL2XXX_RGMII_C_MACRO_MODE)
+		mode->static_op = STATIC_C_MACRO;
+	else if (JL2XXX_RGMII_DEVICE_TREE_MODE)
+		mode->static_op = STATIC_DEVICE_TREE;
+	else
+		mode->static_op = STATIC_NONE;
+
+	if (JL2XXX_RGMII_ETHTOOL_MODE)
+		mode->dynamic_op = DYNAMIC_ETHTOOL;
+	else
+		mode->dynamic_op = DYNAMIC_NONE;
+
+	return 0;
+}
+
 static int jl2xxx_patch_operation_mode(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
@@ -1217,6 +1237,13 @@ int jl2xxx_rgmii_static_op_set(struct phy_device *phydev)
 				      priv->rgmii.tx_delay);
 		if (err < 0)
 			return err;
+
+	} else {
+		err = jlsemi_clear_bits(phydev, JL2XXX_PAGE3336,
+					JL2XXX_RGMII_CTRL_REG,
+					priv->rgmii.tx_delay);
+		if (err < 0)
+			return err;
 	}
 
 	if (priv->rgmii.enable & JL2XXX_RGMII_RX_DLY_EN) {
@@ -1225,7 +1252,17 @@ int jl2xxx_rgmii_static_op_set(struct phy_device *phydev)
 				      priv->rgmii.rx_delay);
 		if (err < 0)
 			return err;
+	} else {
+		err = jlsemi_clear_bits(phydev, JL2XXX_PAGE3336,
+				      JL2XXX_RGMII_CTRL_REG,
+				      priv->rgmii.rx_delay);
+		if (err < 0)
+			return err;
 	}
+
+	err = jlsemi_soft_reset(phydev);
+	if (err < 0)
+		return err;
 
 	return 0;
 }
@@ -1458,6 +1495,7 @@ int jl2xxx_operation_mode_select(struct phy_device *phydev)
 	jl2xxx_wol_operation_mode(phydev);
 	jl2xxx_intr_operation_mode(phydev);
 	jl2xxx_downshift_operation_mode(phydev);
+	jl2xxx_rgmii_operation_mode(phydev);
 	jl2xxx_patch_operation_mode(phydev);
 
 	return 0;
