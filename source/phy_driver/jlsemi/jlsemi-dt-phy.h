@@ -236,5 +236,20 @@
 
 /*************************************************************************/
 
+/**************************** JL2XXX-PATCH ********************************/
+/* PHY Patch Control Mode Enable Mask */
+#define JL2XXX_PATCH_STATIC_OP_EN	(1 << 0)
+#define JL2XXX_PATCH_DYNAMIC_OP_EN	(1 << 1)
+
+
+/* PHY Patch Operation Mode Select */
+#define JL2XXX_PATCH_C_MACRO_MODE	true
+#define JL2XXX_PATCH_DEVICE_TREE_MODE	true
+#define JL2XXX_PATCH_ETHTOOL_MODE	false
+
+#define JL2XXX_PATCH_CTRL_EN	(JL2XXX_PATCH_STATIC_OP_EN)
+
+/*************************************************************************/
+
 #endif
 

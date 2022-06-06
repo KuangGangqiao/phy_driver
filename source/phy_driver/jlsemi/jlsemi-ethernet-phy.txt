@@ -83,7 +83,9 @@ Example for jl2xxx:
 			jl2xxx,rgmii-tx-delay	= <JL2XXX_RGMII_TX_DLY_2NS>;
 			jl2xxx,rgmii-rx-delay	= <JL2XXX_RGMII_RX_DLY_2NS>;
 		};
+		patch {
+			compatible		= "jl2xxx-patch";
+			jl2xxx,patch-enable	= <JL2XXX_PATCH_CTRL_EN>;
+		};
 
 	};
-
-

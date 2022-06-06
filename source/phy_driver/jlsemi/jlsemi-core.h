@@ -172,6 +172,11 @@ struct jl_rgmii_ctrl {
 	struct jl_config_mode op;
 };
 
+struct jl_patch_ctrl {
+	u16 enable;
+	struct jl_config_mode op;
+};
+
 struct jl1xxx_priv {
 	struct jl_led_ctrl led;
 	struct jl_wol_ctrl wol;
@@ -186,6 +191,7 @@ struct jl2xxx_priv {
 	struct jl_intr_ctrl intr;
 	struct jl_downshift_ctrl downshift;
 	struct jl_rgmii_ctrl rgmii;
+	struct jl_patch_ctrl patch;
 	bool static_inited;
 	u16 clk_125m_en;
 	u16 sw_info;

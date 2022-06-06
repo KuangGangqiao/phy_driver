@@ -158,10 +158,6 @@ static int jl2xxx_probe(struct phy_device *phydev)
 
 	phydev->priv = jl2xxx;
 
-	err = jl2xxx_pre_init(phydev);
-	if (err < 0)
-		return err;
-
 	/* Select operation mode */
 	jl2xxx_operation_mode_select(phydev);
 

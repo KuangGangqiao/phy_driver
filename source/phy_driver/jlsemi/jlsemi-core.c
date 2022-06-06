@@ -595,6 +595,21 @@ static int jl2xxx_dts_rgmii_cfg_get(struct phy_device *phydev)
 	return 0;
 }
 
+static int jl2xxx_dts_patch_cfg_get(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	struct device *dev = &phydev->mdio.dev;
+	struct device_node *of_node = dev->of_node;
+	int err;
+
+	err = of_property_read_u16(of_node, "jl2xxx,patch-enable",
+				   &priv->rgmii.enable);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
 static int jl2xxx_c_marcro_fld_cfg_get(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
@@ -661,6 +676,19 @@ static int jl2xxx_c_marcro_rgmii_cfg_get(struct phy_device *phydev)
 	};
 
 	priv->rgmii = rgmii_cfg;
+
+	return 0;
+}
+
+static int jl2xxx_c_marcro_patch_cfg_get(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+
+	struct jl_patch_ctrl patch_cfg = {
+		.enable		= JL2XXX_PATCH_CTRL_EN,
+	};
+
+	priv->patch = patch_cfg;
 
 	return 0;
 }
@@ -738,6 +766,26 @@ static int jl2xxx_downshift_operation_mode(struct phy_device *phydev)
 		mode->static_op = STATIC_NONE;
 
 	if (JL2XXX_DSFT_ETHTOOL_MODE)
+		mode->dynamic_op = DYNAMIC_ETHTOOL;
+	else
+		mode->dynamic_op = DYNAMIC_NONE;
+
+	return 0;
+}
+
+static int jl2xxx_patch_operation_mode(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	struct jl_config_mode *mode = &priv->patch.op;
+
+	if (JL2XXX_PATCH_C_MACRO_MODE)
+		mode->static_op = STATIC_C_MACRO;
+	else if (JL2XXX_PATCH_DEVICE_TREE_MODE)
+		mode->static_op = STATIC_DEVICE_TREE;
+	else
+		mode->static_op = STATIC_NONE;
+
+	if (JL2XXX_PATCH_ETHTOOL_MODE)
 		mode->dynamic_op = DYNAMIC_ETHTOOL;
 	else
 		mode->dynamic_op = DYNAMIC_NONE;
@@ -841,6 +889,26 @@ static int jl2xxx_rgmii_operation_args(struct phy_device *phydev)
 		priv->rgmii.enable |= JL2XXX_RGMII_DYNAMIC_OP_EN;
 	else
 		priv->rgmii.enable &= ~JL2XXX_RGMII_DYNAMIC_OP_EN;
+
+	return 0;
+}
+
+static int jl2xxx_patch_operation_args(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	struct jl_config_mode *mode = &priv->patch.op;
+
+	if (mode->static_op == STATIC_C_MACRO)
+		jl2xxx_c_marcro_patch_cfg_get(phydev);
+	else if (mode->static_op == STATIC_DEVICE_TREE)
+		jl2xxx_dts_patch_cfg_get(phydev);
+	else if (mode->static_op == STATIC_NONE)
+		priv->patch.enable &= ~JL2XXX_PATCH_STATIC_OP_EN;
+
+	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
+		priv->patch.enable |= JL2XXX_PATCH_DYNAMIC_OP_EN;
+	else
+		priv->patch.enable &= ~JL2XXX_PATCH_DYNAMIC_OP_EN;
 
 	return 0;
 }
@@ -1162,6 +1230,16 @@ int jl2xxx_rgmii_static_op_set(struct phy_device *phydev)
 	return 0;
 }
 
+int jl2xxx_patch_static_op_set(struct phy_device *phydev)
+{
+	int err;
+	err = jl2xxx_pre_init(phydev);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
 int jl1xxx_wol_dynamic_op_get(struct phy_device *phydev)
 {
 	return jlsemi_fetch_bit(phydev, JL1XXX_PAGE129,
@@ -1380,6 +1458,7 @@ int jl2xxx_operation_mode_select(struct phy_device *phydev)
 	jl2xxx_wol_operation_mode(phydev);
 	jl2xxx_intr_operation_mode(phydev);
 	jl2xxx_downshift_operation_mode(phydev);
+	jl2xxx_patch_operation_mode(phydev);
 
 	return 0;
 }
@@ -1401,6 +1480,7 @@ int jl2xxx_operation_args_get(struct phy_device *phydev)
 	jl2xxx_intr_operation_args(phydev);
 	jl2xxx_downshift_operation_args(phydev);
 	jl2xxx_rgmii_operation_args(phydev);
+	jl2xxx_patch_operation_args(phydev);
 
 	return 0;
 }
@@ -1435,6 +1515,12 @@ int jl2xxx_static_op_init(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
 	int err;
+
+	if (priv->patch.enable & JL2XXX_PATCH_STATIC_OP_EN) {
+		err = jl2xxx_patch_static_op_set(phydev);
+		if (err < 0)
+			return err;
+	}
 
 	if (priv->led.enable & JL2XXX_LED_STATIC_OP_EN) {
 		err = jl2xxx_led_static_op_set(phydev);
