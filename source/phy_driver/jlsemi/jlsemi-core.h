@@ -98,6 +98,11 @@
 
 #define JL2XXX_PAGE2627		2627
 #define JL2XXX_INTR_STATUS_REG	29
+#define JL2XXX_CLK_CTRL_REG	19
+#define JL2XXX_CLK_OUT_PIN	BIT(0)
+#define JL2XXX_CLK_SSC_EN	BIT(3)
+#define JL2XXX_CLK_125M_OUT	BIT(11)
+#define JL2XXXX_CLK_SRC		BIT(12)
 
 #define JL2XXX_PAGE158		158
 #define JL2XXX_INTR_PIN_REG	16
@@ -177,6 +182,12 @@ struct jl_patch_ctrl {
 	struct jl_config_mode op;
 };
 
+struct jl_clk_ctrl {
+	u16 enable;
+	struct jl_config_mode op;
+};
+
+
 struct jl1xxx_priv {
 	struct jl_led_ctrl led;
 	struct jl_wol_ctrl wol;
@@ -192,6 +203,7 @@ struct jl2xxx_priv {
 	struct jl_downshift_ctrl downshift;
 	struct jl_rgmii_ctrl rgmii;
 	struct jl_patch_ctrl patch;
+	struct jl_clk_ctrl clk;
 	bool static_inited;
 	u16 clk_125m_en;
 	u16 sw_info;

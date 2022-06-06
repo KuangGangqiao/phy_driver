@@ -251,5 +251,23 @@
 
 /*************************************************************************/
 
+/**************************** JL2XXX-CLOCK *******************************/
+/* PHY Patch Control Mode Enable Mask */
+#define JL2XXX_CLK_STATIC_OP_EN		(1 << 0)
+#define JL2XXX_CLK_DYNAMIC_OP_EN	(1 << 1)
+#define JL2XXX_25M_CLK_OUT_EN		(1 << 2)
+#define JL2XXX_125M_CLK_OUT_EN		(1 << 3)
+
+
+/* PHY Patch Operation Mode Select */
+#define JL2XXX_CLK_C_MACRO_MODE		true
+#define JL2XXX_CLK_DEVICE_TREE_MODE	true
+#define JL2XXX_CLK_ETHTOOL_MODE		false
+
+#define JL2XXX_CLK_CTRL_EN	(JL2XXX_CLK_STATIC_OP_EN | \
+				 JL2XXX_125M_CLK_OUT_EN)
+
+/*************************************************************************/
+
 #endif
 

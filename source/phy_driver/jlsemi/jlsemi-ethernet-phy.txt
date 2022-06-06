@@ -87,5 +87,9 @@ Example for jl2xxx:
 			compatible		= "jl2xxx-patch";
 			jl2xxx,patch-enable	= <JL2XXX_PATCH_CTRL_EN>;
 		};
+		clk {
+			compatible		= "jl2xxx-clk";
+			jl2xxx,clk-enable	= <JL2XXX_CLK_CTRL_EN>;
+		};
 
 	};
