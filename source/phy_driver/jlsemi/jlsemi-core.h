@@ -118,6 +118,10 @@
 #define JL2XXX_PAGE3336		3336
 #define JL2XXX_RGMII_CTRL_REG	17
 
+#define JL2XXX_PAGE18		18
+#define JL2XXX_WORK_MODE_REG	21
+#define JL2XXX_WORK_MODE_MASK	0x7
+
 #define LED_PERIOD_MASK		0xff00
 #define LEDPERIOD(n)		(n << 8) & LED_PERIOD_MASK
 #define LED_ON_MASK		0x00ff
@@ -154,16 +158,6 @@ enum jl_static_op_mode {
 enum jl_dynamic_op_mode {
 	DYNAMIC_NONE		= 0,
 	DYNAMIC_ETHTOOL		= 1,
-};
-
-enum jl_work_mode {
-	UTP_RGMII_MODE		= 0,
-	FIBER_RGMII_MODE	= 1,
-	UTP_FIBER_RGMII_MODE	= 2,
-	UTP_SGMII_MODE		= 3,
-	PHY_SGMII_RGMII_MODE	= 4,
-	MAC_SGMII_RGMII_MODE	= 5,
-	UTP_FIBER_FORCE_MODE	= 6,
 };
 
 struct jl_config_mode {
@@ -222,7 +216,7 @@ struct jl_clk_ctrl {
 
 struct jl_work_mode_ctrl {
 	u16 enable;
-	enum jl_work_mode work_mode;
+	u16 mode;
 	struct jl_config_mode op;
 };
 

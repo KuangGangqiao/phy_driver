@@ -91,5 +91,10 @@ Example for jl2xxx:
 			compatible		= "jl2xxx-clk";
 			jl2xxx,clk-enable	= <JL2XXX_CLK_CTRL_EN>;
 		};
+		work_mode {
+			compatible		= "jl2xxx-work_mode";
+			jl2xxx,work_mode-enable	= <JL2XXX_WORK_MODE_CTRL_EN>;
+			jl2xxx,work_mode-mode	= <JL2XXX_WOEK_MODE_MODE>
+		};
 
 	};

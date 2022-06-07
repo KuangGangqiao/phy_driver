@@ -625,6 +625,26 @@ static int jl2xxx_dts_clk_cfg_get(struct phy_device *phydev)
 	return 0;
 }
 
+static int jl2xxx_dts_work_mode_cfg_get(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	struct device *dev = &phydev->mdio.dev;
+	struct device_node *of_node = dev->of_node;
+	int err;
+
+	err = of_property_read_u16(of_node, "jl2xxx,work_mode-enable",
+				   &priv->work_mode.enable);
+	if (err < 0)
+		return err;
+
+	err = of_property_read_u16(of_node, "jl2xxx,work_mode-mode",
+				   &priv->work_mode.mode);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
 static int jl2xxx_c_marcro_fld_cfg_get(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
@@ -717,6 +737,20 @@ static int jl2xxx_c_marcro_clk_cfg_get(struct phy_device *phydev)
 	};
 
 	priv->clk = clk_cfg;
+
+	return 0;
+}
+
+static int jl2xxx_c_marcro_work_mode_cfg_get(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+
+	struct jl_work_mode_ctrl work_mode_cfg = {
+		.enable		= JL2XXX_WORK_MODE_CTRL_EN,
+		.mode		= JL2XXX_WOEK_MODE_MODE,
+	};
+
+	priv->work_mode = work_mode_cfg;
 
 	return 0;
 }
@@ -861,6 +895,31 @@ static int jl2xxx_clk_operation_mode(struct phy_device *phydev)
 	return 0;
 }
 
+static int jl2xxx_work_mode_operation_mode(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	struct jl_config_mode *mode = &priv->clk.op;
+
+	if (JL2XXX_WORK_MODE_STATIC_OP_MODE ==
+	    JL2XXX_WORK_MODE_STATIC_C_MACRO)
+		mode->static_op = STATIC_C_MACRO;
+	else if (JL2XXX_WORK_MODE_STATIC_OP_MODE ==
+		 JL2XXX_WORK_MODE_STATIC_DEVICE_TREE)
+		mode->static_op = STATIC_DEVICE_TREE;
+	else if (JL2XXX_WORK_MODE_STATIC_OP_MODE ==
+		 JL2XXX_WORK_MODE_OP_NONE)
+		mode->static_op = STATIC_NONE;
+
+	if (JL2XXX_WORK_MODE_DYNAMIC_OP_MODE ==
+	    JL2XXX_WORK_MODE_DYNAMIC_ETHTOOL)
+		mode->dynamic_op = DYNAMIC_ETHTOOL;
+	else if (JL2XXX_WORK_MODE_DYNAMIC_OP_MODE ==
+		 JL2XXX_WORK_MODE_OP_NONE)
+		mode->dynamic_op = DYNAMIC_NONE;
+
+	return 0;
+}
+
 static int jl2xxx_fld_operation_args(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
@@ -997,6 +1056,26 @@ static int jl2xxx_clk_operation_args(struct phy_device *phydev)
 		priv->clk.enable |= JL2XXX_CLK_DYNAMIC_OP_EN;
 	else
 		priv->clk.enable &= ~JL2XXX_CLK_DYNAMIC_OP_EN;
+
+	return 0;
+}
+
+static int jl2xxx_work_mode_operation_args(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	struct jl_config_mode *mode = &priv->work_mode.op;
+
+	if (mode->static_op == STATIC_C_MACRO)
+		jl2xxx_c_marcro_work_mode_cfg_get(phydev);
+	else if (mode->static_op == STATIC_DEVICE_TREE)
+		jl2xxx_dts_work_mode_cfg_get(phydev);
+	else if (mode->static_op == STATIC_NONE)
+		priv->work_mode.enable &= ~JL2XXX_WORK_MODE_STATIC_OP_EN;
+
+	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
+		priv->work_mode.enable |= JL2XXX_WORK_MODE_DYNAMIC_OP_EN;
+	else
+		priv->work_mode.enable &= ~JL2XXX_WORK_MODE_DYNAMIC_OP_EN;
 
 	return 0;
 }
@@ -1367,6 +1446,23 @@ int jl2xxx_clk_static_op_set(struct phy_device *phydev)
 	return 0;
 }
 
+int jl2xxx_work_mode_static_op_set(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	int err;
+
+	jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE18,
+				JL2XXX_WORK_MODE_REG,
+				JL2XXX_WORK_MODE_MASK,
+				priv->work_mode.mode);
+
+	err = jlsemi_soft_reset(phydev);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
 int jl2xxx_patch_static_op_set(struct phy_device *phydev)
 {
 	int err;
@@ -1598,6 +1694,7 @@ int jl2xxx_operation_mode_select(struct phy_device *phydev)
 	jl2xxx_rgmii_operation_mode(phydev);
 	jl2xxx_patch_operation_mode(phydev);
 	jl2xxx_clk_operation_mode(phydev);
+	jl2xxx_work_mode_operation_mode(phydev);
 
 	return 0;
 }
@@ -1621,6 +1718,7 @@ int jl2xxx_operation_args_get(struct phy_device *phydev)
 	jl2xxx_rgmii_operation_args(phydev);
 	jl2xxx_patch_operation_args(phydev);
 	jl2xxx_clk_operation_args(phydev);
+	jl2xxx_work_mode_operation_args(phydev);
 
 	return 0;
 }
@@ -1700,6 +1798,12 @@ int jl2xxx_static_op_init(struct phy_device *phydev)
 
 	if (priv->clk.enable & JL2XXX_CLK_STATIC_OP_EN) {
 		err = jl2xxx_clk_static_op_set(phydev);
+		if (err < 0)
+			return err;
+	}
+
+	if (priv->work_mode.enable & JL2XXX_WORK_MODE_STATIC_OP_EN) {
+		err = jl2xxx_work_mode_static_op_set(phydev);
 		if (err < 0)
 			return err;
 	}
