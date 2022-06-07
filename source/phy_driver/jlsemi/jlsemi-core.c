@@ -344,16 +344,16 @@ static int jl1xxx_led_operation_mode(struct phy_device *phydev)
 	struct jl1xxx_priv *priv = phydev->priv;
 	struct jl_config_mode *mode = &priv->led.op;
 
-	if (JL1XXX_LED_C_MACRO_MODE)
+	if (JL1XXX_LED_STATIC_OP_MODE == JL1XXX_LED_STATIC_C_MACRO)
 		mode->static_op = STATIC_C_MACRO;
-	else if (JL1XXX_LED_DEVICE_TREE_MODE)
+	else if (JL1XXX_LED_STATIC_OP_MODE == JL1XXX_LED_STATIC_DEVICE_TREE)
 		mode->static_op = STATIC_DEVICE_TREE;
-	else
+	else if (JL1XXX_LED_STATIC_OP_MODE == JL1XXX_LED_OP_NONE)
 		mode->static_op = STATIC_NONE;
 
-	if (JL1XXX_LED_ETHTOOL_MODE)
+	if (JL1XXX_LED_DYNAMIC_OP_MODE == JL1XXX_LED_DYNAMIC_ETHTOOL)
 		mode->dynamic_op = DYNAMIC_ETHTOOL;
-	else
+	else if (JL1XXX_LED_DYNAMIC_OP_MODE == JL1XXX_LED_OP_NONE)
 		mode->dynamic_op = DYNAMIC_NONE;
 
 	return 0;
@@ -364,16 +364,16 @@ static int jl1xxx_wol_operation_mode(struct phy_device *phydev)
 	struct jl1xxx_priv *priv = phydev->priv;
 	struct jl_config_mode *mode = &priv->wol.op;
 
-	if (JL1XXX_WOL_C_MACRO_MODE)
+	if (JL1XXX_WOL_STATIC_OP_MODE == JL1XXX_WOL_STATIC_C_MACRO)
 		mode->static_op = STATIC_C_MACRO;
-	else if (JL1XXX_WOL_DEVICE_TREE_MODE)
+	else if (JL1XXX_WOL_STATIC_OP_MODE == JL1XXX_WOL_STATIC_DEVICE_TREE)
 		mode->static_op = STATIC_DEVICE_TREE;
-	else
+	else if (JL1XXX_WOL_STATIC_OP_MODE == JL1XXX_WOL_OP_NONE)
 		mode->static_op = STATIC_NONE;
 
-	if (JL1XXX_WOL_ETHTOOL_MODE)
+	if (JL1XXX_WOL_DYNAMIC_OP_MODE == JL1XXX_WOL_DYNAMIC_ETHTOOL)
 		mode->dynamic_op = DYNAMIC_ETHTOOL;
-	else
+	else if (JL1XXX_WOL_DYNAMIC_OP_MODE == JL1XXX_WOL_OP_NONE)
 		mode->dynamic_op = DYNAMIC_NONE;
 
 	return 0;
@@ -384,16 +384,16 @@ static int jl1xxx_intr_operation_mode(struct phy_device *phydev)
 	struct jl1xxx_priv *priv = phydev->priv;
 	struct jl_config_mode *mode = &priv->intr.op;
 
-	if (JL1XXX_INTR_C_MACRO_MODE)
+	if (JL1XXX_INTR_STATIC_OP_MODE == JL1XXX_INTR_STATIC_C_MACRO)
 		mode->static_op = STATIC_C_MACRO;
-	else if (JL1XXX_INTR_DEVICE_TREE_MODE)
+	else if (JL1XXX_INTR_STATIC_OP_MODE == JL1XXX_INTR_STATIC_DEVICE_TREE)
 		mode->static_op = STATIC_DEVICE_TREE;
-	else
+	else if (JL1XXX_INTR_STATIC_OP_MODE == JL1XXX_INTR_OP_NONE)
 		mode->static_op = STATIC_NONE;
 
-	if (JL1XXX_INTR_ETHTOOL_MODE)
+	if (JL1XXX_INTR_DYNAMIC_OP_MODE == JL1XXX_INTR_STATIC_ETHTOOL)
 		mode->dynamic_op = DYNAMIC_ETHTOOL;
-	else
+	else if (JL1XXX_INTR_DYNAMIC_OP_MODE == JL1XXX_INTR_OP_NONE)
 		mode->dynamic_op = DYNAMIC_NONE;
 
 	return 0;
@@ -404,16 +404,16 @@ static int jl2xxx_led_operation_mode(struct phy_device *phydev)
 	struct jl2xxx_priv *priv = phydev->priv;
 	struct jl_config_mode *mode = &priv->led.op;
 
-	if (JL2XXX_LED_C_MACRO_MODE)
+	if (JL2XXX_LED_STATIC_OP_MODE == JL2XXX_LED_STATIC_C_MACRO)
 		mode->static_op = STATIC_C_MACRO;
-	else if (JL2XXX_LED_DEVICE_TREE_MODE)
+	else if (JL2XXX_LED_STATIC_OP_MODE == JL2XXX_LED_STATIC_DEVICE_TREE)
 		mode->static_op = STATIC_DEVICE_TREE;
-	else
+	else if (JL2XXX_LED_STATIC_OP_MODE == JL2XXX_LED_OP_NONE)
 		mode->static_op = STATIC_NONE;
 
-	if (JL2XXX_LED_ETHTOOL_MODE)
+	if (JL2XXX_LED_DYNAMIC_OP_MODE == JL2XXX_LED_DYNAMIC_ETHTOOL)
 		mode->dynamic_op = DYNAMIC_ETHTOOL;
-	else
+	else if (JL2XXX_LED_DYNAMIC_OP_MODE == JL2XXX_LED_OP_NONE)
 		mode->dynamic_op = DYNAMIC_NONE;
 
 	return 0;
@@ -726,16 +726,16 @@ static int jl2xxx_fld_operation_mode(struct phy_device *phydev)
 	struct jl2xxx_priv *priv = phydev->priv;
 	struct jl_config_mode *mode = &priv->fld.op;
 
-	if (JL2XXX_FLD_C_MACRO_MODE)
+	if (JL2XXX_FLD_STATIC_OP_MODE == JL2XXX_FLD_STATIC_C_MACRO)
 		mode->static_op = STATIC_C_MACRO;
-	else if (JL2XXX_FLD_DEVICE_TREE_MODE)
+	else if (JL2XXX_FLD_STATIC_OP_MODE == JL2XXX_FLD_STATIC_DEVICE_TREE)
 		mode->static_op = STATIC_DEVICE_TREE;
-	else
+	else if (JL2XXX_FLD_STATIC_OP_MODE == JL2XXX_FLD_OP_NONE)
 		mode->static_op = STATIC_NONE;
 
-	if (JL2XXX_FLD_ETHTOOL_MODE)
+	if (JL2XXX_FLD_DYNAMIC_OP_MODE == JL2XXX_FLD_DYNAMIC_ETHTOOL)
 		mode->dynamic_op = DYNAMIC_ETHTOOL;
-	else
+	else if (JL2XXX_FLD_DYNAMIC_OP_MODE == JL2XXX_FLD_OP_NONE)
 		mode->dynamic_op = DYNAMIC_NONE;
 
 	return 0;
@@ -746,16 +746,16 @@ static int jl2xxx_intr_operation_mode(struct phy_device *phydev)
 	struct jl2xxx_priv *priv = phydev->priv;
 	struct jl_config_mode *mode = &priv->intr.op;
 
-	if (JL2XXX_INTR_C_MACRO_MODE)
+	if (JL2XXX_INTR_STATIC_OP_MODE == JL2XXX_INTR_STATIC_C_MACRO)
 		mode->static_op = STATIC_C_MACRO;
-	else if (JL2XXX_INTR_DEVICE_TREE_MODE)
+	else if (JL2XXX_INTR_STATIC_OP_MODE == JL2XXX_INTR_STATIC_DEVICE_TREE)
 		mode->static_op = STATIC_DEVICE_TREE;
-	else
+	else if (JL2XXX_INTR_STATIC_OP_MODE == JL2XXX_INTR_OP_NONE)
 		mode->static_op = STATIC_NONE;
 
-	if (JL2XXX_INTR_ETHTOOL_MODE)
+	if (JL2XXX_INTR_DYNAMIC_OP_MODE == JL2XXX_INTR_DYNAMIC_ETHTOOL)
 		mode->dynamic_op = DYNAMIC_ETHTOOL;
-	else
+	else if (JL2XXX_INTR_DYNAMIC_OP_MODE == JL2XXX_INTR_OP_NONE)
 		mode->dynamic_op = DYNAMIC_NONE;
 
 	return 0;
@@ -766,16 +766,16 @@ static int jl2xxx_wol_operation_mode(struct phy_device *phydev)
 	struct jl2xxx_priv *priv = phydev->priv;
 	struct jl_config_mode *mode = &priv->wol.op;
 
-	if (JL2XXX_WOL_C_MACRO_MODE)
+	if (JL2XXX_WOL_STATIC_OP_MODE == JL2XXX_WOL_STATIC_C_MACRO)
 		mode->static_op = STATIC_C_MACRO;
-	else if (JL2XXX_WOL_DEVICE_TREE_MODE)
+	else if (JL2XXX_WOL_STATIC_OP_MODE == JL2XXX_WOL_STATIC_DEVICE_TREE)
 		mode->static_op = STATIC_DEVICE_TREE;
-	else
+	else if (JL2XXX_WOL_STATIC_OP_MODE == JL2XXX_WOL_OP_NONE)
 		mode->static_op = STATIC_NONE;
 
-	if (JL2XXX_WOL_ETHTOOL_MODE)
+	if (JL2XXX_WOL_DYNAMIC_OP_MODE == JL2XXX_WOL_DYNAMIC_ETHTOOL)
 		mode->dynamic_op = DYNAMIC_ETHTOOL;
-	else
+	else if (JL2XXX_WOL_DYNAMIC_OP_MODE == JL2XXX_WOL_OP_NONE)
 		mode->dynamic_op = DYNAMIC_NONE;
 
 	return 0;
@@ -786,16 +786,16 @@ static int jl2xxx_downshift_operation_mode(struct phy_device *phydev)
 	struct jl2xxx_priv *priv = phydev->priv;
 	struct jl_config_mode *mode = &priv->downshift.op;
 
-	if (JL2XXX_DSFT_C_MACRO_MODE)
+	if (JL2XXX_DSFT_STATIC_OP_MODE == JL2XXX_DSFT_STATIC_C_MACRO)
 		mode->static_op = STATIC_C_MACRO;
-	else if (JL2XXX_DSFT_DEVICE_TREE_MODE)
+	else if (JL2XXX_DSFT_STATIC_OP_MODE == JL2XXX_DSFT_STATIC_DEVICE_TREE)
 		mode->static_op = STATIC_DEVICE_TREE;
-	else
+	else if (JL2XXX_DSFT_STATIC_OP_MODE == JL2XXX_DSFT_OP_NONE)
 		mode->static_op = STATIC_NONE;
 
-	if (JL2XXX_DSFT_ETHTOOL_MODE)
+	if (JL2XXX_DSFT_DYNAMIC_OP_MODE == JL2XXX_DSFT_DYNAMIC_ETHTOOL)
 		mode->dynamic_op = DYNAMIC_ETHTOOL;
-	else
+	else if (JL2XXX_DSFT_DYNAMIC_OP_MODE == JL2XXX_DSFT_OP_NONE)
 		mode->dynamic_op = DYNAMIC_NONE;
 
 	return 0;
@@ -806,16 +806,16 @@ static int jl2xxx_rgmii_operation_mode(struct phy_device *phydev)
 	struct jl2xxx_priv *priv = phydev->priv;
 	struct jl_config_mode *mode = &priv->rgmii.op;
 
-	if (JL2XXX_RGMII_C_MACRO_MODE)
+	if (JL2XXX_RGMII_STATIC_OP_MODE == JL2XXX_RGMII_STATIC_C_MACRO)
 		mode->static_op = STATIC_C_MACRO;
-	else if (JL2XXX_RGMII_DEVICE_TREE_MODE)
+	else if (JL2XXX_RGMII_STATIC_OP_MODE == JL2XXX_RGMII_STATIC_DEVICE_TREE)
 		mode->static_op = STATIC_DEVICE_TREE;
-	else
+	else if (JL2XXX_RGMII_STATIC_OP_MODE == JL2XXX_RGMII_OP_NONE)
 		mode->static_op = STATIC_NONE;
 
-	if (JL2XXX_RGMII_ETHTOOL_MODE)
+	if (JL2XXX_RGMII_DYNAMIC_OP_MODE == JL2XXX_RGMII_DYNAMIC_ETHTOOL)
 		mode->dynamic_op = DYNAMIC_ETHTOOL;
-	else
+	else if (JL2XXX_RGMII_DYNAMIC_OP_MODE == JL2XXX_RGMII_OP_NONE)
 		mode->dynamic_op = DYNAMIC_NONE;
 
 	return 0;
@@ -826,16 +826,16 @@ static int jl2xxx_patch_operation_mode(struct phy_device *phydev)
 	struct jl2xxx_priv *priv = phydev->priv;
 	struct jl_config_mode *mode = &priv->patch.op;
 
-	if (JL2XXX_PATCH_C_MACRO_MODE)
+	if (JL2XXX_PATCH_STATIC_OP_MODE == JL2XXX_PATCH_STATIC_C_MACRO)
 		mode->static_op = STATIC_C_MACRO;
-	else if (JL2XXX_PATCH_DEVICE_TREE_MODE)
+	else if (JL2XXX_PATCH_STATIC_OP_MODE == JL2XXX_PATCH_STATIC_DEVICE_TREE)
 		mode->static_op = STATIC_DEVICE_TREE;
-	else
+	else if (JL2XXX_PATCH_STATIC_OP_MODE == JL2XXX_PATCH_OP_NONE)
 		mode->static_op = STATIC_NONE;
 
-	if (JL2XXX_PATCH_ETHTOOL_MODE)
+	if (JL2XXX_PATCH_DYNAMIC_OP_MODE == JL2XXX_PATCH_DYNAMIC_ETHTOOL)
 		mode->dynamic_op = DYNAMIC_ETHTOOL;
-	else
+	else if (JL2XXX_RGMII_DYNAMIC_OP_MODE == JL2XXX_RGMII_OP_NONE)
 		mode->dynamic_op = DYNAMIC_NONE;
 
 	return 0;
@@ -846,16 +846,16 @@ static int jl2xxx_clk_operation_mode(struct phy_device *phydev)
 	struct jl2xxx_priv *priv = phydev->priv;
 	struct jl_config_mode *mode = &priv->clk.op;
 
-	if (JL2XXX_CLK_C_MACRO_MODE)
+	if (JL2XXX_CLK_STATIC_OP_MODE == JL2XXX_CLK_STATIC_C_MACRO)
 		mode->static_op = STATIC_C_MACRO;
-	else if (JL2XXX_CLK_DEVICE_TREE_MODE)
+	else if (JL2XXX_CLK_STATIC_OP_MODE == JL2XXX_CLK_STATIC_DEVICE_TREE)
 		mode->static_op = STATIC_DEVICE_TREE;
-	else
+	else if (JL2XXX_CLK_STATIC_OP_MODE == JL2XXX_CLK_OP_NONE)
 		mode->static_op = STATIC_NONE;
 
-	if (JL2XXX_CLK_ETHTOOL_MODE)
+	if (JL2XXX_CLK_DYNAMIC_OP_MODE == JL2XXX_CLK_DYNAMIC_ETHTOOL)
 		mode->dynamic_op = DYNAMIC_ETHTOOL;
-	else
+	else if (JL2XXX_CLK_DYNAMIC_OP_MODE == JL2XXX_CLK_OP_NONE)
 		mode->dynamic_op = DYNAMIC_NONE;
 
 	return 0;
