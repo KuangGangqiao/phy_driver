@@ -50,6 +50,12 @@
 #define JL1xxx_WOL_RECEIVE	BIT(0)
 #define ADDR8_HIGH_TO_LOW(n)	((n >> 4) | (n << 4))
 
+#define JL1XXX_PAGE24		24
+#define JL1XXX_REG24		24
+#define JL1XXX_MDI_TX_BM_MASK	0x1c00
+#define JL1XXX_MDI_TX_BM(n)	(n << 10)
+#define JL1XXX_MDI_TX_SRN	BIT(0)
+
 #define JL2XXX_RGMII_CTRL_PAGE	0x00ab
 #define JL2XXX_RGMII_TX_RSTN	BIT(14)
 #define JL2XXX_RGMII_ERR_STAS	BIT(3)
@@ -244,11 +250,19 @@ struct jl_loopback_ctrl {
 	struct jl_config_mode op;
 };
 
+struct jl_mdi_ctrl {
+	u16 enable;
+	u16 rate;
+	u16 amplitude;
+	struct jl_config_mode op;
+};
+
 struct jl1xxx_priv {
 	struct jl_led_ctrl led;
 	struct jl_wol_ctrl wol;
 	struct jl_intr_ctrl intr;
 	bool static_inited;
+	struct jl_mdi_ctrl mdi;
 };
 
 struct jl2xxx_priv {

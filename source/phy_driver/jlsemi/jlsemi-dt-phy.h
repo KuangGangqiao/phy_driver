@@ -98,13 +98,52 @@
 #define JL1XXX_INTR_OP_NONE		0
 #define JL1XXX_INTR_STATIC_C_MACRO	1
 #define JL1XXX_INTR_STATIC_DEVICE_TREE	2
-#define JL1XXX_INTR_STATIC_ETHTOOL	3
+#define JL1XXX_INTR_DYNAMIC_ETHTOOL	3
 
 #define JL1XXX_INTR_STATIC_OP_MODE	JL1XXX_INTR_OP_NONE
 #define JL1XXX_INTR_DYNAMIC_OP_MODE	JL1XXX_INTR_OP_NONE
 
 #define JL1XXX_INTR_CTRL_EN	(JL1XXX_INTR_STATIC_OP_EN | \
 				 JL1XXX_INTR_LINK_CHANGE_EN)
+/*************************************************************************/
+
+/**************************** JL1XXX-MDI *********************************/
+/* PHY MDI Control Mode Enable Mask */
+#define JL1XXX_MDI_STATIC_OP_EN		(1 << 0)
+#define JL1XXX_MDI_DYNAMIC_OP_EN	(1 << 1)
+#define JL1XXX_MDI_RATE_EN		(1 << 2)
+#define JL1XXX_MDI_AMPLITUDE_EN		(1 << 3)
+
+/* PHY MDI Rate */
+#define JL2XXX_MDI_RATE_STANDARD	0
+#define JL2XXX_MDI_RATE_ACCELERATE	1
+
+/* PHY MDI Amplitude */
+#define JL1XXX_MDI_AMPLITUDE0		0
+#define JL1XXX_MDI_AMPLITUDE1		1
+#define JL1XXX_MDI_AMPLITUDE2		2
+#define JL1XXX_MDI_AMPLITUDE3		3
+#define JL1XXX_MDI_AMPLITUDE4		4
+#define JL1XXX_MDI_AMPLITUDE5		5
+#define JL1XXX_MDI_AMPLITUDE6		6
+#define JL1XXX_MDI_AMPLITUDE7		7
+
+/* PHY Work Mode Operation Mode Select */
+#define JL1XXX_MDI_OP_NONE		0
+#define JL1XXX_MDI_STATIC_C_MACRO	1
+#define JL1XXX_MDI_STATIC_DEVICE_TREE	2
+#define JL1XXX_MDI_DYNAMIC_ETHTOOL	3
+
+#define JL1XXX_MDI_STATIC_OP_MODE	JL1XXX_MDI_OP_NONE
+#define JL1XXX_MDI_DYNAMIC_OP_MODE	JL1XXX_MDI_OP_NONE
+
+#define JL1XXX_MDI_CTRL_EN		(JL1XXX_MDI_STATIC_OP_EN | \
+					 JL1XXX_MDI_RATE_EN)
+
+#define JL1XXX_MDI_RATE			JL2XXX_MDI_RATE_ACCELERATE
+
+#define JL1XXX_MDI_AMPLITUDE		JL1XXX_MDI_AMPLITUDE4
+
 /*************************************************************************/
 
 /**************************** JL2XXX-LED *********************************/
@@ -365,6 +404,6 @@
 #define JL2XXX_LPBK_CTRL_EN		(JL2XXX_LPBK_STATIC_OP_EN)
 
 #define JL2XXX_LPBK_MODE		JL2XXX_LPBK_NONE
-
+/*************************************************************************/
 #endif
 

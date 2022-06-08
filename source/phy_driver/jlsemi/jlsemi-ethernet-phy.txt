@@ -40,6 +40,12 @@ Example for jl1xxx:
 			compatible		= "jl1xxx-interrupt";
 			jl1xxx,interrupt-enable	= <JL1XXX_INTR_CTRL_EN>;
 		};
+		mdi {
+			compatible		= "jl1xxx-mdi";
+			jl1xxx,mdi-enable	= <JL1XXX_MDI_CTRL_EN>;
+			jl1xxx,mdi-rate		= <JL1XXX_MDI_RATE>
+			jl1xxx,mdi-amplitude	= <JL1XXX_MDI_AMPLITUDE>
+		};
 	};
 
 Example for jl2xxx:
