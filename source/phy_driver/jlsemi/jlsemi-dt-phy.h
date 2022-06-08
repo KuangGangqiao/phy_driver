@@ -146,6 +146,36 @@
 
 /*************************************************************************/
 
+/**************************** JL1XXX-RMII *********************************/
+/* PHY RMII Control Mode Enable Mask */
+#define JL1XXX_RMII_STATIC_OP_EN	(1 << 0)
+#define JL1XXX_RMII_DYNAMIC_OP_EN	(1 << 1)
+#define JL1XXX_RMII_MODE_EN		(1 << 2)
+#define JL1XXX_RMII_CLK_50M_INPUT_EN	(1 << 3)
+#define JL1XXX_RMII_TX_SKEW_EN		(1 << 4)
+#define JL1XXX_RMII_RX_SKEW_EN		(1 << 5)
+#define JL1XXX_RMII_CRS_DV_EN		(1 << 6)
+
+
+/* PHY RMII Operation Mode Select */
+#define JL1XXX_RMII_OP_NONE		0
+#define JL1XXX_RMII_STATIC_C_MACRO	1
+#define JL1XXX_RMII_STATIC_DEVICE_TREE	2
+#define JL1XXX_RMII_DYNAMIC_ETHTOOL	3
+
+
+#define JL1XXX_RMII_STATIC_OP_MODE	JL1XXX_RMII_OP_NONE
+#define JL1XXX_RMII_DYNAMIC_OP_MODE	JL1XXX_RMII_OP_NONE
+
+#define JL1XXX_RMII_CTRL_EN		(JL1XXX_RMII_STATIC_OP_EN | \
+					 JL1XXX_RMII_MODE_EN | \
+					 JL1XXX_RMII_TX_SKEW_EN)
+
+#define JL1XXX_RMII_TX_TIMING		0xf
+#define JL1XXX_RMII_RX_TIMING		0xf
+
+/*************************************************************************/
+
 /**************************** JL2XXX-LED *********************************/
 /* PHY LED Modes */
 #define JL2XXX_LED0_LINK10		(1 << 0)

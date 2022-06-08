@@ -46,6 +46,12 @@ Example for jl1xxx:
 			jl1xxx,mdi-rate		= <JL1XXX_MDI_RATE>
 			jl1xxx,mdi-amplitude	= <JL1XXX_MDI_AMPLITUDE>
 		};
+		rmii {
+			compatible		= "jl1xxx-rmii";
+			jl1xxx-enable		= "jl1xxx-enable";
+			jl1xxx-rx_timing	= "jl1xxx-rx_timing"
+			jl1xxx-tx_timing	= "jl1xxx-tx_timing"
+		}
 	};
 
 Example for jl2xxx:

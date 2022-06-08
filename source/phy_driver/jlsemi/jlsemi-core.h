@@ -56,6 +56,16 @@
 #define JL1XXX_MDI_TX_BM(n)	(n << 10)
 #define JL1XXX_MDI_TX_SRN	BIT(0)
 
+#define JL2XXX_PAGE7		7
+#define JL2XXX_REG16		16
+#define JL1XXX_RMII_MODE		BIT(3)
+#define JL1XXX_RMII_CLK_50M_INPUT	BIT(12)
+#define JL1XXX_RMII_TX_SKEW_MASK	(0xf << 8)
+#define JL1XXX_RMII_TX_SKEW(n)		(n << 8) & JL1XXX_RMII_TX_SKEW_MASK
+#define JL1XXX_RMII_RX_SKEW_MASK	(0xf << 4)
+#define JL1XXX_RMII_RX_SKEW(n)		(n << 4) & JL1XXX_RMII_RX_SKEW_MASK
+#define JL1XXX_RMII_CRS_DV		BIT(2)
+
 #define JL2XXX_RGMII_CTRL_PAGE	0x00ab
 #define JL2XXX_RGMII_TX_RSTN	BIT(14)
 #define JL2XXX_RGMII_ERR_STAS	BIT(3)
@@ -257,12 +267,20 @@ struct jl_mdi_ctrl {
 	struct jl_config_mode op;
 };
 
+struct jl_rmii_ctrl {
+	u16 enable;
+	u16 tx_timing;
+	u16 rx_timing;
+	struct jl_config_mode op;
+};
+
 struct jl1xxx_priv {
 	struct jl_led_ctrl led;
 	struct jl_wol_ctrl wol;
 	struct jl_intr_ctrl intr;
 	bool static_inited;
 	struct jl_mdi_ctrl mdi;
+	struct jl_rmii_ctrl rmii;
 };
 
 struct jl2xxx_priv {
