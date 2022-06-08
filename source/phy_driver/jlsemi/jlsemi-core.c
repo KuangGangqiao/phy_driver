@@ -1729,9 +1729,8 @@ int jl2xxx_lpbk_static_op_set(struct phy_device *phydev)
 				      JL2XXX_SPEED1000_NO_AN);
 		if (err < 0)
 			return err;
-	} else if (priv->lpbk.mode == JL2XXX_LPBK_NONE) {
+	} else
 		return 0;
-	}
 
 	jl2xxx_lpbk_force_speed(phydev);
 

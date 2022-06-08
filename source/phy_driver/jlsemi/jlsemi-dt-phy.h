@@ -385,12 +385,11 @@
 #define JL2XXX_LPBK_DYNAMIC_OP_EN	(1 << 1)
 
 /* PHY Loopback Mode Select */
-#define JL2XXX_LPBK_NONE		0
-#define JL2XXX_LPBK_PCS_10M		1
-#define JL2XXX_LPBK_PCS_100M		2
-#define JL2XXX_LPBK_PCS_1000M		3
-#define JL2XXX_LPBK_PMD_1000M		4
-#define JL2XXX_LPBK_EXT_STUB_1000M	5
+#define JL2XXX_LPBK_PCS_10M		0
+#define JL2XXX_LPBK_PCS_100M		1
+#define JL2XXX_LPBK_PCS_1000M		2
+#define JL2XXX_LPBK_PMD_1000M		3
+#define JL2XXX_LPBK_EXT_STUB_1000M	4
 
 /* PHY Work Mode Operation Mode Select */
 #define JL2XXX_LPBK_OP_NONE		0
@@ -403,7 +402,7 @@
 
 #define JL2XXX_LPBK_CTRL_EN		(JL2XXX_LPBK_STATIC_OP_EN)
 
-#define JL2XXX_LPBK_MODE		JL2XXX_LPBK_NONE
+#define JL2XXX_LPBK_MODE		JL2XXX_LPBK_PCS_1000M
 /*************************************************************************/
 #endif
 
