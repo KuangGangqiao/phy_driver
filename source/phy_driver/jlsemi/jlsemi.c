@@ -266,6 +266,19 @@ static int jl2xxx_set_wol(struct phy_device *phydev,
 	return 0;
 }
 
+static int jl2xxx_set_loopback(struct phy_device *phydev, bool enable)
+{
+	int ret;
+
+	ret = jlsemi_modify_paged_reg(phydev, JL2XXX_BASIC_PAGE,
+				      MII_BMCR, BMCR_LOOPBACK,
+				      enable ? BMCR_LOOPBACK : 0);
+	if (ret < 0)
+		return ret;
+
+	return 0;
+}
+
 static int jl2xxx_get_tunable(struct phy_device *phydev,
 			      struct ethtool_tunable *tuna, void *data)
 {
@@ -406,6 +419,7 @@ static struct phy_driver jlsemi_drivers[] = {
 		.set_tunable	= jl2xxx_set_tunable,
 		.get_stats	= jl2xxx_get_stats,
 		.get_strings	= jl2xxx_get_strings,
+		.set_loopback	= jl2xxx_set_loopback,
 	},
 };
 

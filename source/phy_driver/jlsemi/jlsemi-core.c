@@ -41,6 +41,10 @@
 #define JL2XXX_FLD_DELAY_20MS	2
 #define JL2XXX_FLD_DELAY_40MS	3
 
+#define JL2XXX_SPEED10		0
+#define JL2XXX_SPEED100		1
+#define JL2XXX_SPEED1000	2
+
 
 #define JL2XXX_SUPP_LED_MODE	(JL2XXX_LED0_LINK10 | \
 				 JL2XXX_LED0_LINK100 | \
@@ -645,6 +649,26 @@ static int jl2xxx_dts_work_mode_cfg_get(struct phy_device *phydev)
 	return 0;
 }
 
+static int jl2xxx_dts_lpbk_cfg_get(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	struct device *dev = &phydev->mdio.dev;
+	struct device_node *of_node = dev->of_node;
+	int err;
+
+	err = of_property_read_u16(of_node, "jl2xxx,lpbk-enable",
+				   &priv->lpbk.enable);
+	if (err < 0)
+		return err;
+
+	err = of_property_read_u16(of_node, "jl2xxx,lpbk-mode",
+				   &priv->lpbk.mode);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
 static int jl2xxx_c_marcro_fld_cfg_get(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
@@ -751,6 +775,20 @@ static int jl2xxx_c_marcro_work_mode_cfg_get(struct phy_device *phydev)
 	};
 
 	priv->work_mode = work_mode_cfg;
+
+	return 0;
+}
+
+static int jl2xxx_c_marcro_lpbk_cfg_get(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+
+	struct jl_loopback_ctrl lpbk_cfg = {
+		.enable		= JL2XXX_LPBK_CTRL_EN,
+		.mode		= JL2XXX_LPBK_MODE,
+	};
+
+	priv->lpbk = lpbk_cfg;
 
 	return 0;
 }
@@ -920,6 +958,26 @@ static int jl2xxx_work_mode_operation_mode(struct phy_device *phydev)
 	return 0;
 }
 
+static int jl2xxx_lpbk_operation_mode(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	struct jl_config_mode *mode = &priv->clk.op;
+
+	if (JL2XXX_LPBK_STATIC_OP_MODE == JL2XXX_LPBK_STATIC_C_MACRO)
+		mode->static_op = STATIC_C_MACRO;
+	else if (JL2XXX_LPBK_STATIC_OP_MODE == JL2XXX_LPBK_STATIC_DEVICE_TREE)
+		mode->static_op = STATIC_DEVICE_TREE;
+	else if (JL2XXX_LPBK_STATIC_OP_MODE == JL2XXX_LPBK_OP_NONE)
+		mode->static_op = STATIC_NONE;
+
+	if (JL2XXX_LPBK_DYNAMIC_OP_MODE == JL2XXX_LPBK_DYNAMIC_ETHTOOL)
+		mode->dynamic_op = DYNAMIC_ETHTOOL;
+	else if (JL2XXX_LPBK_DYNAMIC_OP_MODE == JL2XXX_LPBK_OP_NONE)
+		mode->dynamic_op = DYNAMIC_NONE;
+
+	return 0;
+}
+
 static int jl2xxx_fld_operation_args(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
@@ -1076,6 +1134,26 @@ static int jl2xxx_work_mode_operation_args(struct phy_device *phydev)
 		priv->work_mode.enable |= JL2XXX_WORK_MODE_DYNAMIC_OP_EN;
 	else
 		priv->work_mode.enable &= ~JL2XXX_WORK_MODE_DYNAMIC_OP_EN;
+
+	return 0;
+}
+
+static int jl2xxx_lpbk_operation_args(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	struct jl_config_mode *mode = &priv->lpbk.op;
+
+	if (mode->static_op == STATIC_C_MACRO)
+		jl2xxx_c_marcro_lpbk_cfg_get(phydev);
+	else if (mode->static_op == STATIC_DEVICE_TREE)
+		jl2xxx_dts_lpbk_cfg_get(phydev);
+	else if (mode->static_op == STATIC_NONE)
+		priv->lpbk.enable &= ~JL2XXX_LPBK_STATIC_OP_EN;
+
+	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
+		priv->lpbk.enable |= JL2XXX_LPBK_DYNAMIC_OP_EN;
+	else
+		priv->lpbk.enable &= ~JL2XXX_LPBK_DYNAMIC_OP_EN;
 
 	return 0;
 }
@@ -1463,6 +1541,122 @@ int jl2xxx_work_mode_static_op_set(struct phy_device *phydev)
 	return 0;
 }
 
+static int jl2xxx_force_speed(struct phy_device *phydev, u16 speed)
+{
+	int err;
+
+	if (speed == JL2XXX_SPEED1000)
+		jlsemi_modify_paged_reg(phydev, JL2XXX_BASIC_PAGE, MII_BMCR,
+					BMCR_SPEED100, BMCR_SPEED1000);
+	else if (speed == JL2XXX_SPEED100)
+		jlsemi_modify_paged_reg(phydev, JL2XXX_BASIC_PAGE, MII_BMCR,
+					BMCR_SPEED1000, BMCR_SPEED100);
+	else if (speed == JL2XXX_SPEED10)
+		jlsemi_clear_bits(phydev, JL2XXX_BASIC_PAGE, MII_BMCR,
+				  BMCR_SPEED1000 | BMCR_SPEED100);
+
+	err = jlsemi_clear_bits(phydev, JL2XXX_BASIC_PAGE, MII_BMCR,
+				BMCR_ANENABLE);
+	if (err < 0)
+		return err;
+
+	err = jlsemi_soft_reset(phydev);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
+static int jl2xxx_lpbk_force_speed(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+
+	if (priv->lpbk.mode == JL2XXX_LPBK_PCS_1000M ||
+	    priv->lpbk.mode == JL2XXX_LPBK_PMD_1000M ||
+	    priv->lpbk.mode == JL2XXX_LPBK_EXT_STUB_1000M)
+		jl2xxx_force_speed(phydev, JL2XXX_SPEED1000);
+	else if (priv->lpbk.mode == JL2XXX_LPBK_PCS_100M)
+		jl2xxx_force_speed(phydev, JL2XXX_SPEED100);
+	else if (priv->lpbk.mode == JL2XXX_LPBK_PCS_10M)
+		jl2xxx_force_speed(phydev, JL2XXX_SPEED10);
+
+	return 0;
+}
+
+int jl2xxx_lpbk_static_op_set(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	int err;
+
+	if (priv->lpbk.mode == JL2XXX_LPBK_PCS_10M ||
+	    priv->lpbk.mode == JL2XXX_LPBK_PCS_100M ||
+	    priv->lpbk.mode == JL2XXX_LPBK_PCS_1000M) {
+		err = jlsemi_modify_paged_reg(phydev, JL2XXX_BASIC_PAGE,
+					      MII_BMCR, BMCR_LOOPBACK,
+					      BMCR_LOOPBACK);
+		if (err < 0)
+			return err;
+	} else if (priv->lpbk.mode == JL2XXX_LPBK_PMD_1000M) {
+		err = jlsemi_clear_bits(phydev, JL2XXX_PAGE160,
+					JL2XXX_REG25, JL2XXX_CPU_RESET);
+		if (err < 0)
+			return err;
+		jlsemi_write_page(phydev, JL2XXX_PAGE173);
+		phy_write(phydev, JL2XXX_REG16, JL2XXX_LOAD_GO);
+		phy_write(phydev, JL2XXX_REG17, JL2XXX_LOAD_DATA0);
+		jlsemi_write_page(phydev, JL2XXX_BASIC_PAGE);
+
+		err = jlsemi_set_bits(phydev, JL2XXX_PAGE160,
+				      JL2XXX_REG25, JL2XXX_CPU_RESET);
+		if (err < 0)
+			return err;
+
+		err = jlsemi_modify_paged_reg(phydev, JL2XXX_BASIC_PAGE,
+					      JL2XXX_REG20,
+					      JL2XXX_LPBK_MODE_MASK,
+					      JL2XXX_LPBK_PMD_MODE);
+		if (err < 0)
+			return err;
+
+		err = jlsemi_set_bits(phydev, JL2XXX_PAGE18, JL2XXX_REG20,
+				      JL2XXX_SPEED1000_NO_AN);
+		if (err < 0)
+			return err;
+	} else if (priv->lpbk.mode == JL2XXX_LPBK_EXT_STUB_1000M) {
+		err = jlsemi_clear_bits(phydev, JL2XXX_PAGE160,
+					JL2XXX_REG25, JL2XXX_CPU_RESET);
+		if (err < 0)
+			return err;
+		jlsemi_write_page(phydev, JL2XXX_PAGE173);
+		phy_write(phydev, JL2XXX_REG16, JL2XXX_LOAD_GO);
+		phy_write(phydev, JL2XXX_REG17, JL2XXX_LOAD_DATA0);
+		jlsemi_write_page(phydev, JL2XXX_BASIC_PAGE);
+
+		err = jlsemi_set_bits(phydev, JL2XXX_PAGE160,
+				      JL2XXX_REG25, JL2XXX_CPU_RESET);
+		if (err < 0)
+			return err;
+
+		err = jlsemi_modify_paged_reg(phydev, JL2XXX_BASIC_PAGE,
+					      JL2XXX_REG20,
+					      JL2XXX_LPBK_MODE_MASK,
+					      JL2XXX_LPBK_EXT_MODE);
+		if (err < 0)
+			return err;
+
+		err = jlsemi_set_bits(phydev, JL2XXX_PAGE18, JL2XXX_REG20,
+				      JL2XXX_SPEED1000_NO_AN);
+		if (err < 0)
+			return err;
+	} else if (priv->lpbk.mode == JL2XXX_LPBK_NONE) {
+		return 0;
+	}
+
+	jl2xxx_lpbk_force_speed(phydev);
+
+	return 0;
+}
+
 int jl2xxx_patch_static_op_set(struct phy_device *phydev)
 {
 	int err;
@@ -1695,6 +1889,7 @@ int jl2xxx_operation_mode_select(struct phy_device *phydev)
 	jl2xxx_patch_operation_mode(phydev);
 	jl2xxx_clk_operation_mode(phydev);
 	jl2xxx_work_mode_operation_mode(phydev);
+	jl2xxx_lpbk_operation_mode(phydev);
 
 	return 0;
 }
@@ -1719,6 +1914,7 @@ int jl2xxx_operation_args_get(struct phy_device *phydev)
 	jl2xxx_patch_operation_args(phydev);
 	jl2xxx_clk_operation_args(phydev);
 	jl2xxx_work_mode_operation_args(phydev);
+	jl2xxx_lpbk_operation_args(phydev);
 
 	return 0;
 }
@@ -1806,6 +2002,13 @@ int jl2xxx_static_op_init(struct phy_device *phydev)
 		err = jl2xxx_work_mode_static_op_set(phydev);
 		if (err < 0)
 			return err;
+	}
+
+	if (priv->lpbk.enable & JL2XXX_LPBK_STATIC_OP_EN) {
+		err = jl2xxx_lpbk_static_op_set(phydev);
+		if (err < 0)
+			return err;
+
 	}
 
 	return 0;

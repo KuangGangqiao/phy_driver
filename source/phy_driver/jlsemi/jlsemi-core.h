@@ -122,6 +122,24 @@
 #define JL2XXX_WORK_MODE_REG	21
 #define JL2XXX_WORK_MODE_MASK	0x7
 
+#define JL2XXX_PAGE160		160
+#define JL2XXX_REG25		25
+#define JL2XXX_CPU_RESET	BIT(3)
+
+#define JL2XXX_PAGE173		173
+#define JL2XXX_REG16		16
+#define JL2XXX_REG17		17
+#define JL2XXX_LOAD_GO		0
+#define JL2XXX_LOAD_DATA0	0x3a01
+#define JL2XXX_REG20		20
+#define JL2XXX_LPBK_MODE_MASK	0x3
+#define JL2XXX_LPBK_PMD_MODE	(2 << 1)
+#define JL2XXX_LPBK_EXT_MODE	(1 << 1)
+
+#define JL2XXX_PAGE18		18
+#define JL2XXX_REG20		20
+#define JL2XXX_SPEED1000_NO_AN	BIT(11) | BIT(10)
+
 #define LED_PERIOD_MASK		0xff00
 #define LEDPERIOD(n)		(n << 8) & LED_PERIOD_MASK
 #define LED_ON_MASK		0x00ff
@@ -220,6 +238,12 @@ struct jl_work_mode_ctrl {
 	struct jl_config_mode op;
 };
 
+struct jl_loopback_ctrl {
+	u16 enable;
+	u16 mode;
+	struct jl_config_mode op;
+};
+
 struct jl1xxx_priv {
 	struct jl_led_ctrl led;
 	struct jl_wol_ctrl wol;
@@ -241,6 +265,7 @@ struct jl2xxx_priv {
 	int nstats;
 	u64 *stats;
 	struct jl_work_mode_ctrl work_mode;
+	struct jl_loopback_ctrl lpbk;
 };
 
 /* macros to simplify debug checking */

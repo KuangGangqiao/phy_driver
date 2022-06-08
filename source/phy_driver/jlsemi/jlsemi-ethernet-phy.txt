@@ -96,5 +96,10 @@ Example for jl2xxx:
 			jl2xxx,work_mode-enable	= <JL2XXX_WORK_MODE_CTRL_EN>;
 			jl2xxx,work_mode-mode	= <JL2XXX_WOEK_MODE_MODE>
 		};
+		loopback {
+			compatible		= "jl2xxx-loopback";
+			jl2xxx,work_mode-enable	= <JL2XXX_LPBK_CTRL_EN>;
+			jl2xxx,work_mode-mode	= <JL2XXX_LPBK_MODE>
+		};
 
 	};
