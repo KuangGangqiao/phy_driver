@@ -1728,9 +1728,9 @@ static int jl2xxx_lpbk_force_speed(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
 
-	if (priv->lpbk.mode == JL2XXX_LPBK_PCS_1000M ||
-	    priv->lpbk.mode == JL2XXX_LPBK_PMD_1000M ||
-	    priv->lpbk.mode == JL2XXX_LPBK_EXT_STUB_1000M)
+	if ((priv->lpbk.mode == JL2XXX_LPBK_PCS_1000M) ||
+	    (priv->lpbk.mode == JL2XXX_LPBK_PMD_1000M) ||
+	    (priv->lpbk.mode == JL2XXX_LPBK_EXT_STUB_1000M))
 		jl2xxx_force_speed(phydev, JL2XXX_SPEED1000);
 	else if (priv->lpbk.mode == JL2XXX_LPBK_PCS_100M)
 		jl2xxx_force_speed(phydev, JL2XXX_SPEED100);
@@ -1745,9 +1745,9 @@ int jl2xxx_lpbk_static_op_set(struct phy_device *phydev)
 	struct jl2xxx_priv *priv = phydev->priv;
 	int err;
 
-	if (priv->lpbk.mode == JL2XXX_LPBK_PCS_10M ||
-	    priv->lpbk.mode == JL2XXX_LPBK_PCS_100M ||
-	    priv->lpbk.mode == JL2XXX_LPBK_PCS_1000M) {
+	if ((priv->lpbk.mode == JL2XXX_LPBK_PCS_10M) ||
+	    (priv->lpbk.mode == JL2XXX_LPBK_PCS_100M) ||
+	    (priv->lpbk.mode == JL2XXX_LPBK_PCS_1000M)) {
 		err = jlsemi_modify_paged_reg(phydev, JL2XXX_BASIC_PAGE,
 					      MII_BMCR, BMCR_LOOPBACK,
 					      BMCR_LOOPBACK);
