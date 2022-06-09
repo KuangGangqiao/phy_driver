@@ -352,7 +352,6 @@ static int jl1xxx_c_marcro_wol_cfg_get(struct phy_device *phydev)
 {
 	struct jl1xxx_priv *priv = phydev->priv;
 
-	/* Config WOL */
 	struct jl_wol_ctrl wol_cfg = {
 		.enable		= JL1XXX_WOL_CTRL_EN,
 	};
@@ -366,7 +365,6 @@ static int jl1xxx_c_marcro_intr_cfg_get(struct phy_device *phydev)
 {
 	struct jl1xxx_priv *priv = phydev->priv;
 
-	/* Config WOL */
 	struct jl_intr_ctrl intr_cfg = {
 		.enable		= JL1XXX_INTR_CTRL_EN,
 	};
@@ -380,7 +378,6 @@ static int jl1xxx_c_marcro_mdi_cfg_get(struct phy_device *phydev)
 {
 	struct jl1xxx_priv *priv = phydev->priv;
 
-	/* Config WOL */
 	struct jl_mdi_ctrl mdi_cfg = {
 		.enable		= JL1XXX_MDI_CTRL_EN,
 		.rate		= JL1XXX_MDI_RATE,
@@ -411,7 +408,6 @@ static int jl2xxx_c_marcro_led_cfg_get(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
 
-	/* Config LED */
 	struct jl_led_ctrl led_cfg = {
 		.enable		= JL2XXX_LED_CTRL_EN,
 		.mode		= JL2XXX_CFG_LED_MODE,
@@ -835,7 +831,6 @@ static int jl2xxx_c_marcro_fld_cfg_get(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
 
-	/* Config fast link down */
 	struct jl_fld_ctrl fld_cfg = {
 		.enable		= JL2XXX_FLD_CTRL_EN,
 		.delay		= JL2XXX_FLD_DELAY,
