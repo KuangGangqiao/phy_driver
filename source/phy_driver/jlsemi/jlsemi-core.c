@@ -504,7 +504,7 @@ static int jl1xxx_mdi_operation_mode(struct phy_device *phydev)
 static int jl1xxx_rmii_operation_mode(struct phy_device *phydev)
 {
 	struct jl1xxx_priv *priv = phydev->priv;
-	struct jl_config_mode *mode = &priv->mdi.op;
+	struct jl_config_mode *mode = &priv->rmii.op;
 
 	if (JL1XXX_RMII_STATIC_OP_MODE == JL1XXX_RMII_STATIC_C_MACRO)
 		mode->static_op = STATIC_C_MACRO;
@@ -1064,7 +1064,7 @@ static int jl2xxx_patch_operation_mode(struct phy_device *phydev)
 
 	if (JL2XXX_PATCH_DYNAMIC_OP_MODE == JL2XXX_PATCH_DYNAMIC_ETHTOOL)
 		mode->dynamic_op = DYNAMIC_ETHTOOL;
-	else if (JL2XXX_RGMII_DYNAMIC_OP_MODE == JL2XXX_RGMII_OP_NONE)
+	else if (JL2XXX_PATCH_DYNAMIC_OP_MODE == JL2XXX_PATCH_OP_NONE)
 		mode->dynamic_op = DYNAMIC_NONE;
 
 	return 0;
@@ -1093,7 +1093,7 @@ static int jl2xxx_clk_operation_mode(struct phy_device *phydev)
 static int jl2xxx_work_mode_operation_mode(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_config_mode *mode = &priv->clk.op;
+	struct jl_config_mode *mode = &priv->work_mode.op;
 
 	if (JL2XXX_WORK_MODE_STATIC_OP_MODE ==
 	    JL2XXX_WORK_MODE_STATIC_C_MACRO)
@@ -1118,7 +1118,7 @@ static int jl2xxx_work_mode_operation_mode(struct phy_device *phydev)
 static int jl2xxx_lpbk_operation_mode(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_config_mode *mode = &priv->clk.op;
+	struct jl_config_mode *mode = &priv->lpbk.op;
 
 	if (JL2XXX_LPBK_STATIC_OP_MODE == JL2XXX_LPBK_STATIC_C_MACRO)
 		mode->static_op = STATIC_C_MACRO;
