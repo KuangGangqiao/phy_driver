@@ -29,7 +29,7 @@ Example for jl1xxx:
 			jl1xxx,led-enable	= <JL1XXX_LED_CTRL_EN>;
 			jl1xxx,led-mode		= <JL1XXX_CFG_LED_MODE>;
 			jl1xxx,led-period	= <JL1XXX_GLOBAL_PERIOD_MS>;
-			jl1xxx,led-on		= <JL1xxx_GLOBAL_ON_MS>;
+			jl1xxx,led-on		= <JL1XXX_GLOBAL_ON_MS>;
 			jl1xxx,led-gpio		= <JL1XXXX_CFG_GPIO>;
 		};
 		wol {
@@ -43,14 +43,14 @@ Example for jl1xxx:
 		mdi {
 			compatible		= "jl1xxx-mdi";
 			jl1xxx,mdi-enable	= <JL1XXX_MDI_CTRL_EN>;
-			jl1xxx,mdi-rate		= <JL1XXX_MDI_RATE>
-			jl1xxx,mdi-amplitude	= <JL1XXX_MDI_AMPLITUDE>
+			jl1xxx,mdi-rate		= <JL1XXX_MDI_RATE>;
+			jl1xxx,mdi-amplitude	= <JL1XXX_MDI_AMPLITUDE>;
 		};
 		rmii {
 			compatible		= "jl1xxx-rmii";
-			jl1xxx-enable		= "jl1xxx-enable";
-			jl1xxx-rx_timing	= "jl1xxx-rx_timing"
-			jl1xxx-tx_timing	= "jl1xxx-tx_timing"
+			jl1xxx,rmii-enable	= <JL1XXX_RMII_CTRL_EN>;
+			jl1xxx,rmii-rx_timing	= <JL1XXX_RMII_RX_TIMING>;
+			jl1xxx,rmii-tx_timing	= <JL1XXX_RMII_TX_TIMING>;
 		}
 	};
 
