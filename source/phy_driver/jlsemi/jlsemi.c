@@ -24,6 +24,7 @@ MODULE_LICENSE("GPL");
 
 static int jl1xxx_probe(struct phy_device *phydev)
 {
+	struct device *d =  &phydev->dev;
 	struct jl1xxx_priv *jl1xxx;
 	int err;
 
@@ -32,6 +33,10 @@ static int jl1xxx_probe(struct phy_device *phydev)
 		return -ENOMEM;
 
 	phydev->priv = jl1xxx;
+
+	d->of_node = of_find_node_by_path("/jl1xxx-phy@0");
+	if(!d->of_node)
+		JLSEMI_PHY_MSG("Find device node failed\n");
 
 	/* Select operation mode */
 	jl1xxx_operation_mode_select(phydev);
@@ -145,6 +150,7 @@ static int jl1xxx_resume(struct phy_device *phydev)
 
 static int jl2xxx_probe(struct phy_device *phydev)
 {
+	struct device *d =  &phydev->dev;
 	struct jl2xxx_priv *jl2xxx;
 	int err;
 
@@ -153,6 +159,10 @@ static int jl2xxx_probe(struct phy_device *phydev)
 		return -ENOMEM;
 
 	phydev->priv = jl2xxx;
+
+	d->of_node = of_find_node_by_path("/jl2xxx-phy@0");
+	if(!d->of_node)
+		JLSEMI_PHY_MSG("Find device node failed\n");
 
 	/* Select operation mode */
 	jl2xxx_operation_mode_select(phydev);
