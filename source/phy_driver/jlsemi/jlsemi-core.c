@@ -1912,6 +1912,7 @@ int jl1xxx_rmii_static_op_set(struct phy_device *phydev)
 int jl2xxx_patch_static_op_set(struct phy_device *phydev)
 {
 	int err;
+
 	err = jl2xxx_pre_init(phydev);
 	if (err < 0)
 		return err;
@@ -2170,7 +2171,6 @@ int jl2xxx_operation_args_get(struct phy_device *phydev)
 	jl2xxx_patch_operation_args(phydev);
 	jl2xxx_clk_operation_args(phydev);
 	jl2xxx_work_mode_operation_args(phydev);
-	jl2xxx_lpbk_operation_args(phydev);
 	jl2xxx_lpbk_operation_args(phydev);
 
 	return 0;
@@ -2440,7 +2440,7 @@ int jl2xxx_pre_init(struct phy_device *phydev)
 
 	if (val != patch_version)
 		JLSEMI_PHY_MSG(KERN_ERR
-			       "%s: patch version is not match", __func__);
+			       "%s: patch version is not match\n", __func__);
 
 	return 0;
 }
