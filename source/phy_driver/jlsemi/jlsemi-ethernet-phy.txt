@@ -64,7 +64,7 @@ Example for jl2xxx:
 			jl2xxx,led-enable	= <JL2XXX_LED_CTRL_EN>;
 			jl2xxx,led-mode		= <JL2XXX_CFG_LED_MODE>;
 			jl2xxx,led-period	= <JL2XXX_GLOBAL_PERIOD_MS>;
-			jl2xxx,led-on		= <JL2XXX_GLOBAL_ON_MS>;
+			jl2xxx,led-on		= <JL2xxx_GLOBAL_ON_MS>;
 			jl2xxx,led-polarity	= <JL2XXX_LED_POLARITY>;
 		};
 		rgmii {

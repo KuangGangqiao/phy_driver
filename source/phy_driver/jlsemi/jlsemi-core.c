@@ -556,7 +556,7 @@ static int jl1xxx_wol_operation_args(struct phy_device *phydev)
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
 		priv->wol.enable |= JL1XXX_WOL_DYNAMIC_OP_EN;
 	else
-		priv->wol.enable |= ~JL1XXX_WOL_DYNAMIC_OP_EN;
+		priv->wol.enable &= ~JL1XXX_WOL_DYNAMIC_OP_EN;
 
 	return 0;
 }
@@ -576,7 +576,7 @@ static int jl1xxx_intr_operation_args(struct phy_device *phydev)
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
 		priv->intr.enable |= JL1XXX_INTR_DYNAMIC_OP_EN;
 	else
-		priv->intr.enable |= ~JL1XXX_INTR_DYNAMIC_OP_EN;
+		priv->intr.enable &= ~JL1XXX_INTR_DYNAMIC_OP_EN;
 
 	return 0;
 }
@@ -596,7 +596,7 @@ static int jl1xxx_mdi_operation_args(struct phy_device *phydev)
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
 		priv->mdi.enable |= JL1XXX_MDI_DYNAMIC_OP_EN;
 	else
-		priv->mdi.enable |= ~JL1XXX_MDI_DYNAMIC_OP_EN;
+		priv->mdi.enable &= ~JL1XXX_MDI_DYNAMIC_OP_EN;
 
 	return 0;
 }
@@ -616,7 +616,7 @@ static int jl1xxx_rmii_operation_args(struct phy_device *phydev)
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
 		priv->rmii.enable |= JL1XXX_RMII_DYNAMIC_OP_EN;
 	else
-		priv->rmii.enable |= ~JL1XXX_RMII_DYNAMIC_OP_EN;
+		priv->rmii.enable &= ~JL1XXX_RMII_DYNAMIC_OP_EN;
 
 	return 0;
 }
@@ -636,7 +636,7 @@ static int jl1xxx_led_operation_args(struct phy_device *phydev)
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
 		priv->led.enable |= JL1XXX_LED_DYNAMIC_OP_EN;
 	else
-		priv->led.enable |= ~JL1XXX_LED_DYNAMIC_OP_EN;
+		priv->led.enable &= ~JL1XXX_LED_DYNAMIC_OP_EN;
 
 	return 0;
 }
@@ -651,12 +651,12 @@ static int jl2xxx_led_operation_args(struct phy_device *phydev)
 	else if (mode->static_op == STATIC_DEVICE_TREE)
 		jl2xxx_dts_led_cfg_get(phydev);
 	else if (mode->static_op == STATIC_NONE)
-		priv->led.enable |= ~JL2XXX_LED_STATIC_OP_EN;
+		priv->led.enable &= ~JL2XXX_LED_STATIC_OP_EN;
 
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
 		priv->led.enable |= JL2XXX_LED_DYNAMIC_OP_EN;
 	else
-		priv->led.enable |= ~JL2XXX_LED_DYNAMIC_OP_EN;
+		priv->led.enable &= ~JL2XXX_LED_DYNAMIC_OP_EN;
 
 	return 0;
 }
@@ -1150,7 +1150,7 @@ static int jl2xxx_fld_operation_args(struct phy_device *phydev)
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
 		priv->fld.enable |= JL2XXX_FLD_DYNAMIC_OP_EN;
 	else
-		priv->fld.enable |= ~JL2XXX_FLD_DYNAMIC_OP_EN;
+		priv->fld.enable &= ~JL2XXX_FLD_DYNAMIC_OP_EN;
 
 	return 0;
 }
@@ -1170,7 +1170,7 @@ static int jl2xxx_wol_operation_args(struct phy_device *phydev)
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
 		priv->wol.enable |= JL2XXX_WOL_DYNAMIC_OP_EN;
 	else
-		priv->wol.enable |= ~JL2XXX_WOL_DYNAMIC_OP_EN;
+		priv->wol.enable &= ~JL2XXX_WOL_DYNAMIC_OP_EN;
 
 	return 0;
 }
@@ -1190,7 +1190,7 @@ static int jl2xxx_intr_operation_args(struct phy_device *phydev)
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
 		priv->intr.enable |= JL2XXX_INTR_DYNAMIC_OP_EN;
 	else
-		priv->intr.enable |= ~JL2XXX_INTR_DYNAMIC_OP_EN;
+		priv->intr.enable &= ~JL2XXX_INTR_DYNAMIC_OP_EN;
 
 	return 0;
 }
@@ -1210,7 +1210,7 @@ static int jl2xxx_downshift_operation_args(struct phy_device *phydev)
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
 		priv->downshift.enable |= JL2XXX_DSFT_DYNAMIC_OP_EN;
 	else
-		priv->downshift.enable |= ~JL2XXX_DSFT_DYNAMIC_OP_EN;
+		priv->downshift.enable &= ~JL2XXX_DSFT_DYNAMIC_OP_EN;
 
 	return 0;
 }
@@ -1230,7 +1230,7 @@ static int jl2xxx_rgmii_operation_args(struct phy_device *phydev)
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
 		priv->rgmii.enable |= JL2XXX_RGMII_DYNAMIC_OP_EN;
 	else
-		priv->rgmii.enable |= ~JL2XXX_RGMII_DYNAMIC_OP_EN;
+		priv->rgmii.enable &= ~JL2XXX_RGMII_DYNAMIC_OP_EN;
 
 	return 0;
 }
@@ -1250,7 +1250,7 @@ static int jl2xxx_patch_operation_args(struct phy_device *phydev)
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
 		priv->patch.enable |= JL2XXX_PATCH_DYNAMIC_OP_EN;
 	else
-		priv->patch.enable |= ~JL2XXX_PATCH_DYNAMIC_OP_EN;
+		priv->patch.enable &= ~JL2XXX_PATCH_DYNAMIC_OP_EN;
 
 	return 0;
 }
@@ -1270,7 +1270,7 @@ static int jl2xxx_clk_operation_args(struct phy_device *phydev)
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
 		priv->clk.enable |= JL2XXX_CLK_DYNAMIC_OP_EN;
 	else
-		priv->clk.enable |= ~JL2XXX_CLK_DYNAMIC_OP_EN;
+		priv->clk.enable &= ~JL2XXX_CLK_DYNAMIC_OP_EN;
 
 	return 0;
 }
@@ -1290,7 +1290,7 @@ static int jl2xxx_work_mode_operation_args(struct phy_device *phydev)
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
 		priv->work_mode.enable |= JL2XXX_WORK_MODE_DYNAMIC_OP_EN;
 	else
-		priv->work_mode.enable |= ~JL2XXX_WORK_MODE_DYNAMIC_OP_EN;
+		priv->work_mode.enable &= ~JL2XXX_WORK_MODE_DYNAMIC_OP_EN;
 
 	return 0;
 }
@@ -1310,7 +1310,7 @@ static int jl2xxx_lpbk_operation_args(struct phy_device *phydev)
 	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
 		priv->lpbk.enable |= JL2XXX_LPBK_DYNAMIC_OP_EN;
 	else
-		priv->lpbk.enable |= ~JL2XXX_LPBK_DYNAMIC_OP_EN;
+		priv->lpbk.enable &= ~JL2XXX_LPBK_DYNAMIC_OP_EN;
 
 	return 0;
 }
