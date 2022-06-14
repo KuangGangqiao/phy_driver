@@ -2676,7 +2676,7 @@ int jlsemi_read_paged(struct phy_device *phydev, int page, u32 regnum)
 
 	oldpage = __jlsemi_select_page(phydev, page);
 	if (oldpage >= 0)
-		ret = __phy_read(phydev, regnum);
+		ret = phy_read(phydev, regnum);
 
 	return __jlsemi_restore_page(phydev, oldpage, ret);
 }
