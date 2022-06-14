@@ -200,77 +200,77 @@ struct jl_config_mode {
 };
 
 struct jl_led_ctrl {
-	u16 enable;			/* LED control enable */
-	u16 mode;			/* LED work mode */
-	u16 global_period;		/* LED global twinkle period */
-	u16 global_on;			/* LED global twinkle hold on time */
-	u16 gpio_output;		/* LED is used as gpio output */
-	u16 polarity;			/* LED polarity */
+	u32 enable;			/* LED control enable */
+	u32 mode;			/* LED work mode */
+	u32 global_period;		/* LED global twinkle period */
+	u32 global_on;			/* LED global twinkle hold on time */
+	u32 gpio_output;		/* LED is used as gpio output */
+	u32 polarity;			/* LED polarity */
 	struct jl_config_mode op;	/* LED config operation mode */
 };
 
 struct jl_fld_ctrl {
-	u16 enable;			/* Fast link down control enable */
-	u8 delay;			/* Fast link down time */
+	u32 enable;			/* Fast link down control enable */
+	u32 delay;			/* Fast link down time */
 	struct jl_config_mode op;	/* Fast link down config operation mode */
 };
 
 struct jl_wol_ctrl {
-	u16 enable;
+	u32 enable;
 	struct jl_config_mode op;
 };
 
 struct jl_intr_ctrl {
-	u16 enable;
+	u32 enable;
 	struct jl_config_mode op;
 };
 
 struct jl_downshift_ctrl {
-	u16 enable;
-	u8 count;
+	u32 enable;
+	u32 count;
 	struct jl_config_mode op;
 };
 
 struct jl_rgmii_ctrl {
-	u16 enable;
-	u16 rx_delay;
-	u16 tx_delay;
+	u32 enable;
+	u32 rx_delay;
+	u32 tx_delay;
 	struct jl_config_mode op;
 };
 
 struct jl_patch_ctrl {
-	u16 enable;
+	u32 enable;
 	struct jl_config_mode op;
 };
 
 struct jl_clk_ctrl {
-	u16 enable;
+	u32 enable;
 	struct jl_config_mode op;
 };
 
 struct jl_work_mode_ctrl {
-	u16 enable;
-	u16 mode;
+	u32 enable;
+	u32 mode;
 	struct jl_config_mode op;
 };
 
 struct jl_loopback_ctrl {
-	u16 enable;
-	u16 mode;
+	u32 enable;
+	u32 mode;
 	struct jl_config_mode op;
 };
 
 struct jl_mdi_ctrl {
-	u16 enable;
-	u16 rate;
-	u16 amplitude;
+	u32 enable;
+	u32 rate;
+	u32 amplitude;
 	struct jl_config_mode op;
 };
 
 struct jl_rmii_ctrl {
-	u16 enable;
-	u16 tx_timing;
-	u16 rx_timing;
+	u32 enable;
+	u32 tx_timing;
+	u32 rx_timing;
 	struct jl_config_mode op;
 };
 

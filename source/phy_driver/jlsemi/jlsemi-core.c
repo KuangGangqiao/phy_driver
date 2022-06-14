@@ -186,27 +186,27 @@ static int jl1xxx_dts_led_cfg_get(struct phy_device *phydev)
 	struct device_node *of_node = dev->of_node;
 	int err;
 
-	err = of_property_read_u16(of_node, "jl1xxx,led-enable",
+	err = of_property_read_u32(of_node, "jl1xxx,led-enable",
 				   &priv->led.enable);
 	if (err < 0)
 		return err;
 
-	err = of_property_read_u16(of_node, "jl1xxx,led-mode",
+	err = of_property_read_u32(of_node, "jl1xxx,led-mode",
 				   &priv->led.mode);
 	if (err < 0)
 		return err;
 
-	err = of_property_read_u16(of_node, "jl1xxx,led-period",
+	err = of_property_read_u32(of_node, "jl1xxx,led-period",
 				   &priv->led.global_period);
 	if (err < 0)
 		return err;
 
-	err = of_property_read_u16(of_node, "jl1xxx,led-on",
+	err = of_property_read_u32(of_node, "jl1xxx,led-on",
 				   &priv->led.global_on);
 	if (err < 0)
 		return err;
 
-	err = of_property_read_u16(of_node, "jl1xxx,led-gpio",
+	err = of_property_read_u32(of_node, "jl1xxx,led-gpio",
 				   &priv->led.gpio_output);
 	if (err < 0)
 		return err;
@@ -221,7 +221,7 @@ static int jl1xxx_dts_wol_cfg_get(struct phy_device *phydev)
 	struct device_node *of_node = dev->of_node;
 	int err;
 
-	err = of_property_read_u16(of_node, "jl1xxx,wol-enable",
+	err = of_property_read_u32(of_node, "jl1xxx,wol-enable",
 				   &priv->wol.enable);
 	if (err < 0)
 		return err;
@@ -236,7 +236,7 @@ static int jl1xxx_dts_intr_cfg_get(struct phy_device *phydev)
 	struct device_node *of_node = dev->of_node;
 	int err;
 
-	err = of_property_read_u16(of_node, "jl1xxx,interrupt-enable",
+	err = of_property_read_u32(of_node, "jl1xxx,interrupt-enable",
 				   &priv->intr.enable);
 	if (err < 0)
 		return err;
@@ -251,17 +251,17 @@ static int jl1xxx_dts_mdi_cfg_get(struct phy_device *phydev)
 	struct device_node *of_node = dev->of_node;
 	int err;
 
-	err = of_property_read_u16(of_node, "jl1xxx,mdi-enable",
+	err = of_property_read_u32(of_node, "jl1xxx,mdi-enable",
 				   &priv->mdi.enable);
 	if (err < 0)
 		return err;
 
-	err = of_property_read_u16(of_node, "jl1xxx,mdi-rate",
+	err = of_property_read_u32(of_node, "jl1xxx,mdi-rate",
 				   &priv->mdi.rate);
 	if (err < 0)
 		return err;
 
-	err = of_property_read_u16(of_node, "jl1xxx,mdi-amplitude",
+	err = of_property_read_u32(of_node, "jl1xxx,mdi-amplitude",
 				   &priv->mdi.amplitude);
 	if (err < 0)
 		return err;
@@ -276,17 +276,17 @@ static int jl1xxx_dts_rmii_cfg_get(struct phy_device *phydev)
 	struct device_node *of_node = dev->of_node;
 	int err;
 
-	err = of_property_read_u16(of_node, "jl1xxx,rmii-enable",
+	err = of_property_read_u32(of_node, "jl1xxx,rmii-enable",
 				   &priv->rmii.enable);
 	if (err < 0)
 		return err;
 
-	err = of_property_read_u16(of_node, "jl1xxx,rmii-rx_timing",
+	err = of_property_read_u32(of_node, "jl1xxx,rmii-rx_timing",
 				   &priv->rmii.rx_timing);
 	if (err < 0)
 		return err;
 
-	err = of_property_read_u16(of_node, "jl1xxx,rmii-tx_timing",
+	err = of_property_read_u32(of_node, "jl1xxx,rmii-tx_timing",
 				   &priv->rmii.tx_timing);
 	if (err < 0)
 		return err;
@@ -302,27 +302,27 @@ static int jl2xxx_dts_led_cfg_get(struct phy_device *phydev)
 	struct device_node *of_node = dev->of_node;
 	int err;
 
-	err = of_property_read_u16(of_node, "jl2xxx,led-enable",
+	err = of_property_read_u32(of_node, "jl2xxx,led-enable",
 				  &priv->led.enable);
 	if (err < 0)
 		return err;
 
-	err = of_property_read_u16(of_node, "jl2xxx,led-mode",
+	err = of_property_read_u32(of_node, "jl2xxx,led-mode",
 				   &priv->led.mode);
 	if (err < 0)
 		return err;
 
-	err = of_property_read_u16(of_node, "jl2xxx,led-period",
+	err = of_property_read_u32(of_node, "jl2xxx,led-period",
 				   &priv->led.global_period);
 	if (err < 0)
 		return err;
 
-	err = of_property_read_u16(of_node, "jl2xxx,led-on",
+	err = of_property_read_u32(of_node, "jl2xxx,led-on",
 				   &priv->led.global_on);
 	if (err < 0)
 		return err;
 
-	err = of_property_read_u16(of_node, "jl2xxx,led-polarity",
+	err = of_property_read_u32(of_node, "jl2xxx,led-polarity",
 				   &priv->led.polarity);
 	if (err < 0)
 		return err;
@@ -669,12 +669,12 @@ static int jl2xxx_dts_fld_cfg_get(struct phy_device *phydev)
 	struct device_node *of_node = dev->of_node;
 	int err;
 
-	err = of_property_read_u16(of_node, "jl2xxx,fld-enable",
+	err = of_property_read_u32(of_node, "jl2xxx,fld-enable",
 				   &priv->fld.enable);
 	if (err < 0)
 		return err;
 
-	err = of_property_read_u8(of_node, "jl2xxx,fld-delay",
+	err = of_property_read_u32(of_node, "jl2xxx,fld-delay",
 				  &priv->fld.delay);
 	if (err < 0)
 		return err;
@@ -689,7 +689,7 @@ static int jl2xxx_dts_wol_cfg_get(struct phy_device *phydev)
 	struct device_node *of_node = dev->of_node;
 	int err;
 
-	err = of_property_read_u16(of_node, "jl2xxx,wol-enable",
+	err = of_property_read_u32(of_node, "jl2xxx,wol-enable",
 				   &priv->wol.enable);
 	if (err < 0)
 		return err;
@@ -704,7 +704,7 @@ static int jl2xxx_dts_intr_cfg_get(struct phy_device *phydev)
 	struct device_node *of_node = dev->of_node;
 	int err;
 
-	err = of_property_read_u16(of_node, "jl2xxx,interrupt-enable",
+	err = of_property_read_u32(of_node, "jl2xxx,interrupt-enable",
 				   &priv->intr.enable);
 	if (err < 0)
 		return err;
@@ -719,12 +719,12 @@ static int jl2xxx_dts_downshift_cfg_get(struct phy_device *phydev)
 	struct device_node *of_node = dev->of_node;
 	int err;
 
-	err = of_property_read_u16(of_node, "jl2xxx,downshift-enable",
+	err = of_property_read_u32(of_node, "jl2xxx,downshift-enable",
 				   &priv->downshift.enable);
 	if (err < 0)
 		return err;
 
-	err = of_property_read_u8(of_node, "jl2xxx,downshift-count",
+	err = of_property_read_u32(of_node, "jl2xxx,downshift-count",
 				   &priv->downshift.count);
 	if (err < 0)
 		return err;
@@ -739,17 +739,17 @@ static int jl2xxx_dts_rgmii_cfg_get(struct phy_device *phydev)
 	struct device_node *of_node = dev->of_node;
 	int err;
 
-	err = of_property_read_u16(of_node, "jl2xxx,rgmii-enable",
+	err = of_property_read_u32(of_node, "jl2xxx,rgmii-enable",
 				   &priv->rgmii.enable);
 	if (err < 0)
 		return err;
 
-	err = of_property_read_u16(of_node, "jl2xxx,rgmii-tx-delay",
+	err = of_property_read_u32(of_node, "jl2xxx,rgmii-tx-delay",
 				   &priv->rgmii.tx_delay);
 	if (err < 0)
 		return err;
 
-	err = of_property_read_u16(of_node, "jl2xxx,rgmii-rx-delay",
+	err = of_property_read_u32(of_node, "jl2xxx,rgmii-rx-delay",
 				   &priv->rgmii.rx_delay);
 	if (err < 0)
 		return err;
@@ -764,7 +764,7 @@ static int jl2xxx_dts_patch_cfg_get(struct phy_device *phydev)
 	struct device_node *of_node = dev->of_node;
 	int err;
 
-	err = of_property_read_u16(of_node, "jl2xxx,patch-enable",
+	err = of_property_read_u32(of_node, "jl2xxx,patch-enable",
 				   &priv->patch.enable);
 	if (err < 0)
 		return err;
@@ -779,7 +779,7 @@ static int jl2xxx_dts_clk_cfg_get(struct phy_device *phydev)
 	struct device_node *of_node = dev->of_node;
 	int err;
 
-	err = of_property_read_u16(of_node, "jl2xxx,clk-enable",
+	err = of_property_read_u32(of_node, "jl2xxx,clk-enable",
 				   &priv->clk.enable);
 	if (err < 0)
 		return err;
@@ -794,12 +794,12 @@ static int jl2xxx_dts_work_mode_cfg_get(struct phy_device *phydev)
 	struct device_node *of_node = dev->of_node;
 	int err;
 
-	err = of_property_read_u16(of_node, "jl2xxx,work_mode-enable",
+	err = of_property_read_u32(of_node, "jl2xxx,work_mode-enable",
 				   &priv->work_mode.enable);
 	if (err < 0)
 		return err;
 
-	err = of_property_read_u16(of_node, "jl2xxx,work_mode-mode",
+	err = of_property_read_u32(of_node, "jl2xxx,work_mode-mode",
 				   &priv->work_mode.mode);
 	if (err < 0)
 		return err;
@@ -814,12 +814,12 @@ static int jl2xxx_dts_lpbk_cfg_get(struct phy_device *phydev)
 	struct device_node *of_node = dev->of_node;
 	int err;
 
-	err = of_property_read_u16(of_node, "jl2xxx,lpbk-enable",
+	err = of_property_read_u32(of_node, "jl2xxx,lpbk-enable",
 				   &priv->lpbk.enable);
 	if (err < 0)
 		return err;
 
-	err = of_property_read_u16(of_node, "jl2xxx,lpbk-mode",
+	err = of_property_read_u32(of_node, "jl2xxx,lpbk-mode",
 				   &priv->lpbk.mode);
 	if (err < 0)
 		return err;
@@ -1319,8 +1319,10 @@ static int jl2xxx_fld_static_op_set(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
 	int err;
+	u8 val;
 
-	err = jl2xxx_fld_dynamic_op_set(phydev, &priv->fld.delay);
+	val = priv->fld.delay & 0xff;
+	err = jl2xxx_fld_dynamic_op_set(phydev, &val);
 	if (err < 0)
 		return err;
 
