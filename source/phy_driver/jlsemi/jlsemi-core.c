@@ -2461,7 +2461,7 @@ int jlsemi_soft_reset(struct phy_device *phydev)
 
 int jlsemi_aneg_done(struct phy_device *phydev)
 {
-	return 0;
+	return genphy_aneg_done(phydev);
 }
 
 /********************** Convenience function for phy **********************/
