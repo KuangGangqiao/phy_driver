@@ -59,10 +59,6 @@
 				 JL2XXX_LED2_LINK1000 | \
 				 JL2XXX_LED2_ACTIVITY)
 
-#define JL2XXX_SUPP_LED_POLARITY (JL2XXX_LED0_POLARITY | \
-				  JL2XXX_LED1_POLARITY | \
-				  JL2XXX_LED2_POLARITY)
-
 #define JL1XXX_SUPP_GPIO	(JL1XXX_GPIO_LED0_EN | \
 				 JL1XXX_GPIO_LED0_OUT | \
 				 JL1XXX_GPIO_LED1_EN | \
@@ -168,10 +164,15 @@ static int jl2xxx_led_static_op_set(struct phy_device *phydev)
 	}
 	/* Set led polarity */
 	if (priv->led.enable & JL2XXX_LED_POLARITY_EN) {
-		err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE4096,
-					      JL2XXX_LED_POLARITY_REG,
-					      JL2XXX_SUPP_LED_POLARITY,
-					      priv->led.polarity);
+		err = jlsemi_set_bits(phydev, JL2XXX_PAGE4096,
+				      JL2XXX_LED_POLARITY_REG,
+				      priv->led.polarity);
+		if (err < 0)
+			return err;
+	} else {
+		err = jlsemi_clear_bits(phydev, JL2XXX_PAGE4096,
+					JL2XXX_LED_POLARITY_REG,
+					priv->led.polarity);
 		if (err < 0)
 			return err;
 	}
