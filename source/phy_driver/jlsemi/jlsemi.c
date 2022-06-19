@@ -45,6 +45,10 @@ static int jl1xxx_probe(struct phy_device *phydev)
 	if (err < 0)
 		return err;
 
+	if (jl1xxx->intr.enable & JL1XXX_INTR_STATIC_OP_EN ||
+	    jl1xxx->intr.enable & JL1XXX_INTR_DYNAMIC_OP_EN)
+		phydev->irq = JL1XXX_INTR_IRQ;
+
 	jl1xxx->static_inited = false;
 
 	return 0;
@@ -78,21 +82,33 @@ static int jl1xxx_ack_interrupt(struct phy_device *phydev)
 
 static int jl1xxx_config_intr(struct phy_device *phydev)
 {
+	struct jl1xxx_priv *priv = phydev->priv;
 	int err;
 
-	err = jl1xxx_ack_interrupt(phydev);
-	if (err < 0)
-		return err;
+	if (priv->intr.enable & JL1XXX_INTR_DYNAMIC_OP_EN) {
+		err = jl1xxx_ack_interrupt(phydev);
+		if (err < 0)
+			return err;
 
-	err = jl1xxx_intr_static_op_set(phydev);
-	if (err < 0)
-		return err;
+		err = jl1xxx_intr_static_op_set(phydev);
+		if (err < 0)
+			return err;
+	}
 
 	return 0;
 }
 
 static int jl1xxx_read_status(struct phy_device *phydev)
 {
+	struct jl1xxx_priv *priv = phydev->priv;
+	int err;
+
+	if (priv->intr.enable & JL1XXX_INTR_STATIC_OP_EN) {
+		err = jl1xxx_ack_interrupt(phydev);
+		if (err < 0)
+			return err;
+	}
+
 	return genphy_read_status(phydev);
 }
 
@@ -171,6 +187,10 @@ static int jl2xxx_probe(struct phy_device *phydev)
 	if (err < 0)
 		return err;
 
+	if (jl2xxx->intr.enable & JL2XXX_INTR_STATIC_OP_EN ||
+	    jl2xxx->intr.enable & JL2XXX_INTR_DYNAMIC_OP_EN)
+		phydev->irq = JL2XXX_INTR_IRQ;
+
 	jl2xxx->static_inited = false;
 	jl2xxx->nstats = ARRAY_SIZE(jl2xxx_hw_stats);
 	jl2xxx->hw_stats = jl2xxx_hw_stats;
@@ -209,21 +229,33 @@ static int jl2xxx_ack_interrupt(struct phy_device *phydev)
 
 static int jl2xxx_config_intr(struct phy_device *phydev)
 {
+	struct jl2xxx_priv *priv = phydev->priv;
 	int err;
 
-	err = jl2xxx_ack_interrupt(phydev);
-	if (err < 0)
-		return err;
+	if (priv->intr.enable & JL2XXX_INTR_DYNAMIC_OP_EN) {
+		err = jl2xxx_ack_interrupt(phydev);
+		if (err < 0)
+			return err;
 
-	err = jl2xxx_intr_static_op_set(phydev);
-	if (err < 0)
-		return err;
+		err = jl2xxx_intr_static_op_set(phydev);
+		if (err < 0)
+			return err;
+	}
 
 	return 0;
 }
 
 static int jl2xxx_read_status(struct phy_device *phydev)
 {
+	struct jl2xxx_priv *priv = phydev->priv;
+	int err;
+
+	if (priv->intr.enable & JL2XXX_INTR_STATIC_OP_EN) {
+		err = jl2xxx_ack_interrupt(phydev);
+		if (err < 0)
+			return err;
+	}
+
 	return genphy_read_status(phydev);
 }
 
