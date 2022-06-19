@@ -1418,7 +1418,7 @@ static int jl2xxx_wol_enable(struct phy_device *phydev, bool enable)
 		jlsemi_set_bits(phydev, JL2XXX_WOL_STAS_PAGE,
 				JL2XXX_WOL_STAS_REG, JL2XXX_WOL_EN);
 		jlsemi_clear_bits(phydev, JL2XXX_WOL_STAS_PAGE,
-				  JL2XXX_WOL_STAS_REG, JL2XXX_WOL_CTL_EN);
+				  JL2XXX_WOL_STAS_REG, JL2XXX_WOL_GLB_EN);
 	} else {
 		jlsemi_clear_bits(phydev, JL2XXX_WOL_STAS_PAGE,
 				  JL2XXX_WOL_STAS_REG, JL2XXX_WOL_EN);
@@ -1929,8 +1929,8 @@ int jl1xxx_wol_dynamic_op_get(struct phy_device *phydev)
 
 int jl2xxx_wol_dynamic_op_get(struct phy_device *phydev)
 {
-	return jlsemi_fetch_bit(phydev, JL2XXX_WOL_CTL_PAGE,
-				JL2XXX_WOL_CTL_REG, JL2XXX_WOL_EN);
+	return jlsemi_fetch_bit(phydev, JL2XXX_WOL_CTRL_PAGE,
+				JL2XXX_WOL_CTRL_REG, JL2XXX_WOL_EN);
 }
 
 static int jl1xxx_wol_static_op_set(struct phy_device *phydev)
@@ -2082,7 +2082,7 @@ int jl2xxx_intr_static_op_set(struct phy_device *phydev)
 			ret |= JL2XXX_INTR_AN_PAGE;
 
 		err = jlsemi_set_bits(phydev, JL2XXX_PAGE2626,
-				      JL2XXX_INTR_CTL_REG, ret);
+				      JL2XXX_INTR_CTRL_REG, ret);
 		if (err < 0)
 			return err;
 
@@ -2099,7 +2099,7 @@ int jl2xxx_intr_static_op_set(struct phy_device *phydev)
 			return err;
 	} else {
 		err = jlsemi_clear_bits(phydev, JL2XXX_PAGE2626,
-					JL2XXX_INTR_CTL_REG,
+					JL2XXX_INTR_CTRL_REG,
 					JL2XXX_INTR_LINK_CHANGE |
 					JL2XXX_INTR_AN_ERR |
 					JL2XXX_INTR_AN_COMPLETE |
