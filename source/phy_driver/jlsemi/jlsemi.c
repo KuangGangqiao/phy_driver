@@ -85,7 +85,7 @@ static int jl1xxx_config_intr(struct phy_device *phydev)
 	struct jl1xxx_priv *priv = phydev->priv;
 	int err;
 
-	if (priv->intr.enable & JL1XXX_INTR_DYNAMIC_OP_EN) {
+	if (priv->intr.enable & JL1XXX_INTR_STATIC_OP_EN) {
 		err = jl1xxx_ack_interrupt(phydev);
 		if (err < 0)
 			return err;
@@ -232,7 +232,7 @@ static int jl2xxx_config_intr(struct phy_device *phydev)
 	struct jl2xxx_priv *priv = phydev->priv;
 	int err;
 
-	if (priv->intr.enable & JL2XXX_INTR_DYNAMIC_OP_EN) {
+	if (priv->intr.enable & JL2XXX_INTR_STATIC_OP_EN) {
 		err = jl2xxx_ack_interrupt(phydev);
 		if (err < 0)
 			return err;
