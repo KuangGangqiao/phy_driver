@@ -66,15 +66,7 @@
 #define JL1XXX_RMII_RX_SKEW(n)		(n << 4) & JL1XXX_RMII_RX_SKEW_MASK
 #define JL1XXX_RMII_CRS_DV		BIT(2)
 
-#define JL2XXX_RGMII_CTRL_PAGE	0x00ab
-#define JL2XXX_RGMII_TX_RSTN	BIT(14)
-#define JL2XXX_RGMII_ERR_STAS	BIT(3)
-#define JL2XXX_RGMII_TX_EN	BIT(1)
-
-#define JL2XXX_RGMII_STUS_PAGE	0x00a6
-#define JL2XXX_RGMII_STUS_REG	0x0012
-
-#define JL2XXX_BASIC_PAGE	0x0000
+#define JL2XXX_PAGE0		0
 #define JL2XXX_BMCR_REG		0x0000
 #define JL2XXX_SOFT_RESET	BIT(15)
 #define JL2XXX_SPEED_LSB	BIT(13)
@@ -92,10 +84,7 @@
 #define JL2XXX_PATCH_MASK	0xffff
 #define JL2XXX_SW_MASK		0xffff
 
-#define JL2XXX_PATCH		0x00ad
-#define JL2XXX_PATCH_REG	0x0010
-
-#define JLSEMI_PHY_PAGE		0x001f
+#define JLSEMI_PAGE31		0x001f
 #define JL2XXX_WOL_CTRL_PAGE	0x0012
 #define JL2XXX_WOL_CTRL_REG	0x0015
 #define JL2XXX_WOL_STAS_PAGE	0x1200
@@ -143,6 +132,7 @@
 #define JL2XXX_CPU_RESET	BIT(3)
 
 #define JL2XXX_PAGE173		173
+#define JL2XXX_PATCH_REG	0x0010
 #define JL2XXX_REG16		16
 #define JL2XXX_REG17		17
 #define JL2XXX_LOAD_GO		0
@@ -173,12 +163,12 @@ static const struct jl_hw_stat jl2xxx_hw_stats[] = {
 	{
 		.string	= "phy_patch_version",
 		.reg	= JL2XXX_PATCH_REG,
-		.page	= JL2XXX_PATCH,
+		.page	= JL2XXX_PAGE173,
 		.mask	= JL2XXX_PATCH_MASK,
 	}, {
 		.string	= "phy_software_version",
 		.reg	= JL2XXX_PHY_INFO_REG,
-		.page	= JL2XXX_BASIC_PAGE,
+		.page	= JL2XXX_PAGE0,
 		.mask	= JL2XXX_SW_MASK,
 	},
 };

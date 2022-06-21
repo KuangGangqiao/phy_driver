@@ -312,7 +312,7 @@ static int jl2xxx_set_loopback(struct phy_device *phydev, bool enable)
 {
 	int ret;
 
-	ret = jlsemi_modify_paged_reg(phydev, JL2XXX_BASIC_PAGE,
+	ret = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE0,
 				      MII_BMCR, BMCR_LOOPBACK,
 				      enable ? BMCR_LOOPBACK : 0);
 	if (ret < 0)

@@ -30,11 +30,10 @@
 #define JL2XXX_LED_BLINK_REG	20
 #define JL2XXX_LED_POLARITY_REG	19
 
-#define JL2XXX_PAGE0		0
 #define JL2XXX_PAGE128		128
 #define JL2XXX_FLD_CTRL_REG	28
 #define JL2XXX_FLD_EN		BIT(13)
-#define JL2XXX_FLD_MASK		GENMASK(12, 11)
+#define JL2XXX_FLD_MASK		0x1800
 #define JL2XXX_FLD_MASK_HEAD	11
 #define JL2XXX_FLD_DELAY_00MS	0
 #define JL2XXX_FLD_DELAY_10MS	1
@@ -1474,7 +1473,7 @@ static int jl2xxx_store_mac_addr(struct phy_device *phydev)
 		return err;
 
 	/* change page to 0 */
-	jlsemi_write_page(phydev, JL2XXX_BASIC_PAGE);
+	jlsemi_write_page(phydev, JL2XXX_PAGE0);
 
 	return 0;
 }
@@ -1485,9 +1484,9 @@ int jl2xxx_fld_dynamic_op_get(struct phy_device *phydev, u8 *msecs)
 	int ret;
 	u16 val;
 
-	jlsemi_write_page(phydev, JL2XXX_PAGE128);
-	ret = phy_read(phydev, JL2XXX_FLD_CTRL_REG);
-	jlsemi_write_page(phydev, JL2XXX_PAGE0);
+	ret = jlsemi_read_paged(phydev, JL2XXX_PAGE128,
+				JL2XXX_FLD_CTRL_REG);
+
 	if (ret < 0)
 		return ret;
 
@@ -1559,8 +1558,9 @@ int jl2xxx_downshift_dynamic_op_get(struct phy_device *phydev, u8 *data)
 {
 	int val, cnt, enable;
 
-	jlsemi_write_page(phydev, JL2XXX_BASIC_PAGE);
-	val = phy_read(phydev, JL2XXX_DSFT_CTRL_REG);
+	val = jlsemi_read_paged(phydev, JL2XXX_PAGE0,
+				JL2XXX_DSFT_CTRL_REG);
+
 	if (val < 0)
 		return val;
 
@@ -1580,14 +1580,14 @@ int jl2xxx_downshift_dynamic_op_set(struct phy_device *phydev, u8 cnt)
 		return -E2BIG;
 
 	if (!cnt) {
-		err = jlsemi_clear_bits(phydev, JL2XXX_BASIC_PAGE,
+		err = jlsemi_clear_bits(phydev, JL2XXX_PAGE0,
 					JL2XXX_DSFT_CTRL_REG,
 					JL2XXX_DSFT_EN);
 	} else {
 		val = ((cnt - 1) & JL2XXX_DSFT_AN_MASK) | JL2XXX_DSFT_EN |
 			JL2XXX_DSFT_SMART_EN | JL2XXX_DSFT_TWO_WIRE_EN |
 			JL2XXX_DSFT_STL_CNT(12);
-		err = jlsemi_modify_paged_reg(phydev, JL2XXX_BASIC_PAGE,
+		err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE0,
 					      JL2XXX_DSFT_CTRL_REG,
 					      JL2XXX_DSFT_AN_MASK, val);
 	}
@@ -1706,16 +1706,16 @@ static int jl2xxx_force_speed(struct phy_device *phydev, u16 speed)
 	int err;
 
 	if (speed == JL2XXX_SPEED1000)
-		jlsemi_modify_paged_reg(phydev, JL2XXX_BASIC_PAGE, MII_BMCR,
+		jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE0, MII_BMCR,
 					BMCR_SPEED100, BMCR_SPEED1000);
 	else if (speed == JL2XXX_SPEED100)
-		jlsemi_modify_paged_reg(phydev, JL2XXX_BASIC_PAGE, MII_BMCR,
+		jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE0, MII_BMCR,
 					BMCR_SPEED1000, BMCR_SPEED100);
 	else if (speed == JL2XXX_SPEED10)
-		jlsemi_clear_bits(phydev, JL2XXX_BASIC_PAGE, MII_BMCR,
+		jlsemi_clear_bits(phydev, JL2XXX_PAGE0, MII_BMCR,
 				  BMCR_SPEED1000 | BMCR_SPEED100);
 
-	err = jlsemi_clear_bits(phydev, JL2XXX_BASIC_PAGE, MII_BMCR,
+	err = jlsemi_clear_bits(phydev, JL2XXX_PAGE0, MII_BMCR,
 				BMCR_ANENABLE);
 	if (err < 0)
 		return err;
@@ -1751,7 +1751,7 @@ int jl2xxx_lpbk_static_op_set(struct phy_device *phydev)
 	if ((priv->lpbk.mode == JL2XXX_LPBK_PCS_10M) ||
 	    (priv->lpbk.mode == JL2XXX_LPBK_PCS_100M) ||
 	    (priv->lpbk.mode == JL2XXX_LPBK_PCS_1000M)) {
-		err = jlsemi_modify_paged_reg(phydev, JL2XXX_BASIC_PAGE,
+		err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE0,
 					      MII_BMCR, BMCR_LOOPBACK,
 					      BMCR_LOOPBACK);
 		if (err < 0)
@@ -1764,14 +1764,14 @@ int jl2xxx_lpbk_static_op_set(struct phy_device *phydev)
 		jlsemi_write_page(phydev, JL2XXX_PAGE173);
 		phy_write(phydev, JL2XXX_REG16, JL2XXX_LOAD_GO);
 		phy_write(phydev, JL2XXX_REG17, JL2XXX_LOAD_DATA0);
-		jlsemi_write_page(phydev, JL2XXX_BASIC_PAGE);
+		jlsemi_write_page(phydev, JL2XXX_PAGE0);
 
 		err = jlsemi_set_bits(phydev, JL2XXX_PAGE160,
 				      JL2XXX_REG25, JL2XXX_CPU_RESET);
 		if (err < 0)
 			return err;
 
-		err = jlsemi_modify_paged_reg(phydev, JL2XXX_BASIC_PAGE,
+		err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE0,
 					      JL2XXX_REG20,
 					      JL2XXX_LPBK_MODE_MASK,
 					      JL2XXX_LPBK_PMD_MODE);
@@ -1790,14 +1790,14 @@ int jl2xxx_lpbk_static_op_set(struct phy_device *phydev)
 		jlsemi_write_page(phydev, JL2XXX_PAGE173);
 		phy_write(phydev, JL2XXX_REG16, JL2XXX_LOAD_GO);
 		phy_write(phydev, JL2XXX_REG17, JL2XXX_LOAD_DATA0);
-		jlsemi_write_page(phydev, JL2XXX_BASIC_PAGE);
+		jlsemi_write_page(phydev, JL2XXX_PAGE0);
 
 		err = jlsemi_set_bits(phydev, JL2XXX_PAGE160,
 				      JL2XXX_REG25, JL2XXX_CPU_RESET);
 		if (err < 0)
 			return err;
 
-		err = jlsemi_modify_paged_reg(phydev, JL2XXX_BASIC_PAGE,
+		err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE0,
 					      JL2XXX_REG20,
 					      JL2XXX_LPBK_MODE_MASK,
 					      JL2XXX_LPBK_EXT_MODE);
@@ -2055,9 +2055,8 @@ int jl2xxx_intr_ack_event(struct phy_device *phydev)
 	int err;
 
 	if (phydev->interrupts == PHY_INTERRUPT_ENABLED) {
-		jlsemi_write_page(phydev, JL2XXX_PAGE2627);
-		err = phy_read(phydev, JL2XXX_INTR_STATUS_REG);
-		jlsemi_write_page(phydev, JL2XXX_PAGE0);
+		err = jlsemi_read_paged(phydev, JL2XXX_PAGE2627,
+					JL2XXX_INTR_STATUS_REG);
 		if (err < 0)
 			return err;
 	}
@@ -2435,9 +2434,7 @@ int jl2xxx_pre_init(struct phy_device *phydev)
 	/* Wait load patch complete */
 	msleep(10);
 
-	jlsemi_write_page(phydev, JL2XXX_PATCH);
-	val = phy_read(phydev, JL2XXX_PATCH_REG);
-	jlsemi_write_page(phydev, JL2XXX_BASIC_PAGE);
+	val = jlsemi_read_paged(phydev, JL2XXX_PAGE173, JL2XXX_PATCH_REG);
 
 	if (val != patch_version)
 		JLSEMI_PHY_MSG(KERN_ERR
@@ -2450,7 +2447,7 @@ int jlsemi_soft_reset(struct phy_device *phydev)
 {
 	int err;
 
-	err = jlsemi_set_bits(phydev, JL2XXX_BASIC_PAGE,
+	err = jlsemi_set_bits(phydev, JL2XXX_PAGE0,
 			      JL2XXX_BMCR_REG, JL2XXX_SOFT_RESET);
 	if (err < 0)
 		return err;
@@ -2474,7 +2471,7 @@ int jlsemi_aneg_done(struct phy_device *phydev)
  */
 int jlsemi_write_page(struct phy_device *phydev, int page)
 {
-	return phy_write(phydev, JLSEMI_PHY_PAGE, page);
+	return phy_write(phydev, JLSEMI_PAGE31, page);
 }
 
 /**
@@ -2485,7 +2482,7 @@ int jlsemi_write_page(struct phy_device *phydev, int page)
  */
 int jlsemi_read_page(struct phy_device *phydev)
 {
-	return phy_read(phydev, JLSEMI_PHY_PAGE);
+	return phy_read(phydev, JLSEMI_PAGE31);
 }
 
 /**
