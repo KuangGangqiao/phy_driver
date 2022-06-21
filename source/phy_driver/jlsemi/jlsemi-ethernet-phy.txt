@@ -21,97 +21,45 @@ Default child nodes are standard Ethernet PHY device
 
 Example for jl1xxx:
 
-	jl1xxx_0 : ethernet-phy@0 {
+	jl1xxxphy: jl1xxx-phy@0 {
 		compatible = "ethernet-phy-id937c.4020";
-		reg = <0>;
-		led {
-			compatible		= "jl1xxx-led";
-			jl1xxx,led-enable	= <JL1XXX_LED_CTRL_EN>;
-			jl1xxx,led-mode		= <JL1XXX_CFG_LED_MODE>;
-			jl1xxx,led-period	= <JL1XXX_GLOBAL_PERIOD_MS>;
-			jl1xxx,led-on		= <JL1XXX_GLOBAL_ON_MS>;
-			jl1xxx,led-gpio		= <JL1XXXX_CFG_GPIO>;
-		};
-		wol {
-			compatible		= "jl1xxx-wol";
-			jl1xxx,wol-enable	= <JL1XXX_WOL_CTRL_EN>;
-		};
-		interrupt {
-			compatible		= "jl1xxx-interrupt";
-			jl1xxx,interrupt-enable	= <JL1XXX_INTR_CTRL_EN>;
-		};
-		mdi {
-			compatible		= "jl1xxx-mdi";
-			jl1xxx,mdi-enable	= <JL1XXX_MDI_CTRL_EN>;
-			jl1xxx,mdi-rate		= <JL1XXX_MDI_RATE>;
-			jl1xxx,mdi-amplitude	= <JL1XXX_MDI_AMPLITUDE>;
-		};
-		rmii {
-			compatible		= "jl1xxx-rmii";
-			jl1xxx,rmii-enable	= <JL1XXX_RMII_CTRL_EN>;
-			jl1xxx,rmii-rx_timing	= <JL1XXX_RMII_RX_TIMING>;
-			jl1xxx,rmii-tx_timing	= <JL1XXX_RMII_TX_TIMING>;
-		}
+		jl1xxx,led-enable = <JL1XXX_LED_CTRL_EN>;
+		jl1xxx,led-mode = <JL1XXX_CFG_LED_MODE>;
+		jl1xxx,led-period = <JL1XXX_GLOBAL_PERIOD_MS>;
+		jl1xxx,led-on = <JL1XXX_GLOBAL_ON_MS>;
+		jl1xxx,led-gpio = <JL1XXXX_CFG_GPIO>;
+		jl1xxx,wol-enable = <JL1XXX_WOL_CTRL_EN>;
+		jl1xxx,interrupt-enable = <JL1XXX_INTR_CTRL_EN>;
+		jl1xxx,mdi-enable = <JL1XXX_MDI_CTRL_EN>;
+		jl1xxx,mdi-rate = <JL1XXX_MDI_RATE>;
+		jl1xxx,mdi-amplitude = <JL1XXX_MDI_AMPLITUDE>;
+		jl1xxx,rmii-enable = <JL1XXX_RMII_CTRL_EN>;
+		jl1xxx,rmii-rx_timing = <JL1XXX_RMII_RX_TIMING>;
+		jl1xxx,rmii-tx_timing = <JL1XXX_RMII_TX_TIMING>;
 	};
 
 Example for jl2xxx:
 
-	jl2xxx_0 : ethernet-phy@0 {
+	jl2xxxphy: jl2xxx-phy@0 {
 		compatible = "ethernet-phy-id937c.4030";
-		reg = <0>;
-		led {
-			compatible		= "jl2xxx-led";
-			jl2xxx,led-enable	= <JL2XXX_LED_CTRL_EN>;
-			jl2xxx,led-mode		= <JL2XXX_CFG_LED_MODE>;
-			jl2xxx,led-period	= <JL2XXX_GLOBAL_PERIOD_MS>;
-			jl2xxx,led-on		= <JL2xxx_GLOBAL_ON_MS>;
-			jl2xxx,led-polarity	= <JL2XXX_LED_POLARITY>;
-		};
-		rgmii {
-			compatible		= "jl2xxx-rgmii";
-
-		};
-		fast_link_down {
-			compatible		= "jl2xxx-fld";
-			"jl2xxx,fld-enable"	= <JL2XXX_FLD_CTRL_EN>
-			"jl2xxx,fld-delay"	= <JL2XXX_FLD_DELAY>
-		}
-		wol {
-			compatible		= "jl2xxx-wol";
-			jl2xxx,wol-enable	= <JL2XXX_WOL_CTRL_EN>;
-		};
-		interrupt {
-			compatible		= "jl2xxx-interrupt";
-			jl2xxx,interrupt-enable	= <JL2XXX_INTR_CTRL_EN>;
-		};
-		downshift {
-			compatible		= "jl2xxx-downshift";
-			jl2xxx,downshift-enable	= <JL2XXX_DSFT_CTRL_EN>;
-			jl2xxx,downshift-count	= <JL2XXX_DSFT_AN_CNT>;
-		};
-		rgmii {
-			compatible		= "jl2xxx-rgmii";
-			jl2xxx,rgmii-enable	= <JL2XXX_RGMII_CTRL_EN>;
-			jl2xxx,rgmii-tx-delay	= <JL2XXX_RGMII_TX_DLY_2NS>;
-			jl2xxx,rgmii-rx-delay	= <JL2XXX_RGMII_RX_DLY_2NS>;
-		};
-		patch {
-			compatible		= "jl2xxx-patch";
-			jl2xxx,patch-enable	= <JL2XXX_PATCH_CTRL_EN>;
-		};
-		clk {
-			compatible		= "jl2xxx-clk";
-			jl2xxx,clk-enable	= <JL2XXX_CLK_CTRL_EN>;
-		};
-		work_mode {
-			compatible		= "jl2xxx-work_mode";
-			jl2xxx,work_mode-enable	= <JL2XXX_WORK_MODE_CTRL_EN>;
-			jl2xxx,work_mode-mode	= <JL2XXX_WOEK_MODE_MODE>
-		};
-		loopback {
-			compatible		= "jl2xxx-loopback";
-			jl2xxx,work_mode-enable	= <JL2XXX_LPBK_CTRL_EN>;
-			jl2xxx,work_mode-mode	= <JL2XXX_LPBK_MODE>
-		};
-
+		jl2xxx,led-enable = <JL2XXX_LED_CTRL_EN>;
+		jl2xxx,led-mode = <JL2XXX_CFG_LED_MODE>;
+		jl2xxx,led-period = <JL2XXX_GLOBAL_PERIOD_MS>;
+		jl2xxx,led-on = <JL2XXX_GLOBAL_ON_MS>;
+		jl2xxx,led-polarity = <JL2XXX_LED_POLARITY>;
+		jl2xxx,patch-enable = <JL2XXX_PATCH_CTRL_EN>;
+		jl2xxx,rgmii-enable = <JL2XXX_RGMII_CTRL_EN>;
+		jl2xxx,rgmii-tx-delay = <JL2XXX_RGMII_TX_DLY_2NS>;
+		jl2xxx,rgmii-rx-delay = <JL2XXX_RGMII_RX_DLY_2NS>;
+		jl2xxx,clk-enable = <JL2XXX_CLK_CTRL_EN>;
+		jl2xxx,fld-enable = <JL2XXX_FLD_CTRL_EN>;
+		jl2xxx,fld-delay = <JL2XXX_FLD_DELAY>;
+		jl2xxx,wol-enable = <JL2XXX_WOL_CTRL_EN>;
+		jl2xxx,interrupt-enable = <JL2XXX_INTR_CTRL_EN>;
+		jl2xxx,downshift-enable = <JL2XXX_DSFT_CTRL_EN>;
+		jl2xxx,downshift-count = <JL2XXX_DSFT_AN_CNT>;
+		jl2xxx,work_mode-enable = <JL2XXX_WORK_MODE_CTRL_EN>;
+		jl2xxx,work_mode-mode = <JL2XXX_WOEK_MODE_MODE>;
+		jl2xxx,lpbk-enable = <JL2XXX_LPBK_CTRL_EN>;
+		jl2xxx,lpbk-mode = <JL2XXX_LPBK_MODE>;
 	};
