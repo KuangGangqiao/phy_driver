@@ -10,6 +10,12 @@
 #ifndef _DT_BINDINGS_JLSEMI_PHY_H
 #define _DT_BINDINGS_JLSEMI_PHY_H
 
+/**************************** Linux Version compatible********************/
+#define JLSEMI_KERNEL_AUTO_COMPATIBLE	0
+#define JL2XXX_GET_STRING		0
+#define JL2XXX_GET_STAT			0
+/*************************************************************************/
+
 /**************************** JL1XXX-LED *********************************/
 /* PHY LED Modes */
 #define JL1XXX_LED0_STRAP		(1 << 0)

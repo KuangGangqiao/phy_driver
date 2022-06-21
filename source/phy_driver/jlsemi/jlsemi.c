@@ -120,6 +120,7 @@ static void jl1xxx_remove(struct phy_device *phydev)
 		kfree(priv);
 }
 
+#if (JL1XXX_WOL_DYNAMIC_OP_MODE != JL1XXX_WOL_OP_NONE)
 static void jl1xxx_get_wol(struct phy_device *phydev,
 			   struct ethtool_wolinfo *wol)
 {
@@ -153,6 +154,7 @@ static int jl1xxx_set_wol(struct phy_device *phydev,
 
 	return 0;
 }
+#endif
 
 static int jl1xxx_suspend(struct phy_device *phydev)
 {
@@ -274,6 +276,7 @@ static int jl2xxx_resume(struct phy_device *phydev)
 	return genphy_resume(phydev);
 }
 
+#if (JL2XXX_WOL_DYNAMIC_OP_MODE != JL2XXX_WOL_OP_NONE)
 static void jl2xxx_get_wol(struct phy_device *phydev,
 			   struct ethtool_wolinfo *wol)
 {
@@ -307,6 +310,7 @@ static int jl2xxx_set_wol(struct phy_device *phydev,
 
 	return 0;
 }
+#endif
 
 static int jl2xxx_set_loopback(struct phy_device *phydev, bool enable)
 {
@@ -321,6 +325,8 @@ static int jl2xxx_set_loopback(struct phy_device *phydev, bool enable)
 	return 0;
 }
 
+#if (JL2XXX_FLD_DYNAMIC_OP_MODE != JL2XXX_FLD_OP_NONE || \
+     JL2XXX_DSFT_DYNAMIC_OP_MODE != JL2XXX_DSFT_OP_NONE)
 static int jl2xxx_get_tunable(struct phy_device *phydev,
 			      struct ethtool_tunable *tuna, void *data)
 {
@@ -367,8 +373,10 @@ static int jl2xxx_set_tunable(struct phy_device *phydev,
 
 	return 0;
 }
+#endif
 
-static u64 jl2xxx_get_stat(struct phy_device *phydev, int i)
+#if (JL2XXX_GET_STAT)
+static u64 get_stat(struct phy_device *phydev, int i)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
 	int val;
@@ -394,9 +402,11 @@ static void jl2xxx_get_stats(struct phy_device *phydev,
 		return;
 
 	for (i = 0; i < priv->nstats; i++)
-		data[i] = jl2xxx_get_stat(phydev, i);
+		data[i] = get_stat(phydev, i);
 }
+#endif
 
+#if (JL2XXX_GET_STRING)
 static void jl2xxx_get_strings(struct phy_device *phydev, u8 *data)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
@@ -409,6 +419,7 @@ static void jl2xxx_get_strings(struct phy_device *phydev, u8 *data)
 		strlcpy(data + i * ETH_GSTRING_LEN,
 			priv->hw_stats[i].string, ETH_GSTRING_LEN);
 }
+#endif
 
 static void jl2xxx_remove(struct phy_device *phydev)
 {
@@ -434,8 +445,10 @@ static struct phy_driver jlsemi_drivers[] = {
 		.read_status	= jl1xxx_read_status,
 		.config_init    = jl1xxx_config_init,
 		.remove		= jl1xxx_remove,
+#if (JL1XXX_WOL_DYNAMIC_OP_MODE != JL1XXX_WOL_OP_NONE)
 		.get_wol	= jl1xxx_get_wol,
 		.set_wol	= jl1xxx_set_wol,
+#endif
 		.suspend        = jl1xxx_suspend,
 		.resume         = jl1xxx_resume,
 	},
@@ -455,12 +468,21 @@ static struct phy_driver jlsemi_drivers[] = {
 		.suspend        = jl2xxx_suspend,
 		.resume         = jl2xxx_resume,
 		.remove		= jl2xxx_remove,
+#if (JL2XXX_WOL_DYNAMIC_OP_MODE != JL2XXX_WOL_OP_NONE)
 		.get_wol	= jl2xxx_get_wol,
 		.set_wol	= jl2xxx_set_wol,
+#endif
+#if (JL2XXX_FLD_DYNAMIC_OP_MODE != JL2XXX_FLD_OP_NONE || \
+     JL2XXX_DSFT_DYNAMIC_OP_MODE != JL2XXX_DSFT_OP_NONE)
 		.get_tunable	= jl2xxx_get_tunable,
 		.set_tunable	= jl2xxx_set_tunable,
+#endif
+#if (JL2XXX_GET_STAT)
 		.get_stats	= jl2xxx_get_stats,
+#endif
+#if (JL2XXX_GET_STRING)
 		.get_strings	= jl2xxx_get_strings,
+#endif
 		.set_loopback	= jl2xxx_set_loopback,
 	},
 };
