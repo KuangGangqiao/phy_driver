@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
- * Device Tree constants for JLSemi jl1xxx PHY
+ * Device Tree constants for JLSemi PHY
  *
  * Author: Gangqiao Kuang
  *
@@ -149,7 +149,7 @@
 
 /*************************************************************************/
 
-/**************************** JL1XXX-RMII *********************************/
+/**************************** JL1XXX-RMII ********************************/
 /* PHY RMII Control Mode Enable Mask */
 #define JL1XXX_RMII_STATIC_OP_EN	(1 << 0)
 #define JL1XXX_RMII_DYNAMIC_OP_EN	(1 << 1)
@@ -322,7 +322,7 @@
 #define JL2XXX_DSFT_AN_CNT		3
 /*************************************************************************/
 
-/**************************** JL2XXX-RGMII ********************************/
+/**************************** JL2XXX-RGMII *******************************/
 /* PHY RGMII Control Mode Enable Mask */
 #define JL2XXX_RGMII_STATIC_OP_EN	(1 << 0)
 #define JL2XXX_RGMII_DYNAMIC_OP_EN	(1 << 1)
@@ -347,7 +347,7 @@
 
 /*************************************************************************/
 
-/**************************** JL2XXX-PATCH ********************************/
+/**************************** JL2XXX-PATCH *******************************/
 /* PHY Patch Control Mode Enable Mask */
 #define JL2XXX_PATCH_STATIC_OP_EN	(1 << 0)
 #define JL2XXX_PATCH_DYNAMIC_OP_EN	(1 << 1)
@@ -388,7 +388,7 @@
 
 /*************************************************************************/
 
-/**************************** JL2XXX-WORK_MODE *****************************/
+/**************************** JL2XXX-WORK_MODE ***************************/
 /* PHY Work Mode Control Mode Enable Mask */
 #define JL2XXX_WORK_MODE_STATIC_OP_EN	(1 << 0)
 #define JL2XXX_WORK_MODE_DYNAMIC_OP_EN	(1 << 1)
@@ -416,7 +416,7 @@
 
 /*************************************************************************/
 
-/**************************** JL2XXX-LOOPBACK *****************************/
+/**************************** JL2XXX-LOOPBACK ****************************/
 /* PHY Loopback Control Mode Enable Mask */
 #define JL2XXX_LPBK_STATIC_OP_EN	(1 << 0)
 #define JL2XXX_LPBK_DYNAMIC_OP_EN	(1 << 1)
