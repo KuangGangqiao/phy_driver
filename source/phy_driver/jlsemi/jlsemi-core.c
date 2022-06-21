@@ -1944,12 +1944,11 @@ int jl1xxx_intr_ack_event(struct phy_device *phydev)
 	struct jl1xxx_priv *priv = phydev->priv;
 	int err;
 
-	if (phydev->interrupts == PHY_INTERRUPT_ENABLED)
-		if (priv->intr.enable & JL1XXX_INTR_STATIC_OP_EN) {
-			err = phy_read(phydev, JL1XXX_INTR_STATUS_REG);
-			if (err < 0)
-				return err;
-		}
+	if (priv->intr.enable & JL1XXX_INTR_STATIC_OP_EN) {
+		err = phy_read(phydev, JL1XXX_INTR_STATUS_REG);
+		if (err < 0)
+			return err;
+	}
 
 	return 0;
 }
@@ -1960,29 +1959,15 @@ int jl1xxx_intr_static_op_set(struct phy_device *phydev)
 	int err;
 	int ret = 0;
 
-	if (phydev->interrupts == PHY_INTERRUPT_ENABLED) {
-		if (priv->intr.enable & JL1XXX_INTR_LINK_CHANGE_EN)
-			ret |= JL1XXX_INTR_LINK;
-		if (priv->intr.enable & JL1XXX_INTR_AN_ERR_EN)
-			ret |= JL1XXX_INTR_AN_ERR;
+	if (priv->intr.enable & JL1XXX_INTR_LINK_CHANGE_EN)
+		ret |= JL1XXX_INTR_LINK;
+	if (priv->intr.enable & JL1XXX_INTR_AN_ERR_EN)
+		ret |= JL1XXX_INTR_AN_ERR;
 
-		err = jlsemi_set_bits(phydev, JL1XXX_PAGE7,
-				      JL1XXX_INTR_REG, ret);
-		if (err < 0)
-			return err;
-	} else {
-		if (priv->intr.enable & JL1XXX_INTR_LINK_CHANGE_EN)
-			ret |= JL1XXX_INTR_LINK;
-
-		if (priv->intr.enable & JL1XXX_INTR_AN_ERR_EN)
-			ret |= JL1XXX_INTR_AN_ERR;
-
-		err = jlsemi_clear_bits(phydev, JL1XXX_PAGE7,
-					JL1XXX_INTR_REG, ret);
-		if (err < 0)
-			return err;
-
-	}
+	err = jlsemi_set_bits(phydev, JL1XXX_PAGE7,
+			      JL1XXX_INTR_REG, ret);
+	if (err < 0)
+		return err;
 
 	return 0;
 }
@@ -2049,12 +2034,10 @@ int jl2xxx_intr_ack_event(struct phy_device *phydev)
 {
 	int err;
 
-	if (phydev->interrupts == PHY_INTERRUPT_ENABLED) {
-		err = jlsemi_read_paged(phydev, JL2XXX_PAGE2627,
-					JL2XXX_INTR_STATUS_REG);
-		if (err < 0)
-			return err;
-	}
+	err = jlsemi_read_paged(phydev, JL2XXX_PAGE2627,
+				JL2XXX_INTR_STATUS_REG);
+	if (err < 0)
+		return err;
 
 	return 0;
 }
@@ -2065,54 +2048,31 @@ int jl2xxx_intr_static_op_set(struct phy_device *phydev)
 	int err;
 	int ret = 0;
 
-	if (phydev->interrupts == PHY_INTERRUPT_ENABLED) {
-		if (priv->intr.enable & JL2XXX_INTR_LINK_CHANGE_EN)
-			ret |= JL2XXX_INTR_LINK_CHANGE;
-		if (priv->intr.enable & JL2XXX_INTR_AN_ERR_EN)
-			ret |= JL2XXX_INTR_AN_ERR;
-		if (priv->intr.enable & JL2XXX_INTR_AN_COMPLETE_EN)
-			ret |= JL2XXX_INTR_AN_COMPLETE;
-		if (priv->intr.enable & JL2XXX_INTR_AN_PAGE_RECE)
-			ret |= JL2XXX_INTR_AN_PAGE;
+	if (priv->intr.enable & JL2XXX_INTR_LINK_CHANGE_EN)
+		ret |= JL2XXX_INTR_LINK_CHANGE;
+	if (priv->intr.enable & JL2XXX_INTR_AN_ERR_EN)
+		ret |= JL2XXX_INTR_AN_ERR;
+	if (priv->intr.enable & JL2XXX_INTR_AN_COMPLETE_EN)
+		ret |= JL2XXX_INTR_AN_COMPLETE;
+	if (priv->intr.enable & JL2XXX_INTR_AN_PAGE_RECE)
+		ret |= JL2XXX_INTR_AN_PAGE;
 
-		err = jlsemi_set_bits(phydev, JL2XXX_PAGE2626,
-				      JL2XXX_INTR_CTRL_REG, ret);
-		if (err < 0)
-			return err;
+	err = jlsemi_set_bits(phydev, JL2XXX_PAGE2626,
+			      JL2XXX_INTR_CTRL_REG, ret);
+	if (err < 0)
+		return err;
 
-		err = jlsemi_set_bits(phydev, JL2XXX_PAGE158,
-				      JL2XXX_INTR_PIN_REG,
-				      JL2XXX_INTR_PIN_EN);
-		if (err < 0)
-			return err;
+	err = jlsemi_set_bits(phydev, JL2XXX_PAGE158,
+			      JL2XXX_INTR_PIN_REG,
+			      JL2XXX_INTR_PIN_EN);
+	if (err < 0)
+		return err;
 
-		err = jlsemi_set_bits(phydev, JL2XXX_PAGE160,
-				      JL2XXX_PIN_EN_REG,
-				      JL2XXX_PIN_OUTPUT);
-		if (err < 0)
-			return err;
-	} else {
-		err = jlsemi_clear_bits(phydev, JL2XXX_PAGE2626,
-					JL2XXX_INTR_CTRL_REG,
-					JL2XXX_INTR_LINK_CHANGE |
-					JL2XXX_INTR_AN_ERR |
-					JL2XXX_INTR_AN_COMPLETE |
-					JL2XXX_INTR_AN_PAGE);
-		if (err < 0)
-			return err;
-
-		err = jlsemi_clear_bits(phydev, JL2XXX_PAGE158,
-					JL2XXX_INTR_PIN_REG,
-					JL2XXX_INTR_PIN_EN);
-		if (err < 0)
-			return err;
-
-		err = jlsemi_clear_bits(phydev, JL2XXX_PAGE160,
-					JL2XXX_PIN_EN_REG,
-					JL2XXX_PIN_OUTPUT);
-		if (err < 0)
-			return err;
-	}
+	err = jlsemi_set_bits(phydev, JL2XXX_PAGE160,
+			      JL2XXX_PIN_EN_REG,
+			      JL2XXX_PIN_OUTPUT);
+	if (err < 0)
+		return err;
 
 	return 0;
 }
