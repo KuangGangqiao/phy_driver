@@ -1796,10 +1796,6 @@ static int jl2xxx_force_speed(struct phy_device *phydev, u16 speed)
 	if (err < 0)
 		return err;
 
-	err = jlsemi_soft_reset(phydev);
-	if (err < 0)
-		return err;
-
 	return 0;
 }
 
@@ -1807,9 +1803,7 @@ static int jl2xxx_lpbk_force_speed(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
 
-	if ((priv->lpbk.mode == JL2XXX_LPBK_PCS_1000M) ||
-	    (priv->lpbk.mode == JL2XXX_LPBK_PMD_1000M) ||
-	    (priv->lpbk.mode == JL2XXX_LPBK_EXT_STUB_1000M))
+	if (priv->lpbk.mode == JL2XXX_LPBK_PCS_1000M)
 		jl2xxx_force_speed(phydev, JL2XXX_SPEED1000);
 	else if (priv->lpbk.mode == JL2XXX_LPBK_PCS_100M)
 		jl2xxx_force_speed(phydev, JL2XXX_SPEED100);
@@ -1832,11 +1826,15 @@ int jl2xxx_lpbk_static_op_set(struct phy_device *phydev)
 					      BMCR_LOOPBACK);
 		if (err < 0)
 			return err;
+		err = jl2xxx_lpbk_force_speed(phydev);
+		if (err < 0)
+			return err;
 	} else if (priv->lpbk.mode == JL2XXX_LPBK_PMD_1000M) {
 		err = jlsemi_clear_bits(phydev, JL2XXX_PAGE160,
 					JL2XXX_REG25, JL2XXX_CPU_RESET);
 		if (err < 0)
 			return err;
+
 		jlsemi_write_page(phydev, JL2XXX_PAGE173);
 		phy_write(phydev, JL2XXX_REG16, JL2XXX_LOAD_GO);
 		phy_write(phydev, JL2XXX_REG17, JL2XXX_LOAD_DATA0);
@@ -1854,10 +1852,15 @@ int jl2xxx_lpbk_static_op_set(struct phy_device *phydev)
 		if (err < 0)
 			return err;
 
-		err = jlsemi_set_bits(phydev, JL2XXX_PAGE18, JL2XXX_REG20,
+		err = jlsemi_set_bits(phydev, JL2XXX_PAGE18, JL2XXX_REG21,
 				      JL2XXX_SPEED1000_NO_AN);
 		if (err < 0)
 			return err;
+
+		err = jlsemi_soft_reset(phydev);
+		if (err < 0)
+			return err;
+
 	} else if (priv->lpbk.mode == JL2XXX_LPBK_EXT_STUB_1000M) {
 		err = jlsemi_clear_bits(phydev, JL2XXX_PAGE160,
 					JL2XXX_REG25, JL2XXX_CPU_RESET);
@@ -1880,15 +1883,15 @@ int jl2xxx_lpbk_static_op_set(struct phy_device *phydev)
 		if (err < 0)
 			return err;
 
-		err = jlsemi_set_bits(phydev, JL2XXX_PAGE18, JL2XXX_REG20,
+		err = jlsemi_set_bits(phydev, JL2XXX_PAGE18, JL2XXX_REG21,
 				      JL2XXX_SPEED1000_NO_AN);
 		if (err < 0)
 			return err;
-	} else
-		return 0;
 
-	jl2xxx_lpbk_force_speed(phydev);
-	jlsemi_soft_reset(phydev);
+		err = jlsemi_soft_reset(phydev);
+		if (err < 0)
+			return err;
+	}
 
 	return 0;
 }
