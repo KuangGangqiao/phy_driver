@@ -310,6 +310,8 @@ struct jl2xxx_priv {
 
 
 /************************* JLSemi iteration code *************************/
+struct device *jlsemi_get_device(struct phy_device *phydev);
+
 int jl2xxx_downshift_dynamic_op_get(struct phy_device *phydev, u8 *data);
 
 int jl2xxx_downshift_dynamic_op_set(struct phy_device *phydev, u8 cnt);

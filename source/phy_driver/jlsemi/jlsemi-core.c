@@ -179,20 +179,27 @@ static int jl2xxx_led_static_op_set(struct phy_device *phydev)
 	return 0;
 }
 
-struct device_node *get_devce_node(struct phy_device *phydev)
+struct device *jlsemi_get_device(struct phy_device *phydev)
 {
 #if JLSEMI_KERNEL_AUTO_COMPATIBLE
 	struct device *dev = &phydev->dev;
 #else
 	struct device *dev = &phydev->mdio.dev;
 #endif
+	return dev;
+}
+
+static struct device_node *get_device_node(struct phy_device *phydev)
+{
+	struct device *dev = jlsemi_get_device(phydev);
+
 	return dev->of_node;
 }
 
 static int jl1xxx_dts_led_cfg_get(struct phy_device *phydev)
 {
 	struct jl1xxx_priv *priv = phydev->priv;
-	struct device_node *of_node = get_devce_node(phydev);
+	struct device_node *of_node = get_device_node(phydev);
 	int err;
 
 	err = of_property_read_u32(of_node, "jl1xxx,led-enable",
@@ -226,7 +233,7 @@ static int jl1xxx_dts_led_cfg_get(struct phy_device *phydev)
 static int jl1xxx_dts_wol_cfg_get(struct phy_device *phydev)
 {
 	struct jl1xxx_priv *priv = phydev->priv;
-	struct device_node *of_node = get_devce_node(phydev);
+	struct device_node *of_node = get_device_node(phydev);
 	int err;
 
 	err = of_property_read_u32(of_node, "jl1xxx,wol-enable",
@@ -240,7 +247,7 @@ static int jl1xxx_dts_wol_cfg_get(struct phy_device *phydev)
 static int jl1xxx_dts_intr_cfg_get(struct phy_device *phydev)
 {
 	struct jl1xxx_priv *priv = phydev->priv;
-	struct device_node *of_node = get_devce_node(phydev);
+	struct device_node *of_node = get_device_node(phydev);
 	int err;
 
 	err = of_property_read_u32(of_node, "jl1xxx,interrupt-enable",
@@ -254,7 +261,7 @@ static int jl1xxx_dts_intr_cfg_get(struct phy_device *phydev)
 static int jl1xxx_dts_mdi_cfg_get(struct phy_device *phydev)
 {
 	struct jl1xxx_priv *priv = phydev->priv;
-	struct device_node *of_node = get_devce_node(phydev);
+	struct device_node *of_node = get_device_node(phydev);
 	int err;
 
 	err = of_property_read_u32(of_node, "jl1xxx,mdi-enable",
@@ -278,7 +285,7 @@ static int jl1xxx_dts_mdi_cfg_get(struct phy_device *phydev)
 static int jl1xxx_dts_rmii_cfg_get(struct phy_device *phydev)
 {
 	struct jl1xxx_priv *priv = phydev->priv;
-	struct device_node *of_node = get_devce_node(phydev);
+	struct device_node *of_node = get_device_node(phydev);
 	int err;
 
 	err = of_property_read_u32(of_node, "jl1xxx,rmii-enable",
@@ -303,7 +310,7 @@ static int jl1xxx_dts_rmii_cfg_get(struct phy_device *phydev)
 static int jl2xxx_dts_led_cfg_get(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
-	struct device_node *of_node = get_devce_node(phydev);
+	struct device_node *of_node = get_device_node(phydev);
 	int err;
 
 	err = of_property_read_u32(of_node, "jl2xxx,led-enable",
@@ -669,7 +676,7 @@ static int jl2xxx_led_operation_args(struct phy_device *phydev)
 static int jl2xxx_dts_fld_cfg_get(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
-	struct device_node *of_node = get_devce_node(phydev);
+	struct device_node *of_node = get_device_node(phydev);
 	int err;
 
 	err = of_property_read_u32(of_node, "jl2xxx,fld-enable",
@@ -688,7 +695,7 @@ static int jl2xxx_dts_fld_cfg_get(struct phy_device *phydev)
 static int jl2xxx_dts_wol_cfg_get(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
-	struct device_node *of_node = get_devce_node(phydev);
+	struct device_node *of_node = get_device_node(phydev);
 	int err;
 
 	err = of_property_read_u32(of_node, "jl2xxx,wol-enable",
@@ -702,7 +709,7 @@ static int jl2xxx_dts_wol_cfg_get(struct phy_device *phydev)
 static int jl2xxx_dts_intr_cfg_get(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
-	struct device_node *of_node = get_devce_node(phydev);
+	struct device_node *of_node = get_device_node(phydev);
 	int err;
 
 	err = of_property_read_u32(of_node, "jl2xxx,interrupt-enable",
@@ -716,7 +723,7 @@ static int jl2xxx_dts_intr_cfg_get(struct phy_device *phydev)
 static int jl2xxx_dts_downshift_cfg_get(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
-	struct device_node *of_node = get_devce_node(phydev);
+	struct device_node *of_node = get_device_node(phydev);
 	int err;
 
 	err = of_property_read_u32(of_node, "jl2xxx,downshift-enable",
@@ -735,7 +742,7 @@ static int jl2xxx_dts_downshift_cfg_get(struct phy_device *phydev)
 static int jl2xxx_dts_rgmii_cfg_get(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
-	struct device_node *of_node = get_devce_node(phydev);
+	struct device_node *of_node = get_device_node(phydev);
 	int err;
 
 	err = of_property_read_u32(of_node, "jl2xxx,rgmii-enable",
@@ -759,7 +766,7 @@ static int jl2xxx_dts_rgmii_cfg_get(struct phy_device *phydev)
 static int jl2xxx_dts_patch_cfg_get(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
-	struct device_node *of_node = get_devce_node(phydev);
+	struct device_node *of_node = get_device_node(phydev);
 	int err;
 
 	err = of_property_read_u32(of_node, "jl2xxx,patch-enable",
@@ -773,7 +780,7 @@ static int jl2xxx_dts_patch_cfg_get(struct phy_device *phydev)
 static int jl2xxx_dts_clk_cfg_get(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
-	struct device_node *of_node = get_devce_node(phydev);
+	struct device_node *of_node = get_device_node(phydev);
 	int err;
 
 	err = of_property_read_u32(of_node, "jl2xxx,clk-enable",
@@ -787,7 +794,7 @@ static int jl2xxx_dts_clk_cfg_get(struct phy_device *phydev)
 static int jl2xxx_dts_work_mode_cfg_get(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
-	struct device_node *of_node = get_devce_node(phydev);
+	struct device_node *of_node = get_device_node(phydev);
 	int err;
 
 	err = of_property_read_u32(of_node, "jl2xxx,work_mode-enable",
@@ -806,7 +813,7 @@ static int jl2xxx_dts_work_mode_cfg_get(struct phy_device *phydev)
 static int jl2xxx_dts_lpbk_cfg_get(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
-	struct device_node *of_node = get_devce_node(phydev);
+	struct device_node *of_node = get_device_node(phydev);
 	int err;
 
 	err = of_property_read_u32(of_node, "jl2xxx,lpbk-enable",
@@ -825,7 +832,7 @@ static int jl2xxx_dts_lpbk_cfg_get(struct phy_device *phydev)
 static int jl2xxx_dts_deglitch_cfg_get(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
-	struct device_node *of_node = get_devce_node(phydev);
+	struct device_node *of_node = get_device_node(phydev);
 	int err;
 
 	err = of_property_read_u32(of_node, "jl2xxx,deglitch-enable",

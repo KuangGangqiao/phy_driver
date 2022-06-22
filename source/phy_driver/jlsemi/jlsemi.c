@@ -24,7 +24,7 @@ MODULE_LICENSE("GPL");
 
 static int jl1xxx_probe(struct phy_device *phydev)
 {
-	struct device *d =  &phydev->mdio.dev;
+	struct device *d =  jlsemi_get_device(phydev);
 	struct jl1xxx_priv *jl1xxx;
 	int err;
 
@@ -168,7 +168,7 @@ static int jl1xxx_resume(struct phy_device *phydev)
 
 static int jl2xxx_probe(struct phy_device *phydev)
 {
-	struct device *d =  &phydev->mdio.dev;
+	struct device *d = jlsemi_get_device(phydev);
 	struct jl2xxx_priv *jl2xxx;
 	int err;
 
