@@ -1888,6 +1888,7 @@ int jl2xxx_lpbk_static_op_set(struct phy_device *phydev)
 		return 0;
 
 	jl2xxx_lpbk_force_speed(phydev);
+	jlsemi_soft_reset(phydev);
 
 	return 0;
 }
