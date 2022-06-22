@@ -312,19 +312,6 @@ static int jl2xxx_set_wol(struct phy_device *phydev,
 }
 #endif
 
-static int jl2xxx_set_loopback(struct phy_device *phydev, bool enable)
-{
-	int ret;
-
-	ret = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE0,
-				      MII_BMCR, BMCR_LOOPBACK,
-				      enable ? BMCR_LOOPBACK : 0);
-	if (ret < 0)
-		return ret;
-
-	return 0;
-}
-
 #if (JL2XXX_FLD_DYNAMIC_OP_MODE != JL2XXX_FLD_OP_NONE || \
      JL2XXX_DSFT_DYNAMIC_OP_MODE != JL2XXX_DSFT_OP_NONE)
 static int jl2xxx_get_tunable(struct phy_device *phydev,
@@ -483,7 +470,6 @@ static struct phy_driver jlsemi_drivers[] = {
 #if (JL2XXX_GET_STRING)
 		.get_strings	= jl2xxx_get_strings,
 #endif
-		.set_loopback	= jl2xxx_set_loopback,
 	},
 };
 
