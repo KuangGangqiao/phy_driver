@@ -434,7 +434,7 @@
 #define JL2XXX_LPBK_PMD_1000M		3
 #define JL2XXX_LPBK_EXT_STUB_1000M	4
 
-/* PHY Work Mode Operation Mode Select */
+/* PHY Loopback Operation Mode Select */
 #define JL2XXX_LPBK_OP_NONE		0
 #define JL2XXX_LPBK_STATIC_C_MACRO	1
 #define JL2XXX_LPBK_STATIC_DEVICE_TREE	2
@@ -446,6 +446,24 @@
 #define JL2XXX_LPBK_CTRL_EN		(JL2XXX_LPBK_STATIC_OP_EN)
 
 #define JL2XXX_LPBK_MODE		JL2XXX_LPBK_PCS_1000M
+/*************************************************************************/
+
+/**************************** JL2XXX-DEGLITCH ****************************/
+/* PHY Deglitch Control Mode Enable Mask */
+#define JL2XXX_DGLH_STATIC_OP_EN	(1 << 0)
+#define JL2XXX_DGLH_DYNAMIC_OP_EN	(1 << 1)
+
+/* PHY Deglitch Operation Mode Select */
+#define JL2XXX_DGLH_OP_NONE		0
+#define JL2XXX_DGLH_STATIC_C_MACRO	1
+#define JL2XXX_DGLH_STATIC_DEVICE_TREE	2
+#define JL2XXX_DGLH_DYNAMIC_ETHTOOL	3
+
+#define JL2XXX_DGLH_STATIC_OP_MODE	JL2XXX_DGLH_OP_NONE
+#define JL2XXX_DGLH_DYNAMIC_OP_MODE	JL2XXX_DGLH_OP_NONE
+
+#define JL2XXX_DGLH_CTRL_EN		(JL2XXX_DGLH_STATIC_OP_EN)
+
 /*************************************************************************/
 #endif
 

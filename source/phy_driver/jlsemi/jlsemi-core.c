@@ -822,6 +822,20 @@ static int jl2xxx_dts_lpbk_cfg_get(struct phy_device *phydev)
 	return 0;
 }
 
+static int jl2xxx_dts_deglitch_cfg_get(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	struct device_node *of_node = get_devce_node(phydev);
+	int err;
+
+	err = of_property_read_u32(of_node, "jl2xxx,deglitch-enable",
+				   &priv->deglitch.enable);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
 static int jl2xxx_c_marcro_fld_cfg_get(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
@@ -941,6 +955,19 @@ static int jl2xxx_c_marcro_lpbk_cfg_get(struct phy_device *phydev)
 	};
 
 	priv->lpbk = lpbk_cfg;
+
+	return 0;
+}
+
+static int jl2xxx_c_marcro_deglitch_cfg_get(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+
+	struct jl_deglitch_ctrl deglitch_cfg = {
+		.enable		= JL2XXX_DGLH_CTRL_EN,
+	};
+
+	priv->deglitch = deglitch_cfg;
 
 	return 0;
 }
@@ -1130,6 +1157,26 @@ static int jl2xxx_lpbk_operation_mode(struct phy_device *phydev)
 	return 0;
 }
 
+static int jl2xxx_deglitch_operation_mode(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	struct jl_config_mode *mode = &priv->deglitch.op;
+
+	if (JL2XXX_DGLH_STATIC_OP_MODE == JL2XXX_DGLH_STATIC_C_MACRO)
+		mode->static_op = STATIC_C_MACRO;
+	else if (JL2XXX_DGLH_STATIC_OP_MODE == JL2XXX_DGLH_STATIC_DEVICE_TREE)
+		mode->static_op = STATIC_DEVICE_TREE;
+	else if (JL2XXX_DGLH_STATIC_OP_MODE == JL2XXX_DGLH_OP_NONE)
+		mode->static_op = STATIC_NONE;
+
+	if (JL2XXX_DGLH_DYNAMIC_OP_MODE == JL2XXX_DGLH_DYNAMIC_ETHTOOL)
+		mode->dynamic_op = DYNAMIC_ETHTOOL;
+	else if (JL2XXX_DGLH_DYNAMIC_OP_MODE == JL2XXX_DGLH_OP_NONE)
+		mode->dynamic_op = DYNAMIC_NONE;
+
+	return 0;
+}
+
 static int jl2xxx_fld_operation_args(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
@@ -1306,6 +1353,26 @@ static int jl2xxx_lpbk_operation_args(struct phy_device *phydev)
 		priv->lpbk.enable |= JL2XXX_LPBK_DYNAMIC_OP_EN;
 	else
 		priv->lpbk.enable &= ~JL2XXX_LPBK_DYNAMIC_OP_EN;
+
+	return 0;
+}
+
+static int jl2xxx_deglitch_operation_args(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	struct jl_config_mode *mode = &priv->deglitch.op;
+
+	if (mode->static_op == STATIC_C_MACRO)
+		jl2xxx_c_marcro_deglitch_cfg_get(phydev);
+	else if (mode->static_op == STATIC_DEVICE_TREE)
+		jl2xxx_dts_deglitch_cfg_get(phydev);
+	else if (mode->static_op == STATIC_NONE)
+		priv->deglitch.enable |= ~JL2XXX_DGLH_STATIC_OP_EN;
+
+	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
+		priv->deglitch.enable |= JL2XXX_DGLH_DYNAMIC_OP_EN;
+	else
+		priv->deglitch.enable &= ~JL2XXX_DGLH_DYNAMIC_OP_EN;
 
 	return 0;
 }
@@ -1673,6 +1740,20 @@ int jl2xxx_clk_static_op_set(struct phy_device *phydev)
 	}
 
 	err = jlsemi_soft_reset(phydev);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
+int jl2xxx_deglitch_static_op_set(struct phy_device *phydev)
+{
+	int err;
+
+	err = jlsemi_set_bits(phydev, JL2XXX_PAGE258,
+			      JL2XXX_DGLH_CTRL_REG,
+			      JL2XXX_DGLH_EN | JL2XXX_DGLH_REF_CLK |
+			      JL2XXX_DGLH_SEL_CLK);
 	if (err < 0)
 		return err;
 
@@ -2100,6 +2181,7 @@ int jl2xxx_operation_mode_select(struct phy_device *phydev)
 	jl2xxx_clk_operation_mode(phydev);
 	jl2xxx_work_mode_operation_mode(phydev);
 	jl2xxx_lpbk_operation_mode(phydev);
+	jl2xxx_deglitch_operation_mode(phydev);
 
 	return 0;
 }
@@ -2127,6 +2209,7 @@ int jl2xxx_operation_args_get(struct phy_device *phydev)
 	jl2xxx_clk_operation_args(phydev);
 	jl2xxx_work_mode_operation_args(phydev);
 	jl2xxx_lpbk_operation_args(phydev);
+	jl2xxx_deglitch_operation_args(phydev);
 
 	return 0;
 }
@@ -2230,6 +2313,12 @@ int jl2xxx_static_op_init(struct phy_device *phydev)
 
 	if (priv->lpbk.enable & JL2XXX_LPBK_STATIC_OP_EN) {
 		err = jl2xxx_lpbk_static_op_set(phydev);
+		if (err < 0)
+			return err;
+	}
+
+	if (priv->deglitch.enable & JL2XXX_DGLH_STATIC_OP_EN) {
+		err = jl2xxx_deglitch_static_op_set(phydev);
 		if (err < 0)
 			return err;
 	}
