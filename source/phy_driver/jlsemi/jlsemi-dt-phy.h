@@ -11,10 +11,10 @@
 #define _DT_BINDINGS_JLSEMI_PHY_H
 
 /**************************** Linux Version compatible********************/
-#define JLSEMI_KERNEL_AUTO_COMPATIBLE	(LINUX_VERSION_CODE < KERNEL_VERSION(4,5,0))
-#define JL2XXX_GET_STRING		(LINUX_VERSION_CODE >= KERNEL_VERSION(4,5,0))
-#define JL2XXX_GET_STAT			(LINUX_VERSION_CODE >= KERNEL_VERSION(4,5,0))
-#define JL2XXX_PHY_TUNABLE		(LINUX_VERSION_CODE >= KERNEL_VERSION(5,0,0))
+#define JLSEMI_DEV_COMPATIBLE	(LINUX_VERSION_CODE < KERNEL_VERSION(4,5,0))
+#define JL2XXX_GET_STRING	(LINUX_VERSION_CODE >= KERNEL_VERSION(4,5,0))
+#define JL2XXX_GET_STAT		(LINUX_VERSION_CODE >= KERNEL_VERSION(4,5,0))
+#define JL2XXX_PHY_TUNABLE	(LINUX_VERSION_CODE >= KERNEL_VERSION(5,0,0))
 /*************************************************************************/
 
 /**************************** JL1XXX-LED *********************************/
