@@ -219,74 +219,74 @@ struct jl_fld_ctrl {
 };
 
 struct jl_wol_ctrl {
-	u32 enable;
-	struct jl_config_mode op;
+	u32 enable;			/* Wake On LAN control enable */
+	struct jl_config_mode op;	/* Wake On LAN config operation mode */
 };
 
 struct jl_intr_ctrl {
-	u32 enable;
-	struct jl_config_mode op;
+	u32 enable;			/* Interrupt control enable */
+	struct jl_config_mode op;	/* Interrupt config operation mode */
 };
 
 struct jl_downshift_ctrl {
-	u32 enable;
-	u32 count;
-	struct jl_config_mode op;
+	u32 enable;			/* Downshift control enable */
+	u32 count;			/* Downshift control count */
+	struct jl_config_mode op;	/* Downshift config operation mode */
 };
 
 struct jl_rgmii_ctrl {
-	u32 enable;
-	u32 rx_delay;
-	u32 tx_delay;
-	struct jl_config_mode op;
+	u32 enable;			/* Rgmii control enable */
+	u32 rx_delay;			/* Rgmii control rx delay */
+	u32 tx_delay;			/* Rgmii control tx delay */
+	struct jl_config_mode op;	/* Rgmii config opeartion mode */
 };
 
 struct jl_patch_ctrl {
-	u32 enable;
-	struct jl_config_mode op;
+	u32 enable;			/* Patch control enable */
+	struct jl_config_mode op;	/* Patch config operation mode */
 };
 
 struct jl_clk_ctrl {
-	u32 enable;
-	struct jl_config_mode op;
+	u32 enable;			/* Clock 125M control enable */
+	struct jl_config_mode op;	/* Clock 125M config_opeartion mode */
 };
 
 struct jl_work_mode_ctrl {
-	u32 enable;
-	u32 mode;
-	struct jl_config_mode op;
+	u32 enable;			/* Work mode control enable */
+	u32 mode;			/* Work mode select mode */
+	struct jl_config_mode op;	/* Work mode config opeartion mode */
 };
 
 struct jl_loopback_ctrl {
-	u32 enable;
-	u32 mode;
-	struct jl_config_mode op;
+	u32 enable;			/* Loopback control enable */
+	u32 mode;			/* Loopback select mode */
+	struct jl_config_mode op;	/* Loopback config opeartion mode */
 };
 
 struct jl_mdi_ctrl {
-	u32 enable;
-	u32 rate;
-	u32 amplitude;
-	struct jl_config_mode op;
+	u32 enable;			/* Mdi control enable */
+	u32 rate;			/* Mdi select Rate */
+	u32 amplitude;			/* Mdi select amplitude */
+	struct jl_config_mode op;	/* Mdi config opeartion mode */
 };
 
 struct jl_rmii_ctrl {
-	u32 enable;
-	u32 tx_timing;
-	u32 rx_timing;
-	struct jl_config_mode op;
+	u32 enable;			/* Rmii control enable */
+	u32 tx_timing;			/* Rmii modify tx timing */
+	u32 rx_timing;			/* Rmii modify rx timing */
+	struct jl_config_mode op;	/* Rmii config opeartion mode */
 };
 
 struct jl_deglitch_ctrl {
-	u32 enable;
-	struct jl_config_mode op;
+	u32 enable;			/* Deglitch control enable */
+	struct jl_config_mode op;	/* Deglitch control opeartion mode */
 };
 
 struct jl1xxx_priv {
 	struct jl_led_ctrl led;
 	struct jl_wol_ctrl wol;
 	struct jl_intr_ctrl intr;
-	bool static_inited;
+	bool static_inited;		/* Initialization flag */
 	struct jl_mdi_ctrl mdi;
 	struct jl_rmii_ctrl rmii;
 };
@@ -301,9 +301,9 @@ struct jl2xxx_priv {
 	struct jl_patch_ctrl patch;
 	struct jl_clk_ctrl clk;
 	const struct jl_hw_stat *hw_stats;
-	bool static_inited;
-	int nstats;
-	u64 *stats;
+	bool static_inited;		/* Initialization flag */
+	int nstats;			/* Status record for dynamic operation */
+	u64 *stats;			/* Status pointer for dynamic operation */
 	struct jl_work_mode_ctrl work_mode;
 	struct jl_loopback_ctrl lpbk;
 	struct jl_deglitch_ctrl deglitch;
@@ -311,9 +311,6 @@ struct jl2xxx_priv {
 
 /* macros to simplify debug checking */
 #define JLSEMI_PHY_MSG(msg,args...) printk(msg, ## args)
-
-/************************* Configuration section *************************/
-
 
 /************************* JLSemi iteration code *************************/
 struct device *jlsemi_get_device(struct phy_device *phydev);
