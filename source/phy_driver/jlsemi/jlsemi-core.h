@@ -14,12 +14,18 @@
 #ifndef _JLSEMI_CORE_H
 #define _JLSEMI_CORE_H
 
+#define JLSEMI_KERNEL_DEVICE_TREE_USE	0
+
 #include <linux/phy.h>
 #include <linux/version.h>
 #include <linux/kernel.h>
 #include <linux/errno.h>
 #include <linux/of.h>
+#if (JLSEMI_KERNEL_DEVICE_TREE_USE)
+#include <dt-bindings/phy/jlsemi-dt-phy.h>
+#else
 #include "jlsemi-dt-phy.h"
+#endif
 
 #define JL1XXX_PHY_ID		0x937c4023
 #define JL2XXX_PHY_ID		0x937c4032
