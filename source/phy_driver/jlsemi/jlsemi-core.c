@@ -1548,8 +1548,7 @@ static int jl2xxx_store_mac_addr(struct phy_device *phydev)
 }
 
 /* Get fast link down for jl2xxx */
-#if (JL2XXX_FLD_DYNAMIC_OP_MODE != JL2XXX_FLD_OP_NONE || \
-     JL2XXX_DSFT_DYNAMIC_OP_MODE != JL2XXX_DSFT_OP_NONE)
+#if (JL2XXX_PHY_TUNABLE)
 int jl2xxx_fld_dynamic_op_get(struct phy_device *phydev, u8 *msecs)
 {
 	int ret;
@@ -1594,8 +1593,7 @@ int jl2xxx_fld_dynamic_op_set(struct phy_device *phydev, const u8 *msecs)
 	u16 val;
 	int ret;
 
-#if (JL2XXX_FLD_DYNAMIC_OP_MODE != JL2XXX_FLD_OP_NONE || \
-     JL2XXX_DSFT_DYNAMIC_OP_MODE != JL2XXX_DSFT_OP_NONE)
+#if (JL2XXX_PHY_TUNABLE)
 	if (*msecs == ETHTOOL_PHY_FAST_LINK_DOWN_OFF)
 		return jlsemi_clear_bits(phydev, JL2XXX_PAGE128,
 					 JL2XXX_FLD_CTRL_REG,
@@ -1640,8 +1638,7 @@ int jl2xxx_downshift_dynamic_op_get(struct phy_device *phydev, u8 *data)
 	enable = val & JL2XXX_DSFT_EN;
 	cnt = (val & JL2XXX_DSFT_AN_MASK) + 1;
 
-#if (JL2XXX_FLD_DYNAMIC_OP_MODE != JL2XXX_FLD_OP_NONE || \
-     JL2XXX_DSFT_DYNAMIC_OP_MODE != JL2XXX_DSFT_OP_NONE)
+#if (JL2XXX_PHY_TUNABLE)
 	*data = enable ? cnt : DOWNSHIFT_DEV_DISABLE;
 #else
 	*data = enable ? cnt : 0;
