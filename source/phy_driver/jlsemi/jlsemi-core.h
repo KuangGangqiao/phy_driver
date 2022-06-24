@@ -170,7 +170,23 @@ struct jl_hw_stat {
 	u8 reg;
 	u16 page;
 	u16 mask;
+	u16 enable;
 };
+
+static const struct jl_hw_stat jl_phy[] = {
+	{
+		.string = "page0,reg0",
+		.enable = true,
+		.page = 0,
+		.reg = 0,
+	}, {
+		.string = "page0,reg1",
+		.enable = false,
+		.page =0,
+		.reg = 1,
+	},
+};
+
 
 static const struct jl_hw_stat jl2xxx_hw_stats[] = {
 	{

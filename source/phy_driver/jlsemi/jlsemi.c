@@ -22,6 +22,26 @@ MODULE_DESCRIPTION("JLSemi PHY driver");
 MODULE_AUTHOR("Gangqiao Kuang");
 MODULE_LICENSE("GPL");
 
+#if (JLSEMI_DEBUG_INFO)
+static int jlsemi_phy_reg_print(struct phy_device *phydev)
+{
+	int ret;
+	int i;
+
+	for (i = 0; ARRAY_SIZE(jl_phy); i++) {
+		if (jl_phy[i].enable) {
+			ret = jlsemi_read_paged(phydev, jl_phy[i].page,
+						jl_phy[i].reg);
+			JLSEMI_PHY_MSG("%s: 0x%x\n", jl_phy[i].string, ret);
+			if (ret < 0)
+				return ret;
+		}
+	}
+
+	return 0;
+}
+#endif
+
 static int jl1xxx_probe(struct phy_device *phydev)
 {
 	struct device *d =  jlsemi_get_device(phydev);
@@ -36,7 +56,7 @@ static int jl1xxx_probe(struct phy_device *phydev)
 
 	d->of_node = of_find_node_by_path("/jl1xxx-phy@0");
 	if(!d->of_node)
-		JLSEMI_PHY_MSG("Find device node failed\n");
+		JLSEMI_PHY_MSG("%s: Find device node failed\n", __func__);
 
 	/* Select operation mode */
 	jl1xxx_operation_mode_select(phydev);
@@ -60,9 +80,21 @@ static int jl1xxx_config_init(struct phy_device *phydev)
 	int ret;
 
 	if (!priv->static_inited) {
+#if (JLSEMI_DEBUG_INFO)
+		JLSEMI_PHY_MSG("jl1xxx_config_init_before:\n");
+		ret = jlsemi_phy_reg_print(phydev);
+		if (ret < 0)
+			return ret;
+#endif
 		ret = jl1xxx_static_op_init(phydev);
 		if (ret < 0)
 			return ret;
+#if (JLSEMI_DEBUG_INFO)
+		JLSEMI_PHY_MSG("jl1xxx_config_init_after:\n");
+		ret = jlsemi_phy_reg_print(phydev);
+		if (ret < 0)
+			return ret;
+#endif
 		priv->static_inited = true;
 	}
 
@@ -178,7 +210,7 @@ static int jl2xxx_probe(struct phy_device *phydev)
 
 	d->of_node = of_find_node_by_path("/jl2xxx-phy@0");
 	if(!d->of_node)
-		JLSEMI_PHY_MSG("Find device node failed\n");
+		JLSEMI_PHY_MSG("%s: Find device node failed\n", __func__);
 
 	/* Select operation mode */
 	jl2xxx_operation_mode_select(phydev);
@@ -207,9 +239,21 @@ static int jl2xxx_config_init(struct phy_device *phydev)
 	int ret;
 
 	if (!priv->static_inited) {
+#if (JLSEMI_DEBUG_INFO)
+		JLSEMI_PHY_MSG("jl2xxx_config_init_before:\n");
+		ret = jlsemi_phy_reg_print(phydev);
+		if (ret < 0)
+			return ret;
+#endif
 		ret = jl2xxx_static_op_init(phydev);
 		if (ret < 0)
 			return ret;
+#if (JLSEMI_DEBUG_INFO)
+		JLSEMI_PHY_MSG("jl2xxx_config_init_after:\n");
+		ret = jlsemi_phy_reg_print(phydev);
+		if (ret < 0)
+			return ret;
+#endif
 		priv->static_inited = true;
 	}
 
