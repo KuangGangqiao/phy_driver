@@ -187,6 +187,7 @@ static const struct jl_hw_stat jl_phy[] = {
 	},
 };
 
+static const u16 patch_fw_versions[] = {0x1101, 0x9101, 0x9107};
 
 static const struct jl_hw_stat jl2xxx_hw_stats[] = {
 	{

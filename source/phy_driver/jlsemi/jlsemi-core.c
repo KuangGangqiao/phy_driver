@@ -2476,7 +2476,20 @@ int jl2xxx_pre_init(struct phy_device *phydev)
 {
 	int i, j;
 	int regaddr, val;
+	bool patch_ok = false;
 	int length = sizeof(init_data)/sizeof(init_data[0]);
+
+	val = jlsemi_read_paged(phydev, JL2XXX_PAGE0, JL2XXX_PHY_INFO_REG);
+	for (i = 0; i < ARRAY_SIZE(patch_fw_versions); i++) {
+		if (val == patch_fw_versions[i])
+			patch_ok |= true;
+	}
+
+	if (!patch_ok) {
+		JLSEMI_PHY_MSG(KERN_ERR
+			       "%s: patch is not ready\n", __func__);
+		return 0;
+	}
 
 	for (i = 0; i < length; i++) {
 		regaddr = ((init_data[i] >> 16) & 0xff);
