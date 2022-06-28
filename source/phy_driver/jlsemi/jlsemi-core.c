@@ -2507,7 +2507,7 @@ int jl2xxx_pre_init(struct phy_device *phydev)
 	/* Wait load patch complete */
 	msleep(10);
 
-	val = jlsemi_read_paged(phydev, JL2XXX_PAGE173, JL2XXX_PATCH_REG);
+	val = jlsemi_read_paged(phydev, JL2XXX_PAGE174, JL2XXX_PATCH_REG);
 
 	if (val != patch_version)
 		JLSEMI_PHY_MSG(KERN_ERR

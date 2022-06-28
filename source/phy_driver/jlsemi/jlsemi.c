@@ -28,7 +28,7 @@ static int jlsemi_phy_reg_print(struct phy_device *phydev)
 	int ret;
 	int i;
 
-	for (i = 0; ARRAY_SIZE(jl_phy); i++) {
+	for (i = 0; i < ARRAY_SIZE(jl_phy); i++) {
 		if (jl_phy[i].enable) {
 			ret = jlsemi_read_paged(phydev, jl_phy[i].page,
 						jl_phy[i].reg);
