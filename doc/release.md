@@ -9,8 +9,8 @@ For version `x.y.z`, it means
 - `y`: SDK major version number
 
        Note: According to the traditional odd even system version number,
-       the odd number is the development version, and the even number
-       is the stable version.
+             the odd number is the development version, and the even number
+             is the stable version.
 
 - `z`: SDK minor version number
 
