@@ -195,7 +195,7 @@ static const struct jl_hw_stat jl2xxx_hw_stats[] = {
 	{
 		.string	= "phy_patch_version",
 		.reg	= JL2XXX_PATCH_REG,
-		.page	= JL2XXX_PAGE173,
+		.page	= JL2XXX_PAGE174,
 		.mask	= JL2XXX_PATCH_MASK,
 	}, {
 		.string	= "phy_software_version",
