@@ -1,6 +1,6 @@
 # About Version
 
-For version `x.y`, it means
+For version `x.y.z`, it means
 
 - `x`: SDK version number
 
