@@ -20,6 +20,9 @@ MFILE = $(OBJ_MODULE)-objs \t:= $(OBJ_CODE)\
 	\t+= $(OBJ_MODULE).o
 CFG = CONFIG_JLSEMI_PHY=$(BUILD_MODE)
 
+pack:
+	$(call pack_repo)
+
 config_kernel:	
 	$(call config_kernel_gnu)
 	$(call cross_compile_kernel)
@@ -41,6 +44,8 @@ clean:
 	$(call clean_Makefile)
 	$(call clean_module)
 	$(call clean_code)
+	$(call clean_pack)
+
 
 FIND_MAKEFILE = obj-$(DOLLAR)(CONFIG_JLSEMI_PHY)
 OBJ_MAKEFILE = $(KERNEL_DIR)/drivers/net/phy/Makefile
@@ -119,4 +124,12 @@ endef
 
 define clean_code
 	$(shell rm -rf $(KERNEL_DIR)/drivers/net/phy/$(DRIVER_LIST)*)
+endef
+
+define pack_repo
+	@./tool/pack/pack.sh
+endef
+
+define clean_pack
+	rm ./build/*gz
 endef
