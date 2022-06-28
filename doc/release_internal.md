@@ -2,12 +2,22 @@
 
 For version `x.y`, it means
 
-- `x`: SDK major version
-- `y`: SDK minor version
+- `x`: SDK version number
 
-#Time: 2022 06 29
+       Note: Only when there is a major change in the code.
 
-#Version: 1.0
+- `y`: SDK major version number
+
+       Note: According to the traditional odd even system version number,
+       the odd number is the development version, and the even number
+       is the stable version.
+
+- `z`: SDK minor version number
+
+       Note: It will change when implementing new features.
+
+# Time: 2022 06 29
+# Version: 1.0.0
 
 **New**
 - Init phy driver SDK repo
