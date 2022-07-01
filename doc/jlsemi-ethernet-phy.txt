@@ -62,5 +62,5 @@ Example for jl2xxx:
 		jl2xxx,work_mode-mode = <JL2XXX_WOEK_MODE_MODE>;
 		jl2xxx,lpbk-enable = <JL2XXX_LPBK_CTRL_EN>;
 		jl2xxx,lpbk-mode = <JL2XXX_LPBK_MODE>;
-		jl2xxx,deglitch-enable = <JL2XXX_DGLH_CTRL_EN>;
+		jl2xxx,slew_rate-enable = <JL2XXX_SLEW_RATE_CTRL_EN>;
 	};

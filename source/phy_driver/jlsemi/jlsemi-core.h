@@ -152,10 +152,10 @@
 #define JL2XXX_PAGE174		174
 
 #define JL2XXX_PAGE258		258
-#define JL2XXX_DGLH_CTRL_REG	23
-#define JL2XXX_DGLH_EN		BIT(12)
-#define JL2XXX_DGLH_REF_CLK	BIT(13)
-#define JL2XXX_DGLH_SEL_CLK	BIT(14)
+#define JL2XXX_SLEW_RATE_CTRL_REG	23
+#define JL2XXX_SLEW_RATE_EN		BIT(12)
+#define JL2XXX_SLEW_RATE_REF_CLK	BIT(13)
+#define JL2XXX_SLEW_RATE_SEL_CLK	BIT(14)
 
 #define JL2XXX_PAGE18		18
 #define JL2XXX_REG20		20
@@ -296,9 +296,9 @@ struct jl_rmii_ctrl {
 	struct jl_config_mode op;	/* Rmii config opeartion mode */
 };
 
-struct jl_deglitch_ctrl {
-	u32 enable;			/* Deglitch control enable */
-	struct jl_config_mode op;	/* Deglitch control opeartion mode */
+struct jl_slew_rate_ctrl {
+	u32 enable;			/* Slew rate control enable */
+	struct jl_config_mode op;	/* Slew rate control opeartion mode */
 };
 
 struct jl1xxx_priv {
@@ -325,7 +325,7 @@ struct jl2xxx_priv {
 	u64 *stats;			/* Status pointer for dynamic operation */
 	struct jl_work_mode_ctrl work_mode;
 	struct jl_loopback_ctrl lpbk;
-	struct jl_deglitch_ctrl deglitch;
+	struct jl_slew_rate_ctrl slew_rate;
 };
 
 /* macros to simplify debug checking */

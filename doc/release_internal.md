@@ -38,7 +38,7 @@ For version `x.y.z`, it means
       -patch function
       -work mode function
       -loopback function
-      -deglitch function
+      -slew rate(deglitch) function
       -downshift function
 - Support three mode to operation of phy driver
   for operation:

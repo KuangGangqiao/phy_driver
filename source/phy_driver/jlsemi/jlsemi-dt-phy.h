@@ -492,23 +492,23 @@
 #define JL2XXX_LPBK_MODE		JL2XXX_LPBK_PCS_1000M
 /*************************************************************************/
 
-/**************************** JL2XXX-DEGLITCH ****************************/
-/* PHY Deglitch Control Mode Enable Mask Select */
-#define JL2XXX_DGLH_STATIC_OP_EN	(1 << 0)
-#define JL2XXX_DGLH_DYNAMIC_OP_EN	(1 << 1)
+/**************************** JL2XXX-SLEW_RATE ****************************/
+/* PHY Slew Rate Control Mode Enable Mask Select */
+#define JL2XXX_SLEW_RATE_STATIC_OP_EN	(1 << 0)
+#define JL2XXX_SLEW_RATE_DYNAMIC_OP_EN	(1 << 1)
 
-/* PHY Deglitch Operation Mode Select */
-#define JL2XXX_DGLH_OP_NONE		0
-#define JL2XXX_DGLH_STATIC_C_MACRO	1
-#define JL2XXX_DGLH_STATIC_DEVICE_TREE	2
-#define JL2XXX_DGLH_DYNAMIC_ETHTOOL	3
+/* PHY Slew Rate Operation Mode Select */
+#define JL2XXX_SLEW_RATE_OP_NONE		0
+#define JL2XXX_SLEW_RATE_STATIC_C_MACRO	1
+#define JL2XXX_SLEW_RATE_STATIC_DEVICE_TREE	2
+#define JL2XXX_SLEW_RATE_DYNAMIC_ETHTOOL	3
 //-----------------------------------------------------------------------//
-/* PHY Deglitch Operation Mode Config */
-#define JL2XXX_DGLH_STATIC_OP_MODE	JL2XXX_DGLH_OP_NONE
-#define JL2XXX_DGLH_DYNAMIC_OP_MODE	JL2XXX_DGLH_OP_NONE
+/* PHY Slew Rate Operation Mode Config */
+#define JL2XXX_SLEW_RATE_STATIC_OP_MODE	JL2XXX_SLEW_RATE_OP_NONE
+#define JL2XXX_SLEW_RATE_DYNAMIC_OP_MODE	JL2XXX_SLEW_RATE_OP_NONE
 
-/* PHY Deglitch Control Mode Enable Mask Config */
-#define JL2XXX_DGLH_CTRL_EN		(JL2XXX_DGLH_STATIC_OP_EN)
+/* PHY Slew Rate Control Mode Enable Mask Config */
+#define JL2XXX_SLEW_RATE_CTRL_EN		(JL2XXX_SLEW_RATE_STATIC_OP_EN)
 
 /*************************************************************************/
 #endif
