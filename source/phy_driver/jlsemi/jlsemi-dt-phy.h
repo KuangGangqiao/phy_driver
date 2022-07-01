@@ -399,7 +399,7 @@
 #define JL2XXX_PATCH_DYNAMIC_ETHTOOL	3
 //-----------------------------------------------------------------------//
 /* PHY Patch Operation Mode Config */
-#define JL2XXX_PATCH_STATIC_OP_MODE	JL2XXX_PATCH_OP_NONE
+#define JL2XXX_PATCH_STATIC_OP_MODE	JL2XXX_PATCH_STATIC_C_MACRO
 #define JL2XXX_PATCH_DYNAMIC_OP_MODE	JL2XXX_PATCH_OP_NONE
 
 /* PHY Patch Control Mode Enable Mask Config */
