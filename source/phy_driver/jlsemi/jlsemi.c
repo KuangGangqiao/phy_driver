@@ -394,7 +394,7 @@ static int jl2xxx_set_tunable(struct phy_device *phydev,
 	case ETHTOOL_PHY_DOWNSHIFT:
 		if (priv->downshift.enable & JL2XXX_DSFT_DYNAMIC_OP_EN)
 			return jl2xxx_downshift_dynamic_op_set(phydev,
-							       *(const u8 *)data);
+							*(const u8 *)data);
 		else
 			return 0;
 	default:

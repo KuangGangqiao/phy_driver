@@ -10,7 +10,7 @@
 #ifndef _DT_BINDINGS_JLSEMI_PHY_H
 #define _DT_BINDINGS_JLSEMI_PHY_H
 
-/**************************** Linux Version compatible********************/
+/**************************** Linux Version Compatible********************/
 #define JLSEMI_DEV_COMPATIBLE	(LINUX_VERSION_CODE < KERNEL_VERSION(4,5,0))
 #define JL2XXX_GET_STRING	(LINUX_VERSION_CODE >= KERNEL_VERSION(4,5,0))
 #define JL2XXX_GET_STAT		(LINUX_VERSION_CODE >= KERNEL_VERSION(4,5,0))
@@ -408,23 +408,23 @@
 /*************************************************************************/
 
 /**************************** JL2XXX-CLOCK *******************************/
-/* PHY Patch Control Mode Enable Mask Select */
+/* PHY Clock Control Mode Enable Mask Select */
 #define JL2XXX_CLK_STATIC_OP_EN		(1 << 0)
 #define JL2XXX_CLK_DYNAMIC_OP_EN	(1 << 1)
 #define JL2XXX_25M_CLK_OUT_EN		(1 << 2)
 #define JL2XXX_125M_CLK_OUT_EN		(1 << 3)
 
-/* PHY Patch Operation Mode Select */
+/* PHY Clock Operation Mode Select */
 #define JL2XXX_CLK_OP_NONE		0
 #define JL2XXX_CLK_STATIC_C_MACRO	1
 #define JL2XXX_CLK_STATIC_DEVICE_TREE	2
 #define JL2XXX_CLK_DYNAMIC_ETHTOOL	3
 //-----------------------------------------------------------------------//
-/* PHY Patch Operation Mode Config */
+/* PHY Clock Operation Mode Config */
 #define JL2XXX_CLK_STATIC_OP_MODE	JL2XXX_CLK_OP_NONE
 #define JL2XXX_CLK_DYNAMIC_OP_MODE	JL2XXX_CLK_OP_NONE
 
-/* PHY Patch Control Mode Enable Mask Config */
+/* PHY Clock Control Mode Enable Mask Config */
 #define JL2XXX_CLK_CTRL_EN	(JL2XXX_CLK_STATIC_OP_EN | \
 				 JL2XXX_125M_CLK_OUT_EN)
 
