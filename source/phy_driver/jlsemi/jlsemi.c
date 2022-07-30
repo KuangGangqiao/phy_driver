@@ -55,10 +55,11 @@ static int jl1xxx_probe(struct phy_device *phydev)
 	phydev->priv = jl1xxx;
 
 	d = jlsemi_get_device(phydev);
+#if (JLSEMI_KERNEL_DEVICE_TREE_USE)
 	d->of_node = of_find_node_by_path("/jl1xxx-phy@0");
 	if(!d->of_node)
 		JLSEMI_PHY_MSG("%s: Find device node failed\n", __func__);
-
+#endif
 	/* Select operation mode */
 	jl1xxx_operation_mode_select(phydev);
 
@@ -210,10 +211,11 @@ static int jl2xxx_probe(struct phy_device *phydev)
 	phydev->priv = jl2xxx;
 
 	d = jlsemi_get_device(phydev);
+#if (JLSEMI_KERNEL_DEVICE_TREE_USE)
 	d->of_node = of_find_node_by_path("/jl2xxx-phy@0");
 	if(!d->of_node)
 		JLSEMI_PHY_MSG("%s: Find device node failed\n", __func__);
-
+#endif
 	/* Select operation mode */
 	jl2xxx_operation_mode_select(phydev);
 
