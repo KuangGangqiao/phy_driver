@@ -97,7 +97,7 @@ static int jl1xxx_config_init(struct phy_device *phydev)
 		if (ret < 0)
 			return ret;
 #endif
-		priv->static_inited = true;
+		priv->static_inited = JLSEMI_PHY_NOT_REENTRANT;
 	}
 
 	return 0;
@@ -258,7 +258,7 @@ static int jl2xxx_config_init(struct phy_device *phydev)
 		if (ret < 0)
 			return ret;
 #endif
-		priv->static_inited = true;
+		priv->static_inited = JLSEMI_PHY_NOT_REENTRANT;
 	}
 
 	return 0;
