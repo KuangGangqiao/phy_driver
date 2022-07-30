@@ -16,6 +16,16 @@ For version `x.y.z`, it means
 
        Note: It will change when implementing new features.
 
+# Time: 2022 07 30
+# Version: 1.0.3
+
+**Fix**
+- Fix Mac don't attach phy(err = -19)
+
+**New**
+- Add macro for device tree to be fond
+- Format some code style
+
 # Time: 2022 06 29
 # Version: 1.0.0
 

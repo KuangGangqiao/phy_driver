@@ -16,6 +16,19 @@ For version `x.y.z`, it means
 
        Note: It will change when implementing new features.
 
+# Time: 2022 07 30
+# Version: 1.0.3
+**Fix**
+- Fix Mac don't attach phy(err = -19) This bug was never encountered on the
+  rk3328 board, so it was not tested when it was released. The reason for this
+  bug is that we failed to attach our PHY using stmmac driver. This bug is
+  caused by my overwriting the data of the system (device of node)
+  in the PHY driver.
+
+**New**
+- Add macro for device tree to be fond
+- Format some code style
+
 # Time: 2022 06 29
 # Version: 1.0.0
 
