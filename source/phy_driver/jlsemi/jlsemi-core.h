@@ -308,6 +308,7 @@ struct jl1xxx_priv {
 	bool static_inited;		/* Initialization flag */
 	struct jl_mdi_ctrl mdi;
 	struct jl_rmii_ctrl rmii;
+	struct device dev;
 };
 
 struct jl2xxx_priv {
@@ -326,6 +327,7 @@ struct jl2xxx_priv {
 	struct jl_work_mode_ctrl work_mode;
 	struct jl_loopback_ctrl lpbk;
 	struct jl_slew_rate_ctrl slew_rate;
+	struct device dev;
 };
 
 /* macros to simplify debug checking */

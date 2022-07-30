@@ -44,8 +44,8 @@ static int jlsemi_phy_reg_print(struct phy_device *phydev)
 
 static int jl1xxx_probe(struct phy_device *phydev)
 {
-	struct device *d =  jlsemi_get_device(phydev);
-	struct jl1xxx_priv *jl1xxx;
+	struct jl1xxx_priv *jl1xxx = NULL;
+	struct device *d = NULL;
 	int err;
 
 	jl1xxx = kzalloc(sizeof(*jl1xxx), GFP_KERNEL);
@@ -54,6 +54,7 @@ static int jl1xxx_probe(struct phy_device *phydev)
 
 	phydev->priv = jl1xxx;
 
+	d = jlsemi_get_device(phydev);
 	d->of_node = of_find_node_by_path("/jl1xxx-phy@0");
 	if(!d->of_node)
 		JLSEMI_PHY_MSG("%s: Find device node failed\n", __func__);
@@ -198,8 +199,8 @@ static int jl1xxx_resume(struct phy_device *phydev)
 
 static int jl2xxx_probe(struct phy_device *phydev)
 {
-	struct device *d = jlsemi_get_device(phydev);
-	struct jl2xxx_priv *jl2xxx;
+	struct jl2xxx_priv *jl2xxx = NULL;
+	struct device *d = NULL;
 	int err;
 
 	jl2xxx = kzalloc(sizeof(*jl2xxx), GFP_KERNEL);
@@ -208,6 +209,7 @@ static int jl2xxx_probe(struct phy_device *phydev)
 
 	phydev->priv = jl2xxx;
 
+	d = jlsemi_get_device(phydev);
 	d->of_node = of_find_node_by_path("/jl2xxx-phy@0");
 	if(!d->of_node)
 		JLSEMI_PHY_MSG("%s: Find device node failed\n", __func__);
