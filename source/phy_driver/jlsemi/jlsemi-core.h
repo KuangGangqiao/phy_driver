@@ -334,6 +334,8 @@ struct jl2xxx_priv {
 #define JLSEMI_PHY_MSG(msg,args...) printk(msg, ## args)
 
 /************************* JLSemi iteration code *************************/
+struct device *jlsemi_get_mdio(struct phy_device *phydev);
+
 struct device *jlsemi_get_device(struct phy_device *phydev);
 
 int jl2xxx_downshift_dynamic_op_get(struct phy_device *phydev, u8 *data);

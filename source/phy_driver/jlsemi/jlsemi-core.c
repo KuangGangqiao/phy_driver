@@ -179,6 +179,16 @@ static int jl2xxx_led_static_op_set(struct phy_device *phydev)
 	return 0;
 }
 
+struct device *jlsemi_get_mdio(struct phy_device *phydev)
+{
+#if JLSEMI_DEV_COMPATIBLE
+	struct device *dev = &phydev->dev;
+#else
+	struct device *dev = &phydev->mdio.dev;
+#endif
+	return dev;
+}
+
 struct device *jlsemi_get_device(struct phy_device *phydev)
 {
 	if ((phydev->phy_id & JLSEMI_PHY_ID_MASK) ==

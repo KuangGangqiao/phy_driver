@@ -44,11 +44,12 @@ static int jlsemi_phy_reg_print(struct phy_device *phydev)
 
 static int jl1xxx_probe(struct phy_device *phydev)
 {
+	struct device *dev = jlsemi_get_mdio(phydev);
 	struct jl1xxx_priv *jl1xxx = NULL;
 	struct device *d = NULL;
 	int err;
 
-	jl1xxx = kzalloc(sizeof(*jl1xxx), GFP_KERNEL);
+	jl1xxx = devm_kzalloc(dev, sizeof(*jl1xxx), GFP_KERNEL);
 	if (!jl1xxx)
 		return -ENOMEM;
 
@@ -148,10 +149,11 @@ static int jl1xxx_read_status(struct phy_device *phydev)
 
 static void jl1xxx_remove(struct phy_device *phydev)
 {
+	struct device *dev = jlsemi_get_mdio(phydev);
 	struct jl1xxx_priv *priv = phydev->priv;
 
 	if (priv)
-		kfree(priv);
+		devm_kfree(dev, priv);
 }
 
 static void jl1xxx_get_wol(struct phy_device *phydev,
@@ -200,11 +202,12 @@ static int jl1xxx_resume(struct phy_device *phydev)
 
 static int jl2xxx_probe(struct phy_device *phydev)
 {
+	struct device *dev = jlsemi_get_mdio(phydev);
 	struct jl2xxx_priv *jl2xxx = NULL;
 	struct device *d = NULL;
 	int err;
 
-	jl2xxx = kzalloc(sizeof(*jl2xxx), GFP_KERNEL);
+	jl2xxx = devm_kzalloc(dev, sizeof(*jl2xxx), GFP_KERNEL);
 	if (!jl2xxx)
 		return -ENOMEM;
 
@@ -453,12 +456,13 @@ static void jl2xxx_get_strings(struct phy_device *phydev, u8 *data)
 
 static void jl2xxx_remove(struct phy_device *phydev)
 {
+	struct device *dev = jlsemi_get_mdio(phydev);
 	struct jl2xxx_priv *priv = phydev->priv;
 
 	if (priv->stats)
 		kfree(priv->stats);
 	if (priv)
-		kfree(priv);
+		devm_kfree(dev, priv);
 }
 
 static struct phy_driver jlsemi_drivers[] = {
