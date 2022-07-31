@@ -2502,7 +2502,6 @@ int jl2xxx_pre_init(struct phy_device *phydev)
 	int i, j;
 	int regaddr, val;
 	bool patch_ok = false;
-	int length = sizeof(init_data)/sizeof(init_data[0]);
 
 	val = jlsemi_read_paged(phydev, JL2XXX_PAGE0, JL2XXX_PHY_INFO_REG);
 	for (i = 0; i < ARRAY_SIZE(patch_fw_versions); i++) {
@@ -2516,7 +2515,7 @@ int jl2xxx_pre_init(struct phy_device *phydev)
 		return 0;
 	}
 
-	for (i = 0; i < length; i++) {
+	for (i = 0; i < ARRAY_SIZE(init_data); i++) {
 		regaddr = ((init_data[i] >> 16) & 0xff);
 		val = (init_data[i] & 0xffff);
 		phy_write(phydev, regaddr, val);
