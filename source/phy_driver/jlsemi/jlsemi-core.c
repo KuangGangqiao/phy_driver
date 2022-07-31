@@ -179,6 +179,16 @@ static int jl2xxx_led_static_op_set(struct phy_device *phydev)
 	return 0;
 }
 
+struct mii_bus *jlsemi_get_mdiobus(struct phy_device *phydev)
+{
+#if JLSEMI_DEV_COMPATIBLE
+	struct mii_bus *bus = phydev->bus;
+#else
+	struct mii_bus *bus = phydev->mdio.bus;
+#endif
+	return bus;
+}
+
 struct device *jlsemi_get_mdio(struct phy_device *phydev)
 {
 #if JLSEMI_DEV_COMPATIBLE
@@ -2581,6 +2591,9 @@ int jlsemi_read_page(struct phy_device *phydev)
  */
 static inline int __jlsemi_save_page(struct phy_device *phydev)
 {
+	struct mii_bus *bus = jlsemi_get_mdiobus(phydev);
+
+	mutex_lock(&bus->mdio_lock);
 	return jlsemi_read_page(phydev);
 }
 
@@ -2626,6 +2639,7 @@ static inline int __jlsemi_select_page(struct phy_device *phydev, int page)
 static inline int __jlsemi_restore_page(struct phy_device *phydev,
 					int oldpage, int ret)
 {
+	struct mii_bus *bus = jlsemi_get_mdiobus(phydev);
 	int r;
 
 	if (oldpage >= 0) {
@@ -2640,6 +2654,8 @@ static inline int __jlsemi_restore_page(struct phy_device *phydev,
 		/* Propagate the phy page selection error code */
 		ret = oldpage;
 	}
+
+	mutex_unlock(&bus->mdio_lock);
 
 	return ret;
 }
