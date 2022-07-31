@@ -181,15 +181,15 @@ static int jl2xxx_led_static_op_set(struct phy_device *phydev)
 
 struct device *jlsemi_get_device(struct phy_device *phydev)
 {
-	struct jl1xxx_priv *priv1 = phydev->priv;
-	struct jl2xxx_priv *priv2 = phydev->priv;
-
 	if ((phydev->phy_id & JLSEMI_PHY_ID_MASK) ==
-	    (JL1XXX_PHY_ID & JLSEMI_PHY_ID_MASK))
+	    (JL1XXX_PHY_ID & JLSEMI_PHY_ID_MASK)) {
+		struct jl1xxx_priv *priv1 = phydev->priv;
 		return &priv1->dev;
-	else if ((phydev->phy_id & JLSEMI_PHY_ID_MASK) ==
-		 (JL2XXX_PHY_ID & JLSEMI_PHY_ID_MASK))
+	} else if ((phydev->phy_id & JLSEMI_PHY_ID_MASK) ==
+		   (JL2XXX_PHY_ID & JLSEMI_PHY_ID_MASK)) {
+		struct jl2xxx_priv *priv2 = phydev->priv;
 		return &priv2->dev;
+	}
 
 	return NULL;
 }
