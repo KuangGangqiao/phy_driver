@@ -23,7 +23,7 @@ For version `x.y.z`, it means
 - Fix Mac don't attach phy(err = -19)
 
 **New**
-- Add macro for device tree to be fond
+- Add mutex lock to driver read and write function
 - Format some code style
 
 # Time: 2022 06 29
