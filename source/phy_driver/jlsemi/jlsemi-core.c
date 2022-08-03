@@ -1929,18 +1929,18 @@ int jl1xxx_mdi_static_op_set(struct phy_device *phydev)
 	int err;
 
 	if(priv->mdi.enable & JL1XXX_MDI_RATE_EN) {
-		err = jlsemi_modify_paged_reg(phydev, JL1XXX_PAGE24,
-					      JL1XXX_REG24,
-					      JL1XXX_MDI_TX_BM_MASK,
-					      JL1XXX_MDI_TX_BM(
-					      priv->mdi.amplitude));
+		err = jlsemi_set_bits(phydev, JL1XXX_PAGE24,
+				      JL1XXX_REG24, priv->mdi.rate);
 		if (err < 0)
 			return err;
 	}
 
 	if(priv->mdi.enable & JL1XXX_MDI_AMPLITUDE_EN) {
-		err = jlsemi_set_bits(phydev, JL1XXX_PAGE24,
-				      JL1XXX_REG24, priv->mdi.rate);
+		err = jlsemi_modify_paged_reg(phydev, JL1XXX_PAGE24,
+					      JL1XXX_REG24,
+					      JL1XXX_MDI_TX_BM_MASK,
+					      JL1XXX_MDI_TX_BM(
+					      priv->mdi.amplitude));
 		if (err < 0)
 			return err;
 	}
