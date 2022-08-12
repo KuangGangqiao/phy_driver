@@ -2580,7 +2580,6 @@ int jlsemi_read_page(struct phy_device *phydev)
  */
 static inline int __jlsemi_save_page(struct phy_device *phydev)
 {
-	mutex_lock(&phydev->lock);
 	return jlsemi_read_page(phydev);
 }
 
@@ -2640,8 +2639,6 @@ static inline int __jlsemi_restore_page(struct phy_device *phydev,
 		/* Propagate the phy page selection error code */
 		ret = oldpage;
 	}
-
-	mutex_unlock(&phydev->lock);
 
 	return ret;
 }
