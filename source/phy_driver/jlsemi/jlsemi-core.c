@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2021 JLSemi Corporation
  *
@@ -194,10 +195,12 @@ struct device *jlsemi_get_device(struct phy_device *phydev)
 	if ((phydev->phy_id & JLSEMI_PHY_ID_MASK) ==
 	    (JL1XXX_PHY_ID & JLSEMI_PHY_ID_MASK)) {
 		struct jl1xxx_priv *priv1 = phydev->priv;
+
 		return &priv1->dev;
 	} else if ((phydev->phy_id & JLSEMI_PHY_ID_MASK) ==
 		   (JL2XXX_PHY_ID & JLSEMI_PHY_ID_MASK)) {
 		struct jl2xxx_priv *priv2 = phydev->priv;
+
 		return &priv2->dev;
 	}
 
@@ -1184,16 +1187,21 @@ static int jl2xxx_slew_rate_operation_mode(struct phy_device *phydev)
 	struct jl2xxx_priv *priv = phydev->priv;
 	struct jl_config_mode *mode = &priv->slew_rate.op;
 
-	if (JL2XXX_SLEW_RATE_STATIC_OP_MODE == JL2XXX_SLEW_RATE_STATIC_C_MACRO)
+	if (JL2XXX_SLEW_RATE_STATIC_OP_MODE ==
+		JL2XXX_SLEW_RATE_STATIC_C_MACRO)
 		mode->static_op = STATIC_C_MACRO;
-	else if (JL2XXX_SLEW_RATE_STATIC_OP_MODE == JL2XXX_SLEW_RATE_STATIC_DEVICE_TREE)
+	else if (JL2XXX_SLEW_RATE_STATIC_OP_MODE ==
+		JL2XXX_SLEW_RATE_STATIC_DEVICE_TREE)
 		mode->static_op = STATIC_DEVICE_TREE;
-	else if (JL2XXX_SLEW_RATE_STATIC_OP_MODE == JL2XXX_SLEW_RATE_OP_NONE)
+	else if (JL2XXX_SLEW_RATE_STATIC_OP_MODE ==
+		JL2XXX_SLEW_RATE_OP_NONE)
 		mode->static_op = STATIC_NONE;
 
-	if (JL2XXX_SLEW_RATE_DYNAMIC_OP_MODE == JL2XXX_SLEW_RATE_DYNAMIC_ETHTOOL)
+	if (JL2XXX_SLEW_RATE_DYNAMIC_OP_MODE ==
+		JL2XXX_SLEW_RATE_DYNAMIC_ETHTOOL)
 		mode->dynamic_op = DYNAMIC_ETHTOOL;
-	else if (JL2XXX_SLEW_RATE_DYNAMIC_OP_MODE == JL2XXX_SLEW_RATE_OP_NONE)
+	else if (JL2XXX_SLEW_RATE_DYNAMIC_OP_MODE ==
+		 JL2XXX_SLEW_RATE_OP_NONE)
 		mode->dynamic_op = DYNAMIC_NONE;
 
 	return 0;
@@ -1417,7 +1425,8 @@ static int jl1xxx_wol_cfg_rmii(struct phy_device *phydev)
 {
 	int err;
 	/* WOL Function should be in RMII Mode, the rmii
-	 * clock direction should be output */
+	 * clock direction should be output
+	 */
 	err = jlsemi_modify_paged_reg(phydev, JL1XXX_PAGE7,
 				      JL1XXX_RMII_CTRL_REG,
 				      JL1XXX_RMII_OUT,
@@ -1928,14 +1937,14 @@ int jl1xxx_mdi_static_op_set(struct phy_device *phydev)
 	struct jl1xxx_priv *priv = phydev->priv;
 	int err;
 
-	if(priv->mdi.enable & JL1XXX_MDI_RATE_EN) {
+	if (priv->mdi.enable & JL1XXX_MDI_RATE_EN) {
 		err = jlsemi_set_bits(phydev, JL1XXX_PAGE24,
 				      JL1XXX_REG24, priv->mdi.rate);
 		if (err < 0)
 			return err;
 	}
 
-	if(priv->mdi.enable & JL1XXX_MDI_AMPLITUDE_EN) {
+	if (priv->mdi.enable & JL1XXX_MDI_AMPLITUDE_EN) {
 		err = jlsemi_modify_paged_reg(phydev, JL1XXX_PAGE24,
 					      JL1XXX_REG24,
 					      JL1XXX_MDI_TX_BM_MASK,
@@ -1953,7 +1962,7 @@ int jl1xxx_rmii_static_op_set(struct phy_device *phydev)
 	struct jl1xxx_priv *priv = phydev->priv;
 	int err;
 
-	if(priv->rmii.enable & JL1XXX_RMII_MODE_EN) {
+	if (priv->rmii.enable & JL1XXX_RMII_MODE_EN) {
 		err = jlsemi_set_bits(phydev, JL2XXX_PAGE7,
 				      JL2XXX_REG16, JL1XXX_RMII_MODE);
 		if (err < 0)
@@ -1966,7 +1975,7 @@ int jl1xxx_rmii_static_op_set(struct phy_device *phydev)
 		return 0;
 	}
 
-	if(priv->rmii.enable & JL1XXX_RMII_CLK_50M_INPUT_EN) {
+	if (priv->rmii.enable & JL1XXX_RMII_CLK_50M_INPUT_EN) {
 		err = jlsemi_set_bits(phydev, JL2XXX_PAGE7,
 				      JL2XXX_REG16,
 				      JL1XXX_RMII_CLK_50M_INPUT);
@@ -1998,8 +2007,8 @@ int jl1xxx_rmii_static_op_set(struct phy_device *phydev)
 		err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE7,
 					      JL2XXX_REG16,
 					      JL1XXX_RMII_TX_SKEW_MASK,
-				              JL1XXX_RMII_TX_SKEW(
-				              priv->rmii.tx_timing));
+					      JL1XXX_RMII_TX_SKEW(
+					      priv->rmii.tx_timing));
 		if (err < 0)
 			return err;
 	}
@@ -2008,8 +2017,8 @@ int jl1xxx_rmii_static_op_set(struct phy_device *phydev)
 		err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE7,
 					      JL2XXX_REG16,
 					      JL1XXX_RMII_RX_SKEW_MASK,
-				              JL1XXX_RMII_RX_SKEW(
-				              priv->rmii.rx_timing));
+					      JL1XXX_RMII_RX_SKEW(
+					      priv->rmii.rx_timing));
 		if (err < 0)
 			return err;
 	}
@@ -2512,14 +2521,13 @@ int jl2xxx_pre_init(struct phy_device *phydev)
 		if (regaddr == 0x18) {
 			phy_write(phydev, 0x10, 0x8006);
 			for (j = 0; j < 8; j++) {
-				if (phy_read(phydev, 0x10) == 0) {
+				if (phy_read(phydev, 0x10) == 0)
 					break;
-				}
 			}
 		}
 	}
 	/* Wait load patch complete */
-	msleep(10);
+	msleep(20);
 
 	val = jlsemi_read_paged(phydev, JL2XXX_PAGE174, JL2XXX_PATCH_REG);
 
@@ -2736,8 +2744,7 @@ int jlsemi_fetch_bit(struct phy_device *phydev,
 	int ret = 0, oldpage;
 
 	oldpage = __jlsemi_select_page(phydev, page);
-	if (oldpage >= 0)
-	{
+	if (oldpage >= 0) {
 		ret = phy_read(phydev, regnum);
 		if (ret < 0)
 			return ret;
@@ -2766,7 +2773,7 @@ int jlsemi_read_paged(struct phy_device *phydev, int page, u32 regnum)
 	return __jlsemi_restore_page(phydev, oldpage, ret);
 }
 
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(4,0,0))
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 0, 0))
 int jlsemi_drivers_register(struct phy_driver *phydrvs, int size)
 {
 	int i, j;
@@ -2791,9 +2798,8 @@ void jlsemi_drivers_unregister(struct phy_driver *phydrvs, int size)
 {
 	int i;
 
-	for (i = 0; i < size; i++) {
+	for (i = 0; i < size; i++)
 		phy_driver_unregister(&phydrvs[i]);
-	}
 }
 #else
 #endif

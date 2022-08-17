@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * drivers/net/phy/jlsemi.c
  *
@@ -59,7 +60,7 @@ static int jl1xxx_probe(struct phy_device *phydev)
 #if (JLSEMI_KERNEL_DEVICE_TREE_USE)
 	d->of_node = of_find_compatible_node(NULL, NULL,
 					    "ethernet-phy-id937c.4020");
-	if(!d->of_node)
+	if (!d->of_node)
 		JLSEMI_PHY_MSG("%s: Find device node failed\n", __func__);
 #endif
 	/* Select operation mode */
@@ -218,7 +219,7 @@ static int jl2xxx_probe(struct phy_device *phydev)
 #if (JLSEMI_KERNEL_DEVICE_TREE_USE)
 	d->of_node = of_find_compatible_node(NULL, NULL,
 					    "ethernet-phy-id937c.4030");
-	if(!d->of_node)
+	if (!d->of_node)
 		JLSEMI_PHY_MSG("%s: Find device node failed\n", __func__);
 #endif
 	/* Select operation mode */
@@ -461,8 +462,7 @@ static void jl2xxx_remove(struct phy_device *phydev)
 	struct device *dev = jlsemi_get_mdio(phydev);
 	struct jl2xxx_priv *priv = phydev->priv;
 
-	if (priv->stats)
-		kfree(priv->stats);
+	kfree(priv->stats);
 	if (priv)
 		devm_kfree(dev, priv);
 }
@@ -520,8 +520,8 @@ static struct phy_driver jlsemi_drivers[] = {
 module_jlsemi_driver(jlsemi_drivers);
 
 static struct mdio_device_id __maybe_unused jlsemi_tbl[] = {
-        { JL1XXX_PHY_ID, JLSEMI_PHY_ID_MASK },
-        { JL2XXX_PHY_ID, JLSEMI_PHY_ID_MASK },
+	{JL1XXX_PHY_ID, JLSEMI_PHY_ID_MASK},
+	{JL2XXX_PHY_ID, JLSEMI_PHY_ID_MASK},
 	{ }
 };
 

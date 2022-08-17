@@ -1,4 +1,5 @@
-/*
+/* SPDX-License-Identifier: GPL-2.0+
+ *
  * Copyright (C) 2021 JLSemi Corporation
  *
  * This program is free software; you can redistribute it and/or
@@ -67,9 +68,9 @@
 #define JL1XXX_RMII_MODE		BIT(3)
 #define JL1XXX_RMII_CLK_50M_INPUT	BIT(12)
 #define JL1XXX_RMII_TX_SKEW_MASK	(0xf << 8)
-#define JL1XXX_RMII_TX_SKEW(n)		(n << 8) & JL1XXX_RMII_TX_SKEW_MASK
+#define JL1XXX_RMII_TX_SKEW(n)		((n << 8) & JL1XXX_RMII_TX_SKEW_MASK)
 #define JL1XXX_RMII_RX_SKEW_MASK	(0xf << 4)
-#define JL1XXX_RMII_RX_SKEW(n)		(n << 4) & JL1XXX_RMII_RX_SKEW_MASK
+#define JL1XXX_RMII_RX_SKEW(n)		((n << 4) & JL1XXX_RMII_RX_SKEW_MASK)
 #define JL1XXX_RMII_CRS_DV		BIT(2)
 
 #define JL2XXX_PAGE0		0
@@ -83,7 +84,7 @@
 #define JL2XXX_DSFT_SMART_EN	BIT(13)
 #define JL2XXX_DSFT_TWO_WIRE_EN	BIT(14)
 #define JL2XXX_DSFT_STL_MASK	0x03e0
-#define JL2XXX_DSFT_STL_CNT(n)	((n << 5) & JL2XXX_DSFT_STL_MASK)
+#define JL2XXX_DSFT_STL_CNT(n)	(((n << 5) & JL2XXX_DSFT_STL_MASK))
 #define JL2XXX_DSFT_AN_MASK	0x001f
 #define JL2XXX_DSFT_CNT_MAX	32
 #define JL2XXX_PHY_INFO_REG	29
@@ -159,12 +160,12 @@
 
 #define JL2XXX_PAGE18		18
 #define JL2XXX_REG20		20
-#define JL2XXX_SPEED1000_NO_AN	BIT(11) | BIT(10)
+#define JL2XXX_SPEED1000_NO_AN	(BIT(11) | BIT(10))
 
 #define LED_PERIOD_MASK		0xff00
-#define LEDPERIOD(n)		(n << 8) & LED_PERIOD_MASK
+#define LEDPERIOD(n)		((n << 8) & LED_PERIOD_MASK)
 #define LED_ON_MASK		0x00ff
-#define LEDON(n)		(n << 0) & LED_ON_MASK
+#define LEDON(n)		((n << 0) & LED_ON_MASK)
 
 /*************************************************************************/
 struct jl_hw_stat {
@@ -184,7 +185,7 @@ static const struct jl_hw_stat jl_phy[] = {
 	}, {
 		.string = "page0,reg1",
 		.enable = false,
-		.page =0,
+		.page = 0,
 		.reg = 1,
 	},
 };
@@ -234,7 +235,9 @@ struct jl_led_ctrl {
 struct jl_fld_ctrl {
 	u32 enable;			/* Fast link down control enable */
 	u32 delay;			/* Fast link down time */
-	struct jl_config_mode op;	/* Fast link down config operation mode */
+	struct jl_config_mode op;	/* Fast link down config
+					 *operation mode
+					 */
 };
 
 struct jl_wol_ctrl {
@@ -322,8 +325,8 @@ struct jl2xxx_priv {
 	struct jl_clk_ctrl clk;
 	const struct jl_hw_stat *hw_stats;
 	bool static_inited;		/* Initialization flag */
-	int nstats;			/* Status record for dynamic operation */
-	u64 *stats;			/* Status pointer for dynamic operation */
+	int nstats;			/* Record for dynamic operation */
+	u64 *stats;			/* Pointer for dynamic operation */
 	struct jl_work_mode_ctrl work_mode;
 	struct jl_loopback_ctrl lpbk;
 	struct jl_slew_rate_ctrl slew_rate;
@@ -331,7 +334,7 @@ struct jl2xxx_priv {
 };
 
 /* macros to simplify debug checking */
-#define JLSEMI_PHY_MSG(msg,args...) printk(msg, ## args)
+#define JLSEMI_PHY_MSG(msg, args...) printk(msg, ## args)
 
 /************************* JLSemi iteration code *************************/
 struct device *jlsemi_get_mdio(struct phy_device *phydev);
@@ -384,7 +387,7 @@ int jl2xxx_pre_init(struct phy_device *phydev);
 
 /********************** Convenience function for phy **********************/
 
-/* Notice: You should change page 0 when you When you call it after*/
+/* Notice: You should change page 0 when you When you call it after */
 int jlsemi_write_page(struct phy_device *phydev, int page);
 
 int jlsemi_read_page(struct phy_device *phydev);
@@ -414,7 +417,7 @@ void jlsemi_drivers_unregister(struct phy_driver *phydrvs, int size);
  * init/exit. Each module may only use this macro once, and calling it
  * replaces module_init() and module_exit().
  */
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(4,0,0))
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 0, 0))
 
 #define jlsemi_module_driver(__phy_drivers, __count)			\
 static int __init phy_module_init(void)					\
