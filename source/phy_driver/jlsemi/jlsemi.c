@@ -57,7 +57,8 @@ static int jl1xxx_probe(struct phy_device *phydev)
 
 	d = jlsemi_get_device(phydev);
 #if (JLSEMI_KERNEL_DEVICE_TREE_USE)
-	d->of_node = of_find_node_by_path("/jl1xxx-phy@0");
+	d->of_node = of_find_compatible_node(NULL, NULL,
+					    "ethernet-phy-id937c.4020");
 	if(!d->of_node)
 		JLSEMI_PHY_MSG("%s: Find device node failed\n", __func__);
 #endif
@@ -215,7 +216,8 @@ static int jl2xxx_probe(struct phy_device *phydev)
 
 	d = jlsemi_get_device(phydev);
 #if (JLSEMI_KERNEL_DEVICE_TREE_USE)
-	d->of_node = of_find_node_by_path("/jl2xxx-phy@0");
+	d->of_node = of_find_compatible_node(NULL, NULL,
+					    "ethernet-phy-id937c.4030");
 	if(!d->of_node)
 		JLSEMI_PHY_MSG("%s: Find device node failed\n", __func__);
 #endif
