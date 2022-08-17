@@ -417,7 +417,7 @@ void jlsemi_drivers_unregister(struct phy_driver *phydrvs, int size);
  * init/exit. Each module may only use this macro once, and calling it
  * replaces module_init() and module_exit().
  */
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 0, 0))
+#if (KERNEL_VERSION(4, 0, 0) > LINUX_VERSION_CODE)
 
 #define jlsemi_module_driver(__phy_drivers, __count)			\
 static int __init phy_module_init(void)					\

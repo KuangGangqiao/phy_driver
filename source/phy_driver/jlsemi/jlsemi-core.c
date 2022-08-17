@@ -2773,7 +2773,7 @@ int jlsemi_read_paged(struct phy_device *phydev, int page, u32 regnum)
 	return __jlsemi_restore_page(phydev, oldpage, ret);
 }
 
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 0, 0))
+#if (KERNEL_VERSION(4, 0, 0) > LINUX_VERSION_CODE)
 int jlsemi_drivers_register(struct phy_driver *phydrvs, int size)
 {
 	int i, j;
