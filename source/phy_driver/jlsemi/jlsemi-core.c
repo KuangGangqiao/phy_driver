@@ -1589,7 +1589,7 @@ int jl2xxx_fld_dynamic_op_get(struct phy_device *phydev, u8 *msecs)
 		return 0;
 	}
 
-	val = (val & JL2XXX_FLD_MASK) >> JL2XXX_FLD_MASK_HEAD;
+	val = (ret & JL2XXX_FLD_MASK) >> JL2XXX_FLD_MASK_HEAD;
 
 	switch (val) {
 	case JL2XXX_FLD_DELAY_00MS:
