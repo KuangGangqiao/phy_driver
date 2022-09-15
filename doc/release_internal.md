@@ -16,6 +16,20 @@ For version `x.y.z`, it means
 
        Note: It will change when implementing new features.
 
+# Time: 2022 09 15
+# Version: 1.0.7
+**Fix**
+- Fix phydev death lock issue. Solve the problem by removing mutex lock,
+  for example mutex_lock(&phydev->lock) On read_staus function call
+  jlsemi_set_bits() api will cause lock conflict.
+- Fix typo for fast link down function
+
+**New**
+- Replace device tree api. of_find_node_by_path()-->of_find_compatible_node()
+  the new device tree api can add phy configuration files anywhere in the device
+  tree file.
+- Formate code style by linux script checkpatch.pl
+
 # Time: 2022 07 30
 # Version: 1.0.3
 **Fix**

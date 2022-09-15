@@ -16,6 +16,17 @@ For version `x.y.z`, it means
 
        Note: It will change when implementing new features.
 
+# Time: 2022 09 15
+# Version: 1.0.7
+**Fix**
+- Fix phydev death lock issue.
+- Fix typo for fast link down function.
+
+**New**
+- Replace device tree api.
+- Formate code style by linux script checkpatch.pl
+
+
 # Time: 2022 07 30
 # Version: 1.0.3
 

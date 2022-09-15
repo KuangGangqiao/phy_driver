@@ -2,7 +2,7 @@ ROOT=$(git rev-parse --show-toplevel)
 BUILDS_DIR=${ROOT}/build
 REMOTE_NAME=origin
 
-version=1.0.3
+version=1.0.7
 src_dir=${ROOT}
 dest_dir=${BUILDS_DIR}
 exclude_file=${ROOT}/tool/pack/pack_repo.exclude_files
