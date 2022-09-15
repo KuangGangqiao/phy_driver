@@ -2508,11 +2508,8 @@ int jl2xxx_pre_init(struct phy_device *phydev)
 			patch_ok |= true;
 	}
 
-	if (!patch_ok) {
-		JLSEMI_PHY_MSG(KERN_ERR
-			       "%s: patch is not ready\n", __func__);
+	if (!patch_ok)
 		return 0;
-	}
 
 	for (i = 0; i < ARRAY_SIZE(init_data); i++) {
 		regaddr = ((init_data[i] >> 16) & 0xff);
