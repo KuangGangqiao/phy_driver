@@ -21,6 +21,15 @@
 #include <linux/version.h>
 #include <linux/kernel.h>
 #include <linux/errno.h>
+#include <linux/etherdevice.h>
+#include <linux/skbuff.h>
+#include <linux/spinlock.h>
+#include <linux/ethtool.h>
+#include <linux/ptp_classify.h>
+#include <linux/ptp_clock_kernel.h>
+#include <linux/net_tstamp.h>
+#include <linux/if_vlan.h>
+#include <linux/timecounter.h>
 #include <linux/of.h>
 #if (JLSEMI_KERNEL_DEVICE_TREE_USE)
 #include <dt-bindings/phy/jlsemi-dt-phy.h>
@@ -170,7 +179,106 @@
 #define ADVERTISE_FIBER_1000HALF	0x40
 #define ADVERTISE_FIBER_1000FULL	0x20
 
+#define JL2XXX_PHY_PAGE		31
+
+#define PAGE160		160
+#define PTP_GLB_CFG0	16
+#define PTP_RESET	BIT(4)
+
+#define PAGE153		153
+#define PTP_PPS_CFG	16
+#define PPSRANGE_MASK	0x0700
+#define PPSRANGE(n)	((n << 8) & PPSRANGE_MASK)
+#define PPS_WIDTH	BIT(12)
+#define PPS_PHASE	BIT(3)
+
+#define PAGE152		152
+#define PTP_GLB_CFG1	24
+#define MSGTPEN_MASK	0xffff
+#define MSGTPEN(n)	(n)
+#define TAI_GLB_CFG11	18
+#define TIMEDECAMT_MASK	0x7fe0
+#define TIMEDECAMT(n)	((n << 5) & TIMEDECAMT_MASK)
+#define TIME_DEC_OP	BIT(15)
+
+#define GLB_TIME_WORD0	21
+#define GLB_TIME_WORD1	22
+#define READ_PLUS_DATA	30
+#define READ_PLUS	29
+#define READ_PLUS_CMD	0x8e0e
+
+#define PTP_GLB_CFG7	27
+#define OCTET_DATA	BIT(2)
+#define UPDATE_DATA	BIT(15)
+
+#define PAGE151		151
+#define PTP_DEP_SEQID_REG 17
+#define TAI_GLB_CFG1	23
+#define TS_CLK_PER	0x1f40
+#define DEP_TIME_WORD1	16
+#define TAI_GLB_CFG0	22
+#define TIME_DEC_EN	BIT(3)
+
+#define PAGE150		150
+#define PTP_PORT_CFG2	19
+#define HW_ACCEL	BIT(6)
+#define PTP_PTS_KEEP_SA	BIT(5)
+#define DEP_TIME_WORD0		30
+#define PTP_ARR0_VALID_REG	21
+#define PTP_ARR0_SEQID_REG	24
+#define PTP_ARR0_VALID		BIT(0)
+#define PTP_DEP0_VALID_REG	29
+#define PTP_DEP0_VALID		BIT(0)
+#define ARR_TIME_WORD0	22
+#define ARR_TIME_WORD1	23
+#define PTP_CON 17
+#define PTP_PTS_DIS_SPEC_CHK	BIT(11)
+
+#define PTP_GEN_CTL0	16
+#define PTP_POWER_DOWN	BIT(9)
+#define PTPGPIOCFG_MASK	0x0038
+#define PTPGPIOCFG(n)	((n << 3) & PTPGPIOCFG_MASK)
+#define PTP_LED_CFG	0
+#define PTP_LED_EN	BIT(0)
+
+#define PTP_PORT_CFG0	17
+#define DIS_PTP_TS	BIT(0)
+
+#define PAGE0		0
+#define MAX_AMT		1023	/* max adjtime step */
+
+#define MAX_RXTS 64
+#define SKB_TIMESTAMP_TIMEOUT 3 /* jiffies */
+
+
 /*************************************************************************/
+enum phc_adj_state {
+	PHC_STOP_ADJ = 0,
+	PHC_LOOP_ADJ,
+	PHC_READY_ADJ,
+	PHC_STEP_ADJ,
+};
+
+struct jl2xxx_hwts {
+	u32 nsec;
+	u32 sec;
+	u16 seqid;
+	u8 msgtype;
+};
+
+struct jl2xxx_skb_info {
+	int ptp_type;
+	unsigned long tmo;
+};
+
+struct rxts {
+	struct list_head list;
+	unsigned long tmo;
+	u32 nsec;
+	u32 sec;
+	u16 seqid;
+};
+
 struct jl_hw_stat {
 	const char *string;
 	u8 reg;
@@ -334,12 +442,67 @@ struct jl2xxx_priv {
 	struct jl_loopback_ctrl lpbk;
 	struct jl_slew_rate_ctrl slew_rate;
 	struct device dev;
+	bool safe_quit;
+	long last_ppb;
+	long ptp_work_ppb;
+	bool ptp_work_neg_adj;
+	enum phc_adj_state adj_state;
+	enum phc_adj_state last_state;
+	u32 glb_seconds;
+	u32 glb_nseconds;
+	struct phy_device *phydev;
+	struct mutex ptp_lock;
+	struct jl2xxx_hwts arr_ts;
+	struct jl2xxx_hwts dep_ts;
+	struct ptp_clock *ptp_clock;
+	struct ptp_clock_info ptp_info;
+	struct delayed_work rx_ts_work;
+	struct delayed_work tx_ts_work;
+	struct delayed_work state_queue;
+	int hwts_tx_en;
+	int hwts_rx_en;
+	/* list of rx timestamps */
+	struct list_head rxts;
+	struct list_head rxpool;
+	struct rxts rx_pool_data[MAX_RXTS];
+	/* protects above three fields from concurrent access */
+	spinlock_t rx_lock;
+	struct sk_buff_head rx_queue;
+	struct sk_buff_head tx_queue;
 };
 
 /* macros to simplify debug checking */
 #define JLSEMI_PHY_MSG(msg, args...) printk(msg, ## args)
 
 /************************* JLSemi iteration code *************************/
+int jl2xxx_ptp_sync_to_system_clock(struct phy_device *phydev);
+
+int jl2xxx_ptp_set_clock(struct phy_device *phydev,
+			 u32 seconds, u32 nano_second);
+
+int jl2xxx_ptp_init(struct phy_device *phydev);
+
+int jl2xxx_ptp_init_pps(struct phy_device *phydev);
+
+int jl2xxx_ptp_get_global_time(struct phy_device *phydev,
+			       u32 *seconds, u32 *nano_seconds);
+
+int jl2xxx_ptp_set_global_time(struct phy_device *phydev,
+			       u32 seconds, u32 nano_seconds);
+
+int jl2xxx_ptp_get_ts_dep_time(struct phy_device *phydev,
+			       u32 *seconds, u32 *nano_seconds);
+
+int jl2xxx_ptp_get_ts_arr_time(struct phy_device *phydev,
+			       u32 *seconds, u32 *nano_seconds);
+
+int jl2xxx_ptp_clock_step(struct phy_device *phydev,
+			  bool positive, s64 time_step_ns);
+
+int jl2xxx_ptp_get_ts_dep_seqid(struct phy_device *phydev, u16 *seqid);
+
+int jl2xxx_ptp_get_ts_arr_seqid(struct phy_device *phydev, u16 *seqid);
+
 struct device *jlsemi_get_mdio(struct phy_device *phydev);
 
 struct device *jlsemi_get_device(struct phy_device *phydev);

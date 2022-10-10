@@ -2755,6 +2755,290 @@ int jlsemi_aneg_done(struct phy_device *phydev)
 	return genphy_aneg_done(phydev);
 }
 
+int jl2xxx_ptp_clock_step(struct phy_device *phydev,
+			  bool positive, s64 time_step_ns)
+{
+	if (time_step_ns >= MAX_AMT)
+		time_step_ns = MAX_AMT;
+
+	jlsemi_set_bits(phydev, PAGE152, TAI_GLB_CFG11,
+			TIMEDECAMT(time_step_ns));
+
+	if (positive) {
+		jlsemi_set_bits(phydev, PAGE152, TAI_GLB_CFG11,
+				TIME_DEC_OP);
+	} else {
+		jlsemi_clear_bits(phydev, PAGE152, TAI_GLB_CFG11,
+				  TIME_DEC_OP);
+	}
+
+	jlsemi_set_bits(phydev, PAGE151, TAI_GLB_CFG0,
+			TIME_DEC_EN);
+	/* Fix timedecamt need clear after TIME_DEC_EN */
+	jlsemi_clear_bits(phydev, PAGE152, TAI_GLB_CFG11, TIMEDECAMT_MASK);
+
+	return 0;
+}
+
+int jl2xxx_ptp_adjtime(struct phy_device *phydev, long delta)
+{
+	bool positive = true;
+	u64 u64_delta;
+
+	if (delta > 0) {
+		u64_delta = (u64)delta;
+		positive = false;
+	} else {
+		u64_delta = (u64)(-delta);
+		positive = true;
+	}
+
+	return jl2xxx_ptp_clock_step(phydev, positive, delta);
+}
+
+int jl2xxx_ptp_get_ts_arr_time(struct phy_device *phydev,
+			       u32 *seconds, u32 *nano_seconds)
+{
+	u32 word0, word1;
+	bool valid;
+
+	valid = jlsemi_fetch_bit(phydev, PAGE150,
+				 PTP_ARR0_VALID_REG, PTP_ARR0_VALID);
+	if (!valid) {
+		pr_info("%s: Arrive time is not valid!\n", __func__);
+		return 0;
+	}
+
+	phy_write(phydev, JL2XXX_PHY_PAGE, PAGE150);
+	word0 = phy_read(phydev, ARR_TIME_WORD0);
+	word1 = phy_read(phydev, ARR_TIME_WORD1);
+	phy_write(phydev, JL2XXX_PHY_PAGE, PAGE0);
+
+	/* This bits need clear */
+	jlsemi_clear_bits(phydev, PAGE150,
+			  PTP_ARR0_VALID_REG, PTP_ARR0_VALID);
+	if (seconds)
+		(*seconds) = 0;
+
+	if (nano_seconds)
+		(*nano_seconds) = (word1 << 16) | word0;
+
+	return 0;
+}
+
+int jl2xxx_ptp_get_ts_dep_time(struct phy_device *phydev,
+			       u32 *seconds, u32 *nano_seconds)
+{
+	u32 word0, word1;
+	bool valid;
+
+	valid = jlsemi_fetch_bit(phydev, PAGE150,
+				 PTP_DEP0_VALID_REG, PTP_DEP0_VALID);
+	if (!valid) {
+		pr_info("%s: Departure time is not valid!\n", __func__);
+		return 0;
+	}
+
+	phy_write(phydev, JL2XXX_PHY_PAGE, PAGE150);
+	word0 = phy_read(phydev, DEP_TIME_WORD0);
+	phy_write(phydev, JL2XXX_PHY_PAGE, PAGE151);
+	word1 = phy_read(phydev, DEP_TIME_WORD1);
+	phy_write(phydev, JL2XXX_PHY_PAGE, PAGE0);
+
+	/* This bits need clear */
+	jlsemi_clear_bits(phydev, PAGE150,
+			  PTP_DEP0_VALID_REG, PTP_DEP0_VALID);
+	if (seconds)
+		(*seconds) = 0;
+
+	if (nano_seconds)
+		(*nano_seconds) = (word1 << 16) | word0;
+
+	return 0;
+}
+
+int jl2xxx_ptp_get_ts_arr_seqid(struct phy_device *phydev, u16 *seqid)
+{
+	int val;
+
+	jlsemi_write_page(phydev, PAGE150);
+	val = phy_read(phydev, PTP_ARR0_SEQID_REG);
+	jlsemi_write_page(phydev, PAGE0);
+
+	if (seqid)
+		(*seqid) = val;
+
+	return 0;
+}
+
+int jl2xxx_ptp_get_ts_dep_seqid(struct phy_device *phydev, u16 *seqid)
+{
+	int val;
+
+	jlsemi_write_page(phydev, PAGE151);
+	val = phy_read(phydev, PTP_DEP_SEQID_REG);
+	jlsemi_write_page(phydev, PAGE0);
+
+	if (seqid)
+		(*seqid) = val;
+
+	return 0;
+}
+
+int jl2xxx_ptp_set_global_time(struct phy_device *phydev,
+			       u32 seconds, u32 nano_seconds)
+{
+	int err;
+
+	err = jl2xxx_ptp_set_clock(phydev, seconds, nano_seconds);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
+int jl2xxx_ptp_get_global_time(struct phy_device *phydev,
+			       u32 *seconds, u32 *nano_seconds)
+{
+	struct jl2xxx_priv *jl2xxx = phydev->priv;
+	u32 ns_lo, ns_hi;
+
+	phy_write(phydev, JL2XXX_PHY_PAGE, PAGE152);
+	/* Read global time need command */
+	phy_write(phydev, READ_PLUS, READ_PLUS_CMD);
+	ns_hi = phy_read(phydev, READ_PLUS_DATA);
+	ns_lo = phy_read(phydev, READ_PLUS_DATA);
+	phy_write(phydev, JL2XXX_PHY_PAGE, PAGE0);
+
+	if (seconds)
+		(*seconds) = jl2xxx->glb_seconds;
+
+	if (nano_seconds)
+		(*nano_seconds) = (ns_hi << 16) | ns_lo;
+
+	return 0;
+}
+
+int jl2xxx_ptp_init_pps(struct phy_device *phydev)
+{
+	int err;
+
+	/* Use the gpio pin for pps */
+	err = jlsemi_modify_paged_reg(phydev, PAGE150, PTP_GEN_CTL0,
+				      PTPGPIOCFG_MASK, PTPGPIOCFG(0x3));
+	if (err < 0)
+		return err;
+	/* Pulse width range for the 1 pulse per second on the second */
+	err = jlsemi_modify_paged_reg(phydev, PAGE153,  PTP_PPS_CFG,
+				      PPSRANGE_MASK, PPSRANGE(0x7));
+	if (err < 0)
+		return err;
+	/* Pulse width for the 1 pulse per second on the second signal */
+	err = jlsemi_set_bits(phydev, PAGE153,  PTP_PPS_CFG, PPS_WIDTH);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
+static void jl2xxx_ptp_clock_set_seconds(struct phy_device *phydev,
+					 u32 seconds)
+{
+	struct jl2xxx_priv *jl2xxx = phydev->priv;
+
+	jl2xxx->glb_seconds = seconds;
+}
+
+int jl2xxx_ptp_init(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	int err;
+
+	/* PTP software clear */
+	err = jlsemi_set_bits(phydev, PAGE160, PTP_GLB_CFG0, PTP_RESET);
+	if (err < 0)
+		return err;
+	/* Set TAI clock cycle 8ns */
+	err = jlsemi_set_bits(phydev, PAGE151, TAI_GLB_CFG1, TS_CLK_PER);
+	if (err < 0)
+		return err;
+	/* Record timestamp of messages type: sync and delay_req */
+	err = jlsemi_modify_paged_reg(phydev, PAGE152, PTP_GLB_CFG1,
+				      MSGTPEN_MASK, MSGTPEN(0x3));
+	if (err < 0)
+		return err;
+	/* Enable hardware acceleration */
+	err = jlsemi_set_bits(phydev, PAGE150, PTP_PORT_CFG2, HW_ACCEL);
+	if (err < 0)
+		return err;
+	/* Set PTP One-step */
+	if (priv->hwts_tx_en == HWTSTAMP_TX_ONESTEP_SYNC) {
+		err = jlsemi_set_bits(phydev, PAGE152,
+				      PTP_GLB_CFG7, OCTET_DATA);
+		if (err < 0)
+			return err;
+	}
+	err = jlsemi_set_bits(phydev, PAGE152, PTP_GLB_CFG7, UPDATE_DATA);
+	if (err < 0)
+		return err;
+	/* Set PTP Power up */
+	err = jlsemi_clear_bits(phydev, PAGE150, PTP_GEN_CTL0, PTP_POWER_DOWN);
+	if (err < 0)
+		return err;
+	/* Set PTP spec check */
+	err = jlsemi_set_bits(phydev, PAGE150, PTP_CON, PTP_PTS_DIS_SPEC_CHK);
+	if (err < 0)
+		return err;
+	/* Keep ethernet Source addr */
+	err = jlsemi_set_bits(phydev, PAGE150, PTP_PORT_CFG2, PTP_PTS_KEEP_SA);
+	if (err < 0)
+		return err;
+	/* Enable precise time stamp logic */
+	err = jlsemi_clear_bits(phydev, PAGE150, PTP_PORT_CFG0, DIS_PTP_TS);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
+int jl2xxx_ptp_set_clock(struct phy_device *phydev,
+			 u32 seconds, u32 nano_second)
+{
+	u16 word0, word1;
+	int err;
+
+	word0 = nano_second & 0xffff;
+	word1 = nano_second >> 16;
+	jlsemi_write_page(phydev, PAGE152);
+	/* Carefully must write GLB_TIME_WORD1 before GLB_TIME_WORD0 */
+	err = phy_write(phydev, GLB_TIME_WORD1, word1);
+	if (err < 0)
+		return err;
+	err = phy_write(phydev, GLB_TIME_WORD0, word0);
+	if (err < 0)
+		return err;
+	jlsemi_write_page(phydev, PAGE0);
+
+	jl2xxx_ptp_clock_set_seconds(phydev, seconds);
+
+	return 0;
+}
+
+int jl2xxx_ptp_sync_to_system_clock(struct phy_device *phydev)
+{
+	struct timespec64 ts;
+	int err;
+
+	/* Get system current time */
+	ktime_get_clocktai_ts64(&ts);
+	/* Set system current time to ptp clock */
+	err = jl2xxx_ptp_set_clock(phydev, ts.tv_sec, ts.tv_nsec);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
 /********************** Convenience function for phy **********************/
 
 /**
