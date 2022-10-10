@@ -302,6 +302,7 @@ static int jl2xxx_config_intr(struct phy_device *phydev)
 static int jl2xxx_read_status(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
+	bool fiber_mode;
 	int err;
 
 	if (priv->intr.enable & JL2XXX_INTR_STATIC_OP_EN) {
@@ -310,11 +311,29 @@ static int jl2xxx_read_status(struct phy_device *phydev)
 			return err;
 	}
 
+	fiber_mode = jl2xxx_read_fiber_status(phydev);
+	if (fiber_mode)
+		return 0;
+
 	return genphy_read_status(phydev);
 }
 
 static int jl2xxx_config_aneg(struct phy_device *phydev)
 {
+	u16 phy_mode;
+	int val;
+
+	val = jlsemi_read_paged(phydev, JL2XXX_PAGE18,
+				JL2XXX_WORK_MODE_REG);
+	phy_mode = val & JL2XXX_WORK_MODE_MASK;
+
+	if (phydev->interface == PHY_INTERFACE_MODE_SGMII)
+		return 0;
+
+	if ((phydev->interface != PHY_INTERFACE_MODE_SGMII) &&
+	    (phy_mode == JL2XXX_FIBER_RGMII_MODE))
+		return jl2xxx_config_aneg_fiber(phydev);
+
 	return genphy_config_aneg(phydev);
 }
 

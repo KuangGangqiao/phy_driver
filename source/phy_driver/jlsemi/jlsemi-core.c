@@ -45,6 +45,18 @@
 #define JL2XXX_SPEED100		1
 #define JL2XXX_SPEED1000	2
 
+#define JL2XXX_PHY_MODE_REG	30
+#define JL2XXX_FIBER_1000	BIT(12)
+#define JL2XXX_FIBER_100	BIT(11)
+#define JL2XXX_PHY_FIBER_MODE_MASK	0x1800
+#define JL2XXX_BMCR_DUPLEX	BIT(8)
+#define JL2XXX_LPA_FIBER_1000HALF	0x40
+#define JL2XXX_LPA_FIBER_1000FULL	0x20
+#define JL2XXX_BMCR_SPEED_LSB	BIT(13)
+#define JL2XXX_BMCR_SPEED_MSB	BIT(6)
+#define JL2XXX_BMCR_AN_RESTART	BIT(9)
+
+
 
 #define JL2XXX_SUPP_LED_MODE	(JL2XXX_LED0_LINK10 | \
 				 JL2XXX_LED0_LINK100 | \
@@ -1811,6 +1823,195 @@ int jl2xxx_work_mode_static_op_set(struct phy_device *phydev)
 		return err;
 
 	return 0;
+}
+
+static inline u32 linkmode_adv_to_fiber_adv_t(unsigned long *advertise)
+{
+	u32 result = 0;
+
+	if (linkmode_test_bit(ETHTOOL_LINK_MODE_1000baseT_Half_BIT, advertise))
+		result |= ADVERTISE_FIBER_1000HALF;
+	if (linkmode_test_bit(ETHTOOL_LINK_MODE_1000baseT_Full_BIT, advertise))
+		result |= ADVERTISE_FIBER_1000FULL;
+
+	return result;
+}
+
+int jl2xxx_config_aneg_fiber(struct phy_device *phydev)
+{
+	int changed = 0;
+	int err;
+	int adv, oldadv;
+
+	if (phydev->autoneg != AUTONEG_ENABLE)
+		return genphy_setup_forced(phydev);
+
+	err = genphy_read_abilities(phydev);
+	if (err < 0)
+		return err;
+
+	/* We force setting the 1000baseT_Full capability
+	 * as the core will force the 1000baseT_Full capability
+	 * to 1 otherwise.
+	 */
+	linkmode_set_bit(ETHTOOL_LINK_MODE_1000baseT_Full_BIT,
+						phydev->supported);
+
+	/* Fiber AN mode don't support 100M, so we need clear it
+	 * from ethtool
+	 */
+	linkmode_clear_bit(ETHTOOL_LINK_MODE_100baseT_Full_BIT,
+						phydev->advertising);
+	linkmode_clear_bit(ETHTOOL_LINK_MODE_100baseT_Half_BIT,
+						phydev->advertising);
+
+	/* Only allow advertising what this PHY supports */
+	linkmode_and(phydev->advertising, phydev->advertising,
+		     phydev->supported);
+
+	/* Dou to fiber auto mode only support 1000M,
+	 * we set 1000M speed to reg0
+	 */
+	jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE0,
+				JL2XXX_BMCR_REG,
+				JL2XXX_BMCR_SPEED_LSB,
+				JL2XXX_BMCR_SPEED_MSB);
+	jlsemi_set_bits(phydev, JL2XXX_PAGE0, JL2XXX_BMCR_REG,
+					JL2XXX_BMCR_AN_RESTART);
+
+	/* Setup fiber advertisement */
+	adv = jlsemi_read_paged(phydev, JL2XXX_PAGE0, MII_ADVERTISE);
+	if (adv < 0)
+		return adv;
+
+	oldadv = adv;
+	adv &= ~(ADVERTISE_FIBER_1000HALF | ADVERTISE_FIBER_1000FULL);
+	adv |= linkmode_adv_to_fiber_adv_t(phydev->advertising);
+
+	if (adv != oldadv) {
+		err = phy_write(phydev, MII_ADVERTISE, adv);
+		if (err < 0)
+			return err;
+
+		changed = 1;
+	}
+
+	if (changed == 0) {
+		/* Advertisement hasn't changed, but maybe aneg was never on to
+		 * begin with?	Or maybe phy was isolated?
+		 */
+		int ctl = jlsemi_read_paged(phydev, JL2XXX_PAGE0, MII_BMCR);
+
+		if (ctl < 0)
+			return ctl;
+
+		if (!(ctl & BMCR_ANENABLE) || (ctl & BMCR_ISOLATE))
+			changed = 1; /* do restart aneg */
+	}
+
+	/* Only restart aneg if we are advertising something different
+	 * than we were before.
+	 */
+	if (changed > 0)
+		changed = genphy_restart_aneg(phydev);
+
+	return changed;
+}
+
+static void fiber_lpa_mod_linkmode_lpa_t(unsigned long *advertising, u32 lpa)
+{
+	linkmode_mod_bit(ETHTOOL_LINK_MODE_1000baseT_Half_BIT,
+		 advertising, lpa & JL2XXX_LPA_FIBER_1000HALF);
+
+	linkmode_mod_bit(ETHTOOL_LINK_MODE_1000baseT_Full_BIT,
+			 advertising, lpa & JL2XXX_LPA_FIBER_1000FULL);
+}
+
+static int jl2xxx_fiber_autoneg_config(struct phy_device *phydev)
+{
+	int speed;
+	int duplex;
+	int lpagb;
+	int lpa;
+
+	speed = jlsemi_read_paged(phydev, JL2XXX_PAGE0, JL2XXX_PHY_MODE_REG);
+	if (speed < 0)
+		return speed;
+
+	lpa = jlsemi_read_paged(phydev, JL2XXX_PAGE0, MII_LPA);
+	if (lpa < 0)
+		return lpa;
+
+	lpagb = jlsemi_read_paged(phydev, JL2XXX_PAGE0, MII_STAT1000);
+	if (lpagb < 0)
+		return lpagb;
+
+	duplex = jlsemi_fetch_bit(phydev, JL2XXX_PAGE0,
+				  MII_BMCR, JL2XXX_BMCR_DUPLEX);
+	if (duplex < 0)
+		return duplex;
+
+	if (duplex)
+		phydev->duplex = DUPLEX_FULL;
+	else
+		phydev->duplex = DUPLEX_HALF;
+
+	speed &= JL2XXX_PHY_FIBER_MODE_MASK;
+	switch (speed) {
+	case JL2XXX_FIBER_1000:
+		phydev->speed = SPEED_1000;
+		break;
+	case JL2XXX_FIBER_100:
+		phydev->speed = SPEED_100;
+		break;
+	default:
+		break;
+	}
+	/* The fiber link is only 1000M capable */
+	fiber_lpa_mod_linkmode_lpa_t(phydev->lp_advertising, lpa);
+
+	return 0;
+}
+
+static int jl2xxx_update_fiber_status(struct phy_device *phydev)
+{
+	int status;
+	int link;
+
+	status = jlsemi_read_paged(phydev, JL2XXX_PAGE0, JL2XXX_PHY_MODE_REG);
+	if (status < 0)
+		return status;
+
+	link = status & JL2XXX_PHY_FIBER_MODE_MASK;
+
+	if (link)
+		phydev->link = 1;
+	else
+		phydev->link = 0;
+
+	if (phydev->autoneg == AUTONEG_ENABLE)
+		jl2xxx_fiber_autoneg_config(phydev);
+
+	return 0;
+}
+
+bool jl2xxx_read_fiber_status(struct phy_device *phydev)
+{
+	bool fiber_ok = false;
+	u16 phy_mode;
+	int val;
+
+	val = jlsemi_read_paged(phydev, JL2XXX_PAGE18, JL2XXX_WORK_MODE_REG);
+	phy_mode = val & JL2XXX_WORK_MODE_MASK;
+
+	if ((phydev->interface != PHY_INTERFACE_MODE_SGMII) &&
+	    (phy_mode == JL2XXX_FIBER_RGMII_MODE)) {
+		jl2xxx_update_fiber_status(phydev);
+		if (phydev->link)
+			fiber_ok = true;
+	}
+
+	return fiber_ok;
 }
 
 static int jl2xxx_force_speed(struct phy_device *phydev, u16 speed)

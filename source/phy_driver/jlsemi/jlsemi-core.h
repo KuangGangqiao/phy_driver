@@ -167,6 +167,9 @@
 #define LED_ON_MASK		0x00ff
 #define LEDON(n)		((n << 0) & LED_ON_MASK)
 
+#define ADVERTISE_FIBER_1000HALF	0x40
+#define ADVERTISE_FIBER_1000FULL	0x20
+
 /*************************************************************************/
 struct jl_hw_stat {
 	const char *string;
@@ -384,6 +387,10 @@ int jlsemi_soft_reset(struct phy_device *phydev);
 int jlsemi_aneg_done(struct phy_device *phydev);
 
 int jl2xxx_pre_init(struct phy_device *phydev);
+
+bool jl2xxx_read_fiber_status(struct phy_device *phydev);
+
+int jl2xxx_config_aneg_fiber(struct phy_device *phydev);
 
 /********************** Convenience function for phy **********************/
 
