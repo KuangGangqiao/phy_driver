@@ -475,33 +475,18 @@ struct jl2xxx_priv {
 #define JLSEMI_PHY_MSG(msg, args...) printk(msg, ## args)
 
 /************************* JLSemi iteration code *************************/
-int jl2xxx_ptp_sync_to_system_clock(struct phy_device *phydev);
 
-int jl2xxx_ptp_set_clock(struct phy_device *phydev,
-			 u32 seconds, u32 nano_second);
+int jl2xxx_ptp_probe(struct phy_device *phydev);
 
-int jl2xxx_ptp_init(struct phy_device *phydev);
+void jl2xxx_ptp_remove(struct phy_device *phydev);
 
-int jl2xxx_ptp_init_pps(struct phy_device *phydev);
+int jl2xxx_ptp_config(struct phy_device *phydev);
 
-int jl2xxx_ptp_get_global_time(struct phy_device *phydev,
-			       u32 *seconds, u32 *nano_seconds);
+void prune_rx_ts(struct jl2xxx_priv *priv);
 
-int jl2xxx_ptp_set_global_time(struct phy_device *phydev,
-			       u32 seconds, u32 nano_seconds);
+int match(struct sk_buff *skb, unsigned int type, u16 seqid);
 
-int jl2xxx_ptp_get_ts_dep_time(struct phy_device *phydev,
-			       u32 *seconds, u32 *nano_seconds);
-
-int jl2xxx_ptp_get_ts_arr_time(struct phy_device *phydev,
-			       u32 *seconds, u32 *nano_seconds);
-
-int jl2xxx_ptp_clock_step(struct phy_device *phydev,
-			  bool positive, s64 time_step_ns);
-
-int jl2xxx_ptp_get_ts_dep_seqid(struct phy_device *phydev, u16 *seqid);
-
-int jl2xxx_ptp_get_ts_arr_seqid(struct phy_device *phydev, u16 *seqid);
+int is_sync(struct sk_buff *skb, int type);
 
 struct device *jlsemi_get_mdio(struct phy_device *phydev);
 
