@@ -1,3 +1,6 @@
 [submodule "tool/mdio-tool-master"]
 	path = tool/mdio-tool-master
 	url = ssh://git@dev.jlsemi.cn:2200/gqkuang/mdio-tool-master.git
+[submodule "tool/wol-tool"]
+	path = tool/wol-tool
+	url = ssh://git@dev.jlsemi.cn:2200/gqkuang/wol-tool.git
