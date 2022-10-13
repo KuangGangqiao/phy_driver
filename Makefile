@@ -23,6 +23,9 @@ CFG = CONFIG_JLSEMI_PHY=$(BUILD_MODE)
 pack:
 	$(call pack_repo)
 
+check_code_style:
+	$(call check_code)
+
 config_kernel:	
 	$(call config_kernel_gnu)
 	$(call cross_compile_kernel)
@@ -128,6 +131,10 @@ endef
 
 define pack_repo
 	@./tool/pack/pack.sh
+endef
+
+define check_code
+	@./tool/checkpatch/checkpatch.sh
 endef
 
 define clean_pack
