@@ -90,6 +90,7 @@
 #define JL2XXX_PHY_INFO_REG	29
 #define JL2XXX_PATCH_MASK	0xffff
 #define JL2XXX_SW_MASK		0xffff
+#define JL2XXX_AUTO_GAIN_DIS	BIT(6)
 
 #define JLSEMI_PAGE31		0x001f
 #define JL2XXX_WOL_CTRL_PAGE	0x0012
@@ -151,6 +152,18 @@
 #define JL2XXX_LPBK_EXT_MODE	BIT(1)
 
 #define JL2XXX_PAGE174		174
+
+#define JL2XXX_PAGE201		201
+#define JL2XXX_RX_AMP2_MASK	0xfc0
+#define JL2XXX_RX_AMP2		BIT(7)
+#define JL2XXX_REG29		29
+#define JL2XXX_FG_LP_10M_MASK	0xf0
+#define JL2XXX_FG_LP_10M	BIT(4)
+
+#define JL2XXX_PAGE206		206
+#define JL2XXX_REG22		22
+#define JL2XXX_RX_AMP_SIG_MASK	0x1e0
+#define JL2XXX_RX_AMP_SIG	(BIT(5) | BIT(6))
 
 #define JL2XXX_PAGE258		258
 #define JL2XXX_SLEW_RATE_CTRL_REG	23
@@ -340,6 +353,8 @@ struct jl2xxx_priv {
 #define JLSEMI_PHY_MSG(msg, args...) printk(msg, ## args)
 
 /************************* JLSemi iteration code *************************/
+int config_init_r4p1(struct phy_device *phydev);
+
 struct device *jlsemi_get_mdio(struct phy_device *phydev);
 
 struct device *jlsemi_get_device(struct phy_device *phydev);

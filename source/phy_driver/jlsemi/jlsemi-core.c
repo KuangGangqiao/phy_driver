@@ -2736,6 +2736,44 @@ int jl2xxx_pre_init(struct phy_device *phydev)
 	return 0;
 }
 
+int config_init_r4p1(struct phy_device *phydev)
+{
+	const u16 r4p1_version = 0x930a;
+	int chip_fw_version;
+	int err;
+
+	chip_fw_version = jlsemi_read_paged(phydev, JL2XXX_PAGE0,
+					    JL2XXX_PHY_INFO_REG);
+	if (chip_fw_version != r4p1_version)
+		return 0;
+
+	err = jlsemi_set_bits(phydev, JL2XXX_PAGE0,
+			      JL2XXX_REG20, JL2XXX_AUTO_GAIN_DIS);
+	if (err < 0)
+		return err;
+
+	err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE201, JL2XXX_REG21,
+				      JL2XXX_RX_AMP2_MASK, JL2XXX_RX_AMP2);
+	if (err < 0)
+		return err;
+
+	err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE201, JL2XXX_REG29,
+				      JL2XXX_FG_LP_10M_MASK, JL2XXX_FG_LP_10M);
+	if (err < 0)
+		return err;
+
+	err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE206, JL2XXX_REG22,
+				      JL2XXX_RX_AMP_SIG_MASK,
+				      JL2XXX_RX_AMP_SIG);
+	if (err < 0)
+		return err;
+
+	/* Wait r4p1 config compelte */
+	msleep(20);
+
+	return 0;
+}
+
 int jlsemi_soft_reset(struct phy_device *phydev)
 {
 	int err;
