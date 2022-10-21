@@ -2969,9 +2969,11 @@ static int jl2xxx_ptp_init(struct phy_device *phydev)
 	err = jlsemi_set_bits(phydev, PAGE151, TAI_GLB_CFG1, TS_CLK_PER);
 	if (err < 0)
 		return err;
-	/* Record timestamp of messages type: sync and delay_req */
+	/* Record timestamp of messages type:
+	 * sync and delay_req pdelay_req pdelay_resp
+	 */
 	err = jlsemi_modify_paged_reg(phydev, PAGE152, PTP_GLB_CFG1,
-				      MSGTPEN_MASK, MSGTPEN(0x3));
+				      MSGTPEN_MASK, MSGTPEN(0xf));
 	if (err < 0)
 		return err;
 	/* Enable hardware acceleration */
