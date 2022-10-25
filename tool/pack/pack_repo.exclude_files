@@ -1,6 +1,7 @@
 downloads
 build
 tool/pack
+tool/checkpatch
 doc/device_tree.md
 doc/environment.md
 doc/phy_driver.md
