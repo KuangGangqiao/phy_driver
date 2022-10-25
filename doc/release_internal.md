@@ -16,6 +16,25 @@ For version `x.y.z`, it means
 
        Note: It will change when implementing new features.
 
+# Time: 2022 10 25
+# Version: 1.1.5
+**New**
+- Support fiber function for jl2xxx.
+  We needs refactor work flow of phy driver when config phy to
+  rgmii<-->fiber mode.
+- Support Config init r4p1
+  It is need to config init some register witch phy of version r4p1.
+- Add Wake On Lan tool for phy test
+  It is test Phy function of Wake On Lan very easy to be used and convenient.
+- support check code style function of sdk
+  I am add a check code script for when we to check code style
+  commit code at before
+
+
+**Change**
+- Update mdio-tool read and write api
+  It is needn't to change phy page by manual, we can to use easily
+
 # Time: 2022 09 15
 # Version: 1.0.7
 **Fix**

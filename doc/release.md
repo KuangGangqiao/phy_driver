@@ -16,6 +16,18 @@ For version `x.y.z`, it means
 
        Note: It will change when implementing new features.
 
+# Time: 2022 10 25
+# Version: 1.1.5
+**New**
+- Support fiber function for jl2xxx
+- Support Config init r4p1
+- Add Wake On Lan tool for phy test
+- support check code style function of sdk
+
+**Change**
+- Update mdio-tool read and write api
+
+
 # Time: 2022 09 15
 # Version: 1.0.7
 **Fix**
