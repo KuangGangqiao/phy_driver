@@ -371,7 +371,7 @@ static int jl2xxx_dts_led_cfg_get(struct phy_device *phydev)
 	return 0;
 }
 
-static int jl1xxx_c_marcro_led_cfg_get(struct phy_device *phydev)
+static int jl1xxx_c_macro_led_cfg_get(struct phy_device *phydev)
 {
 	struct jl1xxx_priv *priv = phydev->priv;
 
@@ -389,7 +389,7 @@ static int jl1xxx_c_marcro_led_cfg_get(struct phy_device *phydev)
 	return 0;
 }
 
-static int jl1xxx_c_marcro_wol_cfg_get(struct phy_device *phydev)
+static int jl1xxx_c_macro_wol_cfg_get(struct phy_device *phydev)
 {
 	struct jl1xxx_priv *priv = phydev->priv;
 
@@ -402,7 +402,7 @@ static int jl1xxx_c_marcro_wol_cfg_get(struct phy_device *phydev)
 	return 0;
 }
 
-static int jl1xxx_c_marcro_intr_cfg_get(struct phy_device *phydev)
+static int jl1xxx_c_macro_intr_cfg_get(struct phy_device *phydev)
 {
 	struct jl1xxx_priv *priv = phydev->priv;
 
@@ -415,7 +415,7 @@ static int jl1xxx_c_marcro_intr_cfg_get(struct phy_device *phydev)
 	return 0;
 }
 
-static int jl1xxx_c_marcro_mdi_cfg_get(struct phy_device *phydev)
+static int jl1xxx_c_macro_mdi_cfg_get(struct phy_device *phydev)
 {
 	struct jl1xxx_priv *priv = phydev->priv;
 
@@ -430,7 +430,7 @@ static int jl1xxx_c_marcro_mdi_cfg_get(struct phy_device *phydev)
 	return 0;
 }
 
-static int jl1xxx_c_marcro_rmii_cfg_get(struct phy_device *phydev)
+static int jl1xxx_c_macro_rmii_cfg_get(struct phy_device *phydev)
 {
 	struct jl1xxx_priv *priv = phydev->priv;
 
@@ -445,7 +445,7 @@ static int jl1xxx_c_marcro_rmii_cfg_get(struct phy_device *phydev)
 	return 0;
 }
 
-static int jl2xxx_c_marcro_led_cfg_get(struct phy_device *phydev)
+static int jl2xxx_c_macro_led_cfg_get(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
 
@@ -588,7 +588,7 @@ static int jl1xxx_wol_operation_args(struct phy_device *phydev)
 	struct jl_config_mode *mode = &priv->wol.op;
 
 	if (mode->static_op == STATIC_C_MACRO)
-		jl1xxx_c_marcro_wol_cfg_get(phydev);
+		jl1xxx_c_macro_wol_cfg_get(phydev);
 	else if (mode->static_op == STATIC_DEVICE_TREE)
 		jl1xxx_dts_wol_cfg_get(phydev);
 	else if (mode->static_op == STATIC_NONE)
@@ -608,7 +608,7 @@ static int jl1xxx_intr_operation_args(struct phy_device *phydev)
 	struct jl_config_mode *mode = &priv->intr.op;
 
 	if (mode->static_op == STATIC_C_MACRO)
-		jl1xxx_c_marcro_intr_cfg_get(phydev);
+		jl1xxx_c_macro_intr_cfg_get(phydev);
 	else if (mode->static_op == STATIC_DEVICE_TREE)
 		jl1xxx_dts_intr_cfg_get(phydev);
 	else if (mode->static_op == STATIC_NONE)
@@ -628,7 +628,7 @@ static int jl1xxx_mdi_operation_args(struct phy_device *phydev)
 	struct jl_config_mode *mode = &priv->mdi.op;
 
 	if (mode->static_op == STATIC_C_MACRO)
-		jl1xxx_c_marcro_mdi_cfg_get(phydev);
+		jl1xxx_c_macro_mdi_cfg_get(phydev);
 	else if (mode->static_op == STATIC_DEVICE_TREE)
 		jl1xxx_dts_mdi_cfg_get(phydev);
 	else if (mode->static_op == STATIC_NONE)
@@ -648,7 +648,7 @@ static int jl1xxx_rmii_operation_args(struct phy_device *phydev)
 	struct jl_config_mode *mode = &priv->rmii.op;
 
 	if (mode->static_op == STATIC_C_MACRO)
-		jl1xxx_c_marcro_rmii_cfg_get(phydev);
+		jl1xxx_c_macro_rmii_cfg_get(phydev);
 	else if (mode->static_op == STATIC_DEVICE_TREE)
 		jl1xxx_dts_rmii_cfg_get(phydev);
 	else if (mode->static_op == STATIC_NONE)
@@ -668,7 +668,7 @@ static int jl1xxx_led_operation_args(struct phy_device *phydev)
 	struct jl_config_mode *mode = &priv->led.op;
 
 	if (mode->static_op == STATIC_C_MACRO)
-		jl1xxx_c_marcro_led_cfg_get(phydev);
+		jl1xxx_c_macro_led_cfg_get(phydev);
 	else if (mode->static_op == STATIC_DEVICE_TREE)
 		jl1xxx_dts_led_cfg_get(phydev);
 	else if (mode->static_op == STATIC_NONE)
@@ -688,7 +688,7 @@ static int jl2xxx_led_operation_args(struct phy_device *phydev)
 	struct jl_config_mode *mode = &priv->led.op;
 
 	if (mode->static_op == STATIC_C_MACRO)
-		jl2xxx_c_marcro_led_cfg_get(phydev);
+		jl2xxx_c_macro_led_cfg_get(phydev);
 	else if (mode->static_op == STATIC_DEVICE_TREE)
 		jl2xxx_dts_led_cfg_get(phydev);
 	else if (mode->static_op == STATIC_NONE)
@@ -873,7 +873,7 @@ static int jl2xxx_dts_slew_rate_cfg_get(struct phy_device *phydev)
 	return 0;
 }
 
-static int jl2xxx_c_marcro_fld_cfg_get(struct phy_device *phydev)
+static int jl2xxx_c_macro_fld_cfg_get(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
 
@@ -887,7 +887,7 @@ static int jl2xxx_c_marcro_fld_cfg_get(struct phy_device *phydev)
 	return 0;
 }
 
-static int jl2xxx_c_marcro_wol_cfg_get(struct phy_device *phydev)
+static int jl2xxx_c_macro_wol_cfg_get(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
 
@@ -900,7 +900,7 @@ static int jl2xxx_c_marcro_wol_cfg_get(struct phy_device *phydev)
 	return 0;
 }
 
-static int jl2xxx_c_marcro_intr_cfg_get(struct phy_device *phydev)
+static int jl2xxx_c_macro_intr_cfg_get(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
 
@@ -913,7 +913,7 @@ static int jl2xxx_c_marcro_intr_cfg_get(struct phy_device *phydev)
 	return 0;
 }
 
-static int jl2xxx_c_marcro_downshift_cfg_get(struct phy_device *phydev)
+static int jl2xxx_c_macro_downshift_cfg_get(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
 
@@ -927,7 +927,7 @@ static int jl2xxx_c_marcro_downshift_cfg_get(struct phy_device *phydev)
 	return 0;
 }
 
-static int jl2xxx_c_marcro_rgmii_cfg_get(struct phy_device *phydev)
+static int jl2xxx_c_macro_rgmii_cfg_get(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
 
@@ -942,7 +942,7 @@ static int jl2xxx_c_marcro_rgmii_cfg_get(struct phy_device *phydev)
 	return 0;
 }
 
-static int jl2xxx_c_marcro_patch_cfg_get(struct phy_device *phydev)
+static int jl2xxx_c_macro_patch_cfg_get(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
 
@@ -955,7 +955,7 @@ static int jl2xxx_c_marcro_patch_cfg_get(struct phy_device *phydev)
 	return 0;
 }
 
-static int jl2xxx_c_marcro_clk_cfg_get(struct phy_device *phydev)
+static int jl2xxx_c_macro_clk_cfg_get(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
 
@@ -968,7 +968,7 @@ static int jl2xxx_c_marcro_clk_cfg_get(struct phy_device *phydev)
 	return 0;
 }
 
-static int jl2xxx_c_marcro_work_mode_cfg_get(struct phy_device *phydev)
+static int jl2xxx_c_macro_work_mode_cfg_get(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
 
@@ -982,7 +982,7 @@ static int jl2xxx_c_marcro_work_mode_cfg_get(struct phy_device *phydev)
 	return 0;
 }
 
-static int jl2xxx_c_marcro_lpbk_cfg_get(struct phy_device *phydev)
+static int jl2xxx_c_macro_lpbk_cfg_get(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
 
@@ -996,7 +996,7 @@ static int jl2xxx_c_marcro_lpbk_cfg_get(struct phy_device *phydev)
 	return 0;
 }
 
-static int jl2xxx_c_marcro_slew_rate_cfg_get(struct phy_device *phydev)
+static int jl2xxx_c_macro_slew_rate_cfg_get(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
 
@@ -1225,7 +1225,7 @@ static int jl2xxx_fld_operation_args(struct phy_device *phydev)
 	struct jl_config_mode *mode = &priv->fld.op;
 
 	if (mode->static_op == STATIC_C_MACRO)
-		jl2xxx_c_marcro_fld_cfg_get(phydev);
+		jl2xxx_c_macro_fld_cfg_get(phydev);
 	else if (mode->static_op == STATIC_DEVICE_TREE)
 		jl2xxx_dts_fld_cfg_get(phydev);
 	else if (mode->static_op == STATIC_NONE)
@@ -1245,7 +1245,7 @@ static int jl2xxx_wol_operation_args(struct phy_device *phydev)
 	struct jl_config_mode *mode = &priv->wol.op;
 
 	if (mode->static_op == STATIC_C_MACRO)
-		jl2xxx_c_marcro_wol_cfg_get(phydev);
+		jl2xxx_c_macro_wol_cfg_get(phydev);
 	else if (mode->static_op == STATIC_DEVICE_TREE)
 		jl2xxx_dts_wol_cfg_get(phydev);
 	else if (mode->static_op == STATIC_NONE)
@@ -1267,7 +1267,7 @@ static int jl2xxx_intr_operation_args(struct phy_device *phydev)
 	if (mode->static_op == STATIC_DEVICE_TREE)
 		jl2xxx_dts_intr_cfg_get(phydev);
 	else if (mode->static_op == STATIC_C_MACRO)
-		jl2xxx_c_marcro_intr_cfg_get(phydev);
+		jl2xxx_c_macro_intr_cfg_get(phydev);
 	else if (mode->static_op == STATIC_NONE)
 		priv->intr.enable |= ~JL2XXX_INTR_STATIC_OP_EN;
 
@@ -1285,7 +1285,7 @@ static int jl2xxx_downshift_operation_args(struct phy_device *phydev)
 	struct jl_config_mode *mode = &priv->downshift.op;
 
 	if (mode->static_op == STATIC_C_MACRO)
-		jl2xxx_c_marcro_downshift_cfg_get(phydev);
+		jl2xxx_c_macro_downshift_cfg_get(phydev);
 	else if (mode->static_op == STATIC_DEVICE_TREE)
 		jl2xxx_dts_downshift_cfg_get(phydev);
 	else if (mode->static_op == STATIC_NONE)
@@ -1305,7 +1305,7 @@ static int jl2xxx_rgmii_operation_args(struct phy_device *phydev)
 	struct jl_config_mode *mode = &priv->rgmii.op;
 
 	if (mode->static_op == STATIC_C_MACRO)
-		jl2xxx_c_marcro_rgmii_cfg_get(phydev);
+		jl2xxx_c_macro_rgmii_cfg_get(phydev);
 	else if (mode->static_op == STATIC_DEVICE_TREE)
 		jl2xxx_dts_rgmii_cfg_get(phydev);
 	else if (mode->static_op == STATIC_NONE)
@@ -1325,7 +1325,7 @@ static int jl2xxx_patch_operation_args(struct phy_device *phydev)
 	struct jl_config_mode *mode = &priv->patch.op;
 
 	if (mode->static_op == STATIC_C_MACRO)
-		jl2xxx_c_marcro_patch_cfg_get(phydev);
+		jl2xxx_c_macro_patch_cfg_get(phydev);
 	else if (mode->static_op == STATIC_DEVICE_TREE)
 		jl2xxx_dts_patch_cfg_get(phydev);
 	else if (mode->static_op == STATIC_NONE)
@@ -1345,7 +1345,7 @@ static int jl2xxx_clk_operation_args(struct phy_device *phydev)
 	struct jl_config_mode *mode = &priv->clk.op;
 
 	if (mode->static_op == STATIC_C_MACRO)
-		jl2xxx_c_marcro_clk_cfg_get(phydev);
+		jl2xxx_c_macro_clk_cfg_get(phydev);
 	else if (mode->static_op == STATIC_DEVICE_TREE)
 		jl2xxx_dts_clk_cfg_get(phydev);
 	else if (mode->static_op == STATIC_NONE)
@@ -1365,7 +1365,7 @@ static int jl2xxx_work_mode_operation_args(struct phy_device *phydev)
 	struct jl_config_mode *mode = &priv->work_mode.op;
 
 	if (mode->static_op == STATIC_C_MACRO)
-		jl2xxx_c_marcro_work_mode_cfg_get(phydev);
+		jl2xxx_c_macro_work_mode_cfg_get(phydev);
 	else if (mode->static_op == STATIC_DEVICE_TREE)
 		jl2xxx_dts_work_mode_cfg_get(phydev);
 	else if (mode->static_op == STATIC_NONE)
@@ -1385,7 +1385,7 @@ static int jl2xxx_lpbk_operation_args(struct phy_device *phydev)
 	struct jl_config_mode *mode = &priv->lpbk.op;
 
 	if (mode->static_op == STATIC_C_MACRO)
-		jl2xxx_c_marcro_lpbk_cfg_get(phydev);
+		jl2xxx_c_macro_lpbk_cfg_get(phydev);
 	else if (mode->static_op == STATIC_DEVICE_TREE)
 		jl2xxx_dts_lpbk_cfg_get(phydev);
 	else if (mode->static_op == STATIC_NONE)
@@ -1405,7 +1405,7 @@ static int jl2xxx_slew_rate_operation_args(struct phy_device *phydev)
 	struct jl_config_mode *mode = &priv->slew_rate.op;
 
 	if (mode->static_op == STATIC_C_MACRO)
-		jl2xxx_c_marcro_slew_rate_cfg_get(phydev);
+		jl2xxx_c_macro_slew_rate_cfg_get(phydev);
 	else if (mode->static_op == STATIC_DEVICE_TREE)
 		jl2xxx_dts_slew_rate_cfg_get(phydev);
 	else if (mode->static_op == STATIC_NONE)
