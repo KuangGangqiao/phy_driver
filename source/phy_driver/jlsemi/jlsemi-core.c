@@ -1825,126 +1825,51 @@ int jl2xxx_work_mode_static_op_set(struct phy_device *phydev)
 	return 0;
 }
 
-static inline u32 linkmode_adv_to_fiber_adv_t(unsigned long *advertise)
+static inline int __genphy_setup_forced(struct phy_device *phydev)
 {
-	u32 result = 0;
+	int err;
+	int ctl = 0;
 
-	if (linkmode_test_bit(ETHTOOL_LINK_MODE_1000baseT_Half_BIT, advertise))
-		result |= ADVERTISE_FIBER_1000HALF;
-	if (linkmode_test_bit(ETHTOOL_LINK_MODE_1000baseT_Full_BIT, advertise))
-		result |= ADVERTISE_FIBER_1000FULL;
+	phydev->pause = phydev->asym_pause = 0;
 
-	return result;
+	if (SPEED_1000 == phydev->speed)
+		ctl |= BMCR_SPEED1000;
+	else if (SPEED_100 == phydev->speed)
+		ctl |= BMCR_SPEED100;
+
+	if (DUPLEX_FULL == phydev->duplex)
+		ctl |= BMCR_FULLDPLX;
+
+	err = phy_write(phydev, MII_BMCR, ctl);
+
+	return err;
 }
 
 int jl2xxx_config_aneg_fiber(struct phy_device *phydev)
 {
-	int changed = 0;
-	int err;
-	int adv, oldadv;
-
 	if (phydev->autoneg != AUTONEG_ENABLE)
-		return genphy_setup_forced(phydev);
-
-	err = genphy_read_abilities(phydev);
-	if (err < 0)
-		return err;
-
-	/* We force setting the 1000baseT_Full capability
-	 * as the core will force the 1000baseT_Full capability
-	 * to 1 otherwise.
-	 */
-	linkmode_set_bit(ETHTOOL_LINK_MODE_1000baseT_Full_BIT,
-						phydev->supported);
-
-	/* Fiber AN mode don't support 100M, so we need clear it
-	 * from ethtool
-	 */
-	linkmode_clear_bit(ETHTOOL_LINK_MODE_100baseT_Full_BIT,
-						phydev->advertising);
-	linkmode_clear_bit(ETHTOOL_LINK_MODE_100baseT_Half_BIT,
-						phydev->advertising);
-
-	/* Only allow advertising what this PHY supports */
-	linkmode_and(phydev->advertising, phydev->advertising,
-		     phydev->supported);
+		return __genphy_setup_forced(phydev);
 
 	/* Dou to fiber auto mode only support 1000M,
 	 * we set 1000M speed to reg0
+	 * NOTE: Do need restart AN otherwise will link down
 	 */
 	jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE0,
 				JL2XXX_BMCR_REG,
 				JL2XXX_BMCR_SPEED_LSB,
-				JL2XXX_BMCR_SPEED_MSB);
-	jlsemi_set_bits(phydev, JL2XXX_PAGE0, JL2XXX_BMCR_REG,
-					JL2XXX_BMCR_AN_RESTART);
+				JL2XXX_BMCR_SPEED_MSB | BMCR_ANENABLE);
 
-	/* Setup fiber advertisement */
-	adv = jlsemi_read_paged(phydev, JL2XXX_PAGE0, MII_ADVERTISE);
-	if (adv < 0)
-		return adv;
-
-	oldadv = adv;
-	adv &= ~(ADVERTISE_FIBER_1000HALF | ADVERTISE_FIBER_1000FULL);
-	adv |= linkmode_adv_to_fiber_adv_t(phydev->advertising);
-
-	if (adv != oldadv) {
-		err = phy_write(phydev, MII_ADVERTISE, adv);
-		if (err < 0)
-			return err;
-
-		changed = 1;
-	}
-
-	if (changed == 0) {
-		/* Advertisement hasn't changed, but maybe aneg was never on to
-		 * begin with?	Or maybe phy was isolated?
-		 */
-		int ctl = jlsemi_read_paged(phydev, JL2XXX_PAGE0, MII_BMCR);
-
-		if (ctl < 0)
-			return ctl;
-
-		if (!(ctl & BMCR_ANENABLE) || (ctl & BMCR_ISOLATE))
-			changed = 1; /* do restart aneg */
-	}
-
-	/* Only restart aneg if we are advertising something different
-	 * than we were before.
-	 */
-	if (changed > 0)
-		changed = genphy_restart_aneg(phydev);
-
-	return changed;
-}
-
-static void fiber_lpa_mod_linkmode_lpa_t(unsigned long *advertising, u32 lpa)
-{
-	linkmode_mod_bit(ETHTOOL_LINK_MODE_1000baseT_Half_BIT,
-		 advertising, lpa & JL2XXX_LPA_FIBER_1000HALF);
-
-	linkmode_mod_bit(ETHTOOL_LINK_MODE_1000baseT_Full_BIT,
-			 advertising, lpa & JL2XXX_LPA_FIBER_1000FULL);
+	return 0;
 }
 
 static int jl2xxx_fiber_autoneg_config(struct phy_device *phydev)
 {
 	int speed;
 	int duplex;
-	int lpagb;
-	int lpa;
 
 	speed = jlsemi_read_paged(phydev, JL2XXX_PAGE0, JL2XXX_PHY_MODE_REG);
 	if (speed < 0)
 		return speed;
-
-	lpa = jlsemi_read_paged(phydev, JL2XXX_PAGE0, MII_LPA);
-	if (lpa < 0)
-		return lpa;
-
-	lpagb = jlsemi_read_paged(phydev, JL2XXX_PAGE0, MII_STAT1000);
-	if (lpagb < 0)
-		return lpagb;
 
 	duplex = jlsemi_fetch_bit(phydev, JL2XXX_PAGE0,
 				  MII_BMCR, JL2XXX_BMCR_DUPLEX);
@@ -1967,8 +1892,6 @@ static int jl2xxx_fiber_autoneg_config(struct phy_device *phydev)
 	default:
 		break;
 	}
-	/* The fiber link is only 1000M capable */
-	fiber_lpa_mod_linkmode_lpa_t(phydev->lp_advertising, lpa);
 
 	return 0;
 }
