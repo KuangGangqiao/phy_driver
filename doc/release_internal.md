@@ -16,6 +16,31 @@ For version `x.y.z`, it means
 
        Note: It will change when implementing new features.
 
+# Time: 2022 11 3
+# Version: 1.1.8
+**Fix**
+- Fix code compatible with kernel version(version>3.0)
+  we need to compatibel with kernel, so Decouple some kernel apis
+- Fix typo for marcro->macro
+
+**Change**
+- Change the ethtool workflow of fiber mode
+  phy fiber only support (1000M/full AN),(1000M/full FORCE),(100M/full FORCE),
+  (100M/half FORCE), the configuration mechanism of ethtool for phy has been
+  changed. Automatic negotiation only takes effect at 1000M, while other
+  automatic negotiation modes do not take effect and will remain at 1000M
+  such as:
+         ---------
+        | ethtool |
+         ---------
+            |
+            | 100M/full|half AN or 10M/full|half AN
+            | (no effect)
+            V
+         -------
+        |  phy  | (keep 1000M/full AN)
+         -------
+
 # Time: 2022 10 25
 # Version: 1.1.5
 **New**

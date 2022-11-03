@@ -16,6 +16,16 @@ For version `x.y.z`, it means
 
        Note: It will change when implementing new features.
 
+# Time: 2022 11 3
+# Version: 1.1.8
+**Fix**
+- Fix code compatible with kernel version(version>3.0)
+- Fix typo for marcro->macro
+
+**Change**
+- Change the ethtool workflow of fiber mode
+
+
 # Time: 2022 10 25
 # Version: 1.1.5
 **New**
