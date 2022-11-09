@@ -158,6 +158,7 @@ static void jl1xxx_remove(struct phy_device *phydev)
 		devm_kfree(dev, priv);
 }
 
+#if (JLSEMI_PHY_WOL)
 static void jl1xxx_get_wol(struct phy_device *phydev,
 			   struct ethtool_wolinfo *wol)
 {
@@ -191,6 +192,7 @@ static int jl1xxx_set_wol(struct phy_device *phydev,
 
 	return 0;
 }
+#endif
 
 static int jl1xxx_suspend(struct phy_device *phydev)
 {
@@ -351,6 +353,7 @@ static int jl2xxx_resume(struct phy_device *phydev)
 	return genphy_resume(phydev);
 }
 
+#if (JLSEMI_PHY_WOL)
 static void jl2xxx_get_wol(struct phy_device *phydev,
 			   struct ethtool_wolinfo *wol)
 {
@@ -384,6 +387,7 @@ static int jl2xxx_set_wol(struct phy_device *phydev,
 
 	return 0;
 }
+#endif
 
 #if (JL2XXX_PHY_TUNABLE)
 static int jl2xxx_get_tunable(struct phy_device *phydev,
@@ -498,16 +502,16 @@ static struct phy_driver jlsemi_drivers[] = {
 		/* PHY_BASIC_FEATURES */
 		.features	= PHY_BASIC_FEATURES,
 		.probe		= jl1xxx_probe,
-		.aneg_done	= jlsemi_aneg_done,
 		.config_intr	= jl1xxx_config_intr,
-		.soft_reset	= jlsemi_soft_reset,
 		.read_status	= jl1xxx_read_status,
 		.config_init    = jl1xxx_config_init,
-		.remove		= jl1xxx_remove,
-		.get_wol	= jl1xxx_get_wol,
-		.set_wol	= jl1xxx_set_wol,
 		.suspend        = jl1xxx_suspend,
 		.resume         = jl1xxx_resume,
+		.remove		= jl1xxx_remove,
+#if (JLSEMI_PHY_WOL)
+		.get_wol	= jl1xxx_get_wol,
+		.set_wol	= jl1xxx_set_wol,
+#endif
 	},
 	{
 		.phy_id         = JL2XXX_PHY_ID,
@@ -517,16 +521,16 @@ static struct phy_driver jlsemi_drivers[] = {
 		.features	= PHY_GBIT_FEATURES,
 		.probe		= jl2xxx_probe,
 		.config_intr	= jl2xxx_config_intr,
-		.soft_reset	= jlsemi_soft_reset,
-		.aneg_done	= jlsemi_aneg_done,
 		.read_status	= jl2xxx_read_status,
 		.config_init    = jl2xxx_config_init,
 		.config_aneg    = jl2xxx_config_aneg,
 		.suspend        = jl2xxx_suspend,
 		.resume         = jl2xxx_resume,
 		.remove		= jl2xxx_remove,
+#if (JLSEMI_PHY_WOL)
 		.get_wol	= jl2xxx_get_wol,
 		.set_wol	= jl2xxx_set_wol,
+#endif
 #if (JL2XXX_PHY_TUNABLE)
 		.get_tunable	= jl2xxx_get_tunable,
 		.set_tunable	= jl2xxx_set_tunable,

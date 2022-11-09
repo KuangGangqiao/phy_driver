@@ -399,8 +399,6 @@ int jl2xxx_static_op_init(struct phy_device *phydev);
 
 int jlsemi_soft_reset(struct phy_device *phydev);
 
-int jlsemi_aneg_done(struct phy_device *phydev);
-
 int jl2xxx_pre_init(struct phy_device *phydev);
 
 bool jl2xxx_read_fiber_status(struct phy_device *phydev);

@@ -10,11 +10,12 @@
 #ifndef _DT_BINDINGS_JLSEMI_PHY_H
 #define _DT_BINDINGS_JLSEMI_PHY_H
 
-/**************************** Linux Version Compatible********************/
+/**************************** Linux Version Compatible ********************/
 #define JLSEMI_DEV_COMPATIBLE	(KERNEL_VERSION(4, 5, 0) > LINUX_VERSION_CODE)
 #define JL2XXX_GET_STRING	(KERNEL_VERSION(4, 5, 0) <= LINUX_VERSION_CODE)
 #define JL2XXX_GET_STAT		(KERNEL_VERSION(4, 5, 0) <= LINUX_VERSION_CODE)
 #define JL2XXX_PHY_TUNABLE	(KERNEL_VERSION(5, 0, 0) <= LINUX_VERSION_CODE)
+#define JLSEMI_PHY_WOL		(KERNEL_VERSION(3, 10, 0) < LINUX_VERSION_CODE)
 /*************************************************************************/
 
 /**************************** JLSemi Debug *******************************/

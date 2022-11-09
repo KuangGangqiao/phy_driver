@@ -2161,6 +2161,7 @@ int jl2xxx_patch_static_op_set(struct phy_device *phydev)
 	return 0;
 }
 
+#if (JLSEMI_PHY_WOL)
 int jl1xxx_wol_dynamic_op_get(struct phy_device *phydev)
 {
 	return jlsemi_fetch_bit(phydev, JL1XXX_PAGE129,
@@ -2183,6 +2184,7 @@ static int jl1xxx_wol_static_op_set(struct phy_device *phydev)
 
 	return 0;
 }
+#endif
 
 int jl1xxx_intr_ack_event(struct phy_device *phydev)
 {
@@ -2217,6 +2219,7 @@ int jl1xxx_intr_static_op_set(struct phy_device *phydev)
 	return 0;
 }
 
+#if (JLSEMI_PHY_WOL)
 static int jl2xxx_wol_static_op_set(struct phy_device *phydev)
 {
 	int err;
@@ -2275,6 +2278,8 @@ int jl2xxx_wol_dynamic_op_set(struct phy_device *phydev)
 
 	return 0;
 }
+#endif
+
 int jl2xxx_intr_ack_event(struct phy_device *phydev)
 {
 	int err;
@@ -2389,11 +2394,13 @@ int jl1xxx_static_op_init(struct phy_device *phydev)
 			return err;
 	}
 
+#if (JLSEMI_PHY_WOL)
 	if (priv->wol.enable & JL1XXX_WOL_STATIC_OP_EN) {
 		err = jl1xxx_wol_static_op_set(phydev);
 		if (err < 0)
 			return err;
 	}
+#endif
 
 	if (priv->wol.enable & JL1XXX_INTR_STATIC_OP_EN) {
 		err = jl1xxx_intr_static_op_set(phydev);
@@ -2439,11 +2446,13 @@ int jl2xxx_static_op_init(struct phy_device *phydev)
 			return err;
 	}
 
+#if (JLSEMI_PHY_WOL)
 	if (priv->wol.enable & JL2XXX_WOL_STATIC_OP_EN) {
 		err = jl2xxx_wol_static_op_set(phydev);
 		if (err < 0)
 			return err;
 	}
+#endif
 
 	if (priv->intr.enable & JL2XXX_INTR_STATIC_OP_EN) {
 		err = jl2xxx_intr_static_op_set(phydev);
@@ -2709,11 +2718,6 @@ int jlsemi_soft_reset(struct phy_device *phydev)
 	msleep(600);
 
 	return 0;
-}
-
-int jlsemi_aneg_done(struct phy_device *phydev)
-{
-	return genphy_aneg_done(phydev);
 }
 
 /********************** Convenience function for phy **********************/
