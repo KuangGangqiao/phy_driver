@@ -1832,12 +1832,12 @@ static inline int __genphy_setup_forced(struct phy_device *phydev)
 
 	phydev->pause = phydev->asym_pause = 0;
 
-	if (SPEED_1000 == phydev->speed)
+	if (phydev->speed == SPEED_1000)
 		ctl |= BMCR_SPEED1000;
-	else if (SPEED_100 == phydev->speed)
+	else if (phydev->speed == SPEED_100)
 		ctl |= BMCR_SPEED100;
 
-	if (DUPLEX_FULL == phydev->duplex)
+	if (phydev->duplex == DUPLEX_FULL)
 		ctl |= BMCR_FULLDPLX;
 
 	err = phy_write(phydev, MII_BMCR, ctl);
