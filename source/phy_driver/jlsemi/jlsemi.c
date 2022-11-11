@@ -323,6 +323,7 @@ static int jl2xxx_read_status(struct phy_device *phydev)
 
 	return genphy_read_status(phydev);
 }
+
 static int jl1xxx_config_aneg(struct phy_device *phydev)
 {
 	return genphy_config_aneg(phydev);
