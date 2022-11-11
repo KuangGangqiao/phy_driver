@@ -323,6 +323,10 @@ static int jl2xxx_read_status(struct phy_device *phydev)
 
 	return genphy_read_status(phydev);
 }
+static int jl1xxx_config_aneg(struct phy_device *phydev)
+{
+	return genphy_config_aneg(phydev);
+}
 
 static int jl2xxx_config_aneg(struct phy_device *phydev)
 {
@@ -505,6 +509,7 @@ static struct phy_driver jlsemi_drivers[] = {
 		.config_intr	= jl1xxx_config_intr,
 		.read_status	= jl1xxx_read_status,
 		.config_init    = jl1xxx_config_init,
+		.config_aneg    = jl1xxx_config_aneg,
 		.suspend        = jl1xxx_suspend,
 		.resume         = jl1xxx_resume,
 		.remove		= jl1xxx_remove,
