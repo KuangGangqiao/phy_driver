@@ -2087,49 +2087,49 @@ int jl1xxx_rmii_static_op_set(struct phy_device *phydev)
 	int err;
 
 	if (priv->rmii.enable & JL1XXX_RMII_MODE_EN) {
-		err = jlsemi_set_bits(phydev, JL2XXX_PAGE7,
-				      JL2XXX_REG16, JL1XXX_RMII_MODE);
+		err = jlsemi_set_bits(phydev, JL1XXX_PAGE7,
+				      JL1XXX_REG16, JL1XXX_RMII_MODE);
 		if (err < 0)
 			return err;
 	} else {
-		err = jlsemi_clear_bits(phydev, JL2XXX_PAGE7,
-					JL2XXX_REG16, JL1XXX_RMII_MODE);
+		err = jlsemi_clear_bits(phydev, JL1XXX_PAGE7,
+					JL1XXX_REG16, JL1XXX_RMII_MODE);
 		if (err < 0)
 			return err;
 		return 0;
 	}
 
 	if (priv->rmii.enable & JL1XXX_RMII_CLK_50M_INPUT_EN) {
-		err = jlsemi_set_bits(phydev, JL2XXX_PAGE7,
-				      JL2XXX_REG16,
+		err = jlsemi_set_bits(phydev, JL1XXX_PAGE7,
+				      JL1XXX_REG16,
 				      JL1XXX_RMII_CLK_50M_INPUT);
 		if (err < 0)
 			return err;
 	} else {
-		err = jlsemi_clear_bits(phydev, JL2XXX_PAGE7,
-					JL2XXX_REG16,
+		err = jlsemi_clear_bits(phydev, JL1XXX_PAGE7,
+					JL1XXX_REG16,
 					JL1XXX_RMII_CLK_50M_INPUT);
 		if (err < 0)
 			return err;
 	}
 
 	if (priv->rmii.enable & JL1XXX_RMII_CRS_DV_EN) {
-		err = jlsemi_set_bits(phydev, JL2XXX_PAGE7,
-				      JL2XXX_REG16,
+		err = jlsemi_set_bits(phydev, JL1XXX_PAGE7,
+				      JL1XXX_REG16,
 				      JL1XXX_RMII_CRS_DV);
 		if (err < 0)
 			return err;
 	} else {
-		err = jlsemi_clear_bits(phydev, JL2XXX_PAGE7,
-					JL2XXX_REG16,
+		err = jlsemi_clear_bits(phydev, JL1XXX_PAGE7,
+					JL1XXX_REG16,
 					JL1XXX_RMII_CRS_DV);
 		if (err < 0)
 			return err;
 	}
 
 	if (priv->rmii.enable & JL1XXX_RMII_TX_SKEW_EN) {
-		err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE7,
-					      JL2XXX_REG16,
+		err = jlsemi_modify_paged_reg(phydev, JL1XXX_PAGE7,
+					      JL1XXX_REG16,
 					      JL1XXX_RMII_TX_SKEW_MASK,
 					      JL1XXX_RMII_TX_SKEW(
 					      priv->rmii.tx_timing));
@@ -2138,8 +2138,8 @@ int jl1xxx_rmii_static_op_set(struct phy_device *phydev)
 	}
 
 	if (priv->rmii.enable & JL1XXX_RMII_RX_SKEW_EN) {
-		err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE7,
-					      JL2XXX_REG16,
+		err = jlsemi_modify_paged_reg(phydev, JL1XXX_PAGE7,
+					      JL1XXX_REG16,
 					      JL1XXX_RMII_RX_SKEW_MASK,
 					      JL1XXX_RMII_RX_SKEW(
 					      priv->rmii.rx_timing));

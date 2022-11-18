@@ -63,8 +63,8 @@
 #define JL1XXX_MDI_TX_BM(n)	(n << 10)
 #define JL1XXX_MDI_TX_SRN	BIT(0)
 
-#define JL2XXX_PAGE7		7
-#define JL2XXX_REG16		16
+#define JL1XXX_PAGE7		7
+#define JL1XXX_REG16		16
 #define JL1XXX_RMII_MODE		BIT(3)
 #define JL1XXX_RMII_CLK_50M_INPUT	BIT(12)
 #define JL1XXX_RMII_TX_SKEW_MASK	(0xf << 8)
