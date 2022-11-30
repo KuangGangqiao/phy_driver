@@ -16,6 +16,22 @@ For version `x.y.z`, it means
 
        Note: It will change when implementing new features.
 
+# Time: 2022 11 30
+# Version: 1.1.12
+**New**
+- Add fake power down function for jl2xxx
+  The rxc clock disappears when the amlogic board sleeps
+
+**Fix**
+- Fix typo for JL2XXX -> JL1XXX
+- Fix auto-negotiation for jl1xxx
+
+**Change**
+- Improve the compatibility between phy api wiht kernel
+  we promise that the phy driver support kernel version is greater than 3.0,
+  so we need to improve the flexible performance of the phy api
+
+
 # Time: 2022 11 3
 # Version: 1.1.8
 **Fix**
