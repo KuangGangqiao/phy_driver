@@ -504,7 +504,7 @@
 
 /* PHY Slew Rate Operation Mode Select */
 #define JL2XXX_SLEW_RATE_OP_NONE		0
-#define JL2XXX_SLEW_RATE_STATIC_C_MACRO	1
+#define JL2XXX_SLEW_RATE_STATIC_C_MACRO		1
 #define JL2XXX_SLEW_RATE_STATIC_DEVICE_TREE	2
 #define JL2XXX_SLEW_RATE_DYNAMIC_ETHTOOL	3
 //-----------------------------------------------------------------------//
@@ -516,5 +516,24 @@
 #define JL2XXX_SLEW_RATE_CTRL_EN		(JL2XXX_SLEW_RATE_STATIC_OP_EN)
 
 /*************************************************************************/
-#endif
 
+/**************************** JL2XXX-RXC_OUT *****************************/
+/* PHY Rx Clock Out Control Mode Enable Mask Select */
+#define JL2XXX_RXC_OUT_STATIC_OP_EN	(1 << 0)
+#define JL2XXX_RXC_OUT_DYNAMIC_OP_EN	(1 << 1)
+
+/* PHY Rx Clock Out Operation Mode Select */
+#define JL2XXX_RXC_OUT_OP_NONE			0
+#define JL2XXX_RXC_OUT_STATIC_C_MACRO		1
+#define JL2XXX_RXC_OUT_STATIC_DEVICE_TREE	2
+#define JL2XXX_RXC_OUT_DYNAMIC_ETHTOOL		3
+//-----------------------------------------------------------------------//
+/* PHY Rx Clock Out Operation Mode Config */
+#define JL2XXX_RXC_OUT_STATIC_OP_MODE	JL2XXX_RXC_OUT_OP_NONE
+#define JL2XXX_RXC_OUT_DYNAMIC_OP_MODE	JL2XXX_RXC_OUT_OP_NONE
+
+/* PHY Rx Clock Out Control Mode Enable Mask Config */
+#define JL2XXX_RXC_OUT_CTRL_EN		(JL2XXX_RXC_OUT_STATIC_OP_EN)
+
+/*************************************************************************/
+#endif

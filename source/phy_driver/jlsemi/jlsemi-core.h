@@ -132,6 +132,9 @@
 #define JL2XXX_RGMII_CTRL_REG	17
 
 #define JL2XXX_PAGE18		18
+#define JL2XXX_RXC_OUT_REG	21
+#define JL2XXX_RXC_OUT		BIT(14)
+
 #define JL2XXX_WORK_MODE_REG	21
 #define JL2XXX_WORK_MODE_MASK	0x7
 
@@ -171,7 +174,6 @@
 #define JL2XXX_SLEW_RATE_REF_CLK	BIT(13)
 #define JL2XXX_SLEW_RATE_SEL_CLK	BIT(14)
 
-#define JL2XXX_PAGE18		18
 #define JL2XXX_REG20		20
 #define JL2XXX_SPEED1000_NO_AN	(BIT(11) | BIT(10))
 
@@ -320,6 +322,11 @@ struct jl_slew_rate_ctrl {
 	struct jl_config_mode op;	/* Slew rate control opeartion mode */
 };
 
+struct jl_rxc_out_ctrl {
+	u32 enable;			/* Rx clock out control enable */
+	struct jl_config_mode op;	/* Rx clock out opeartion mode */
+};
+
 struct jl1xxx_priv {
 	struct jl_led_ctrl led;
 	struct jl_wol_ctrl wol;
@@ -346,6 +353,7 @@ struct jl2xxx_priv {
 	struct jl_work_mode_ctrl work_mode;
 	struct jl_loopback_ctrl lpbk;
 	struct jl_slew_rate_ctrl slew_rate;
+	struct jl_rxc_out_ctrl rxc_out;
 	struct device dev;
 };
 

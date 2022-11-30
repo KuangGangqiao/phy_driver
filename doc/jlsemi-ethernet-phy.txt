@@ -63,4 +63,5 @@ Example for jl2xxx:
 		jl2xxx,lpbk-enable = <JL2XXX_LPBK_CTRL_EN>;
 		jl2xxx,lpbk-mode = <JL2XXX_LPBK_MODE>;
 		jl2xxx,slew_rate-enable = <JL2XXX_SLEW_RATE_CTRL_EN>;
+		jl2xxx,rxc_out-enable = <JL2XXX_RXC_OUT_CTRL_EN>;
 	};

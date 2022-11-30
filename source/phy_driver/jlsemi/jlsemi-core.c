@@ -873,6 +873,20 @@ static int jl2xxx_dts_slew_rate_cfg_get(struct phy_device *phydev)
 	return 0;
 }
 
+static int jl2xxx_dts_rxc_out_cfg_get(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	struct device_node *of_node = get_device_node(phydev);
+	int err;
+
+	err = of_property_read_u32(of_node, "jl2xxx,rxc_out-enable",
+				   &priv->rxc_out.enable);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
 static int jl2xxx_c_macro_fld_cfg_get(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
@@ -1005,6 +1019,19 @@ static int jl2xxx_c_macro_slew_rate_cfg_get(struct phy_device *phydev)
 	};
 
 	priv->slew_rate = slew_rate_cfg;
+
+	return 0;
+}
+
+static int jl2xxx_c_macro_rxc_out_cfg_get(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+
+	struct jl_rxc_out_ctrl rxc_out_cfg = {
+		.enable		= JL2XXX_RXC_OUT_CTRL_EN,
+	};
+
+	priv->rxc_out = rxc_out_cfg;
 
 	return 0;
 }
@@ -1419,6 +1446,26 @@ static int jl2xxx_slew_rate_operation_args(struct phy_device *phydev)
 	return 0;
 }
 
+static int jl2xxx_rxc_out_operation_args(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	struct jl_config_mode *mode = &priv->rxc_out.op;
+
+	if (mode->static_op == STATIC_C_MACRO)
+		jl2xxx_c_macro_rxc_out_cfg_get(phydev);
+	else if (mode->static_op == STATIC_DEVICE_TREE)
+		jl2xxx_dts_rxc_out_cfg_get(phydev);
+	else if (mode->static_op == STATIC_NONE)
+		priv->rxc_out.enable |= ~JL2XXX_RXC_OUT_STATIC_OP_EN;
+
+	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
+		priv->rxc_out.enable |= JL2XXX_RXC_OUT_DYNAMIC_OP_EN;
+	else
+		priv->rxc_out.enable &= ~JL2XXX_RXC_OUT_DYNAMIC_OP_EN;
+
+	return 0;
+}
+
 static int jl2xxx_fld_static_op_set(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
@@ -1802,6 +1849,22 @@ int jl2xxx_slew_rate_static_op_set(struct phy_device *phydev)
 			      JL2XXX_SLEW_RATE_CTRL_REG,
 			      JL2XXX_SLEW_RATE_EN | JL2XXX_SLEW_RATE_REF_CLK |
 			      JL2XXX_SLEW_RATE_SEL_CLK);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
+int jl2xxx_rxc_out_static_op_set(struct phy_device *phydev)
+{
+	int err;
+
+	err = jlsemi_set_bits(phydev, JL2XXX_PAGE18,
+			      JL2XXX_RXC_OUT_REG, JL2XXX_RXC_OUT);
+	if (err < 0)
+		return err;
+
+	err = jlsemi_soft_reset(phydev);
 	if (err < 0)
 		return err;
 
@@ -2379,6 +2442,7 @@ int jl2xxx_operation_args_get(struct phy_device *phydev)
 	jl2xxx_work_mode_operation_args(phydev);
 	jl2xxx_lpbk_operation_args(phydev);
 	jl2xxx_slew_rate_operation_args(phydev);
+	jl2xxx_rxc_out_operation_args(phydev);
 
 	return 0;
 }
@@ -2492,6 +2556,12 @@ int jl2xxx_static_op_init(struct phy_device *phydev)
 
 	if (priv->slew_rate.enable & JL2XXX_SLEW_RATE_STATIC_OP_EN) {
 		err = jl2xxx_slew_rate_static_op_set(phydev);
+		if (err < 0)
+			return err;
+	}
+
+	if (priv->rxc_out.enable & JL2XXX_RXC_OUT_STATIC_OP_EN) {
+		err = jl2xxx_rxc_out_static_op_set(phydev);
 		if (err < 0)
 			return err;
 	}
