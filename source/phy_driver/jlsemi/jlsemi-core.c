@@ -2770,6 +2770,11 @@ int config_init_r4p1(struct phy_device *phydev)
 	if (err < 0)
 		return err;
 
+	err = jlsemi_clear_bits(phydev, JL2XXX_PAGE191,
+				JL2XXX_REG16, JL2XXX_RGMII_CFG);
+	if (err < 0)
+		return err;
+
 	/* Wait r4p1 config compelte */
 	msleep(20);
 
