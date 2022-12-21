@@ -2755,18 +2755,18 @@ int config_init_r4p1(struct phy_device *phydev)
 		return err;
 
 	err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE201, JL2XXX_REG21,
-				      JL2XXX_RX_AMP2_MASK, JL2XXX_RX_AMP2);
+				      JL2XXX_RX_AMP2_MASK, JL2XXX_RX_AMP2(10));
 	if (err < 0)
 		return err;
 
 	err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE201, JL2XXX_REG29,
-				      JL2XXX_FG_LP_10M_MASK, JL2XXX_FG_LP_10M);
+				      JL2XXX_FG_LP_10M_MASK, JL2XXX_FG_LP_10M(1));
 	if (err < 0)
 		return err;
 
 	err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE206, JL2XXX_REG22,
 				      JL2XXX_RX_AMP_SIG_MASK,
-				      JL2XXX_RX_AMP_SIG);
+				      JL2XXX_RX_AMP_SIG(3));
 	if (err < 0)
 		return err;
 
