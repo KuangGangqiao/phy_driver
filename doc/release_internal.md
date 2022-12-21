@@ -16,6 +16,13 @@ For version `x.y.z`, it means
 
        Note: It will change when implementing new features.
 
+
+# Time: 2022 12 21
+# Version: 1.1.13
+**New**
+- Add rgmii cfg by pass for config init r4p1
+
+
 # Time: 2022 11 30
 # Version: 1.1.12
 **New**
