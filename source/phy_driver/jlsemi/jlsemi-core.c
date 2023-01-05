@@ -1246,6 +1246,31 @@ static int jl2xxx_slew_rate_operation_mode(struct phy_device *phydev)
 	return 0;
 }
 
+static int jl2xxx_rxc_out_operation_mode(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	struct jl_config_mode *mode = &priv->rxc_out.op;
+
+	if (JL2XXX_RXC_OUT_STATIC_OP_MODE ==
+		JL2XXX_RXC_OUT_STATIC_C_MACRO)
+		mode->static_op = STATIC_C_MACRO;
+	else if (JL2XXX_RXC_OUT_STATIC_OP_MODE ==
+		JL2XXX_RXC_OUT_STATIC_DEVICE_TREE)
+		mode->static_op = STATIC_DEVICE_TREE;
+	else if (JL2XXX_RXC_OUT_STATIC_OP_MODE ==
+		JL2XXX_RXC_OUT_OP_NONE)
+		mode->static_op = STATIC_NONE;
+
+	if (JL2XXX_RXC_OUT_DYNAMIC_OP_MODE ==
+		JL2XXX_RXC_OUT_DYNAMIC_ETHTOOL)
+		mode->dynamic_op = DYNAMIC_ETHTOOL;
+	else if (JL2XXX_RXC_OUT_DYNAMIC_OP_MODE ==
+		 JL2XXX_RXC_OUT_OP_NONE)
+		mode->dynamic_op = DYNAMIC_NONE;
+
+	return 0;
+}
+
 static int jl2xxx_fld_operation_args(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
@@ -2414,6 +2439,7 @@ int jl2xxx_operation_mode_select(struct phy_device *phydev)
 	jl2xxx_work_mode_operation_mode(phydev);
 	jl2xxx_lpbk_operation_mode(phydev);
 	jl2xxx_slew_rate_operation_mode(phydev);
+	jl2xxx_rxc_out_operation_mode(phydev);
 
 	return 0;
 }
