@@ -18,7 +18,7 @@ For version `x.y.z`, it means
 
 
 # Time: 2023 3 15
-# Version: 1.1.14
+# Version: 1.1.15
 **Fix**
 - Fix rx clock out operation mode
 **New**
