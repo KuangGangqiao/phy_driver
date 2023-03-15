@@ -17,6 +17,14 @@ For version `x.y.z`, it means
        Note: It will change when implementing new features.
 
 
+# Time: 2023 3 15
+# Version: 1.1.15
+**Fix**
+- Fix rx clock out operation mode
+**New**
+- Add hardcode for phy version
+
+
 # Time: 2022 12 21
 # Version: 1.1.13
 **New**
