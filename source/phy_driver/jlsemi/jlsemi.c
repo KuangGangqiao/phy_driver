@@ -19,6 +19,10 @@
 #include <linux/module.h>
 #include <linux/netdevice.h>
 
+#define DRIVER_VERSION		"1.1.15"
+#define DRIVER_NAME_100M	"JL1xxx Fast Ethernet " DRIVER_VERSION
+#define DRIVER_NAME_1000M	"JL2xxx Gigabit Ethernet " DRIVER_VERSION
+
 MODULE_DESCRIPTION("JLSemi PHY driver");
 MODULE_AUTHOR("Gangqiao Kuang");
 MODULE_LICENSE("GPL");
@@ -503,7 +507,7 @@ static struct phy_driver jlsemi_drivers[] = {
 	{
 		.phy_id		= JL1XXX_PHY_ID,
 		.phy_id_mask    = JLSEMI_PHY_ID_MASK,
-		.name           = "JL1xxx Fast Ethernet",
+		.name           = DRIVER_NAME_100M,
 		/* PHY_BASIC_FEATURES */
 		.features	= PHY_BASIC_FEATURES,
 		.probe		= jl1xxx_probe,
@@ -522,7 +526,7 @@ static struct phy_driver jlsemi_drivers[] = {
 	{
 		.phy_id         = JL2XXX_PHY_ID,
 		.phy_id_mask    = JLSEMI_PHY_ID_MASK,
-		.name           = "JL2xxx Gigabit Ethernet",
+		.name           = DRIVER_NAME_1000M,
 		/* PHY_BASIC_FEATURES */
 		.features	= PHY_GBIT_FEATURES,
 		.probe		= jl2xxx_probe,
