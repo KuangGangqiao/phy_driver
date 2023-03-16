@@ -202,26 +202,9 @@ struct device *jlsemi_get_mdio(struct phy_device *phydev)
 	return dev;
 }
 
-struct device *jlsemi_get_device(struct phy_device *phydev)
-{
-	if ((phydev->phy_id & JLSEMI_PHY_ID_MASK) ==
-	    (JL1XXX_PHY_ID & JLSEMI_PHY_ID_MASK)) {
-		struct jl1xxx_priv *priv1 = phydev->priv;
-
-		return &priv1->dev;
-	} else if ((phydev->phy_id & JLSEMI_PHY_ID_MASK) ==
-		   (JL2XXX_PHY_ID & JLSEMI_PHY_ID_MASK)) {
-		struct jl2xxx_priv *priv2 = phydev->priv;
-
-		return &priv2->dev;
-	}
-
-	return NULL;
-}
-
 static struct device_node *get_device_node(struct phy_device *phydev)
 {
-	struct device *dev = jlsemi_get_device(phydev);
+	struct device *dev = jlsemi_get_mdio(phydev);
 
 	return dev->of_node;
 }

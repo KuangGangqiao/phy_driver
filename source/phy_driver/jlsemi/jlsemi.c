@@ -51,7 +51,6 @@ static int jl1xxx_probe(struct phy_device *phydev)
 {
 	struct device *dev = jlsemi_get_mdio(phydev);
 	struct jl1xxx_priv *jl1xxx = NULL;
-	struct device *d = NULL;
 	int err;
 
 	jl1xxx = devm_kzalloc(dev, sizeof(*jl1xxx), GFP_KERNEL);
@@ -60,11 +59,8 @@ static int jl1xxx_probe(struct phy_device *phydev)
 
 	phydev->priv = jl1xxx;
 
-	d = jlsemi_get_device(phydev);
 #if (JLSEMI_KERNEL_DEVICE_TREE_USE)
-	d->of_node = of_find_compatible_node(NULL, NULL,
-					    "ethernet-phy-id937c.4020");
-	if (!d->of_node)
+	if (!dev->of_node)
 		JLSEMI_PHY_MSG("%s: Find device node failed\n", __func__);
 #endif
 	/* Select operation mode */
@@ -212,7 +208,6 @@ static int jl2xxx_probe(struct phy_device *phydev)
 {
 	struct device *dev = jlsemi_get_mdio(phydev);
 	struct jl2xxx_priv *jl2xxx = NULL;
-	struct device *d = NULL;
 	int err;
 
 	jl2xxx = devm_kzalloc(dev, sizeof(*jl2xxx), GFP_KERNEL);
@@ -221,11 +216,8 @@ static int jl2xxx_probe(struct phy_device *phydev)
 
 	phydev->priv = jl2xxx;
 
-	d = jlsemi_get_device(phydev);
 #if (JLSEMI_KERNEL_DEVICE_TREE_USE)
-	d->of_node = of_find_compatible_node(NULL, NULL,
-					    "ethernet-phy-id937c.4030");
-	if (!d->of_node)
+	if (!dev->of_node)
 		JLSEMI_PHY_MSG("%s: Find device node failed\n", __func__);
 #endif
 	/* Select operation mode */

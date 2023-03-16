@@ -338,7 +338,6 @@ struct jl1xxx_priv {
 	bool static_inited;		/* Initialization flag */
 	struct jl_mdi_ctrl mdi;
 	struct jl_rmii_ctrl rmii;
-	struct device dev;
 };
 
 struct jl2xxx_priv {
@@ -358,7 +357,6 @@ struct jl2xxx_priv {
 	struct jl_loopback_ctrl lpbk;
 	struct jl_slew_rate_ctrl slew_rate;
 	struct jl_rxc_out_ctrl rxc_out;
-	struct device dev;
 };
 
 /* macros to simplify debug checking */
@@ -368,8 +366,6 @@ struct jl2xxx_priv {
 int config_init_r4p1(struct phy_device *phydev);
 
 struct device *jlsemi_get_mdio(struct phy_device *phydev);
-
-struct device *jlsemi_get_device(struct phy_device *phydev);
 
 int jl2xxx_downshift_dynamic_op_get(struct phy_device *phydev, u8 *data);
 
