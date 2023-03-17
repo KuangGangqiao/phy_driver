@@ -228,22 +228,6 @@ static const struct jl_hw_stat jl2xxx_hw_stats[] = {
 	},
 };
 
-enum jl_static_op_mode {
-	STATIC_NONE		= 0,
-	STATIC_C_MACRO		= 1,
-	STATIC_DEVICE_TREE	= 2,
-};
-
-enum jl_dynamic_op_mode {
-	DYNAMIC_NONE		= 0,
-	DYNAMIC_ETHTOOL		= 1,
-};
-
-struct jl_config_mode {
-	enum jl_static_op_mode static_op;
-	enum jl_dynamic_op_mode dynamic_op;
-};
-
 struct jl_led_ctrl {
 	u32 enable;			/* LED control enable */
 	u32 mode;			/* LED work mode */
@@ -251,84 +235,82 @@ struct jl_led_ctrl {
 	u32 global_on;			/* LED global twinkle hold on time */
 	u32 gpio_output;		/* LED is used as gpio output */
 	u32 polarity;			/* LED polarity */
-	struct jl_config_mode op;	/* LED config operation mode */
+	bool ethtool;			/* Whether the ethtool is supported */
 };
 
 struct jl_fld_ctrl {
 	u32 enable;			/* Fast link down control enable */
 	u32 delay;			/* Fast link down time */
-	struct jl_config_mode op;	/* Fast link down config
-					 *operation mode
-					 */
+	bool ethtool;			/* Whether the ethtool is supported */
 };
 
 struct jl_wol_ctrl {
 	u32 enable;			/* Wake On LAN control enable */
-	struct jl_config_mode op;	/* Wake On LAN config operation mode */
+	bool ethtool;			/* Whether the ethtool is supported */
 };
 
 struct jl_intr_ctrl {
 	u32 enable;			/* Interrupt control enable */
-	struct jl_config_mode op;	/* Interrupt config operation mode */
+	bool ethtool;			/* Whether the ethtool is supported */
 };
 
 struct jl_downshift_ctrl {
 	u32 enable;			/* Downshift control enable */
 	u32 count;			/* Downshift control count */
-	struct jl_config_mode op;	/* Downshift config operation mode */
+	bool ethtool;			/* Whether the ethtool is supported */
 };
 
 struct jl_rgmii_ctrl {
 	u32 enable;			/* Rgmii control enable */
 	u32 rx_delay;			/* Rgmii control rx delay */
 	u32 tx_delay;			/* Rgmii control tx delay */
-	struct jl_config_mode op;	/* Rgmii config opeartion mode */
+	bool ethtool;			/* Whether the ethtool is supported */
 };
 
 struct jl_patch_ctrl {
 	u32 enable;			/* Patch control enable */
-	struct jl_config_mode op;	/* Patch config operation mode */
+	bool ethtool;			/* Whether the ethtool is supported */
 };
 
 struct jl_clk_ctrl {
 	u32 enable;			/* Clock 125M control enable */
-	struct jl_config_mode op;	/* Clock 125M config_opeartion mode */
+	bool ethtool;			/* Whether the ethtool is supported */
 };
 
 struct jl_work_mode_ctrl {
 	u32 enable;			/* Work mode control enable */
 	u32 mode;			/* Work mode select mode */
-	struct jl_config_mode op;	/* Work mode config opeartion mode */
+	bool ethtool;			/* Whether the ethtool is supported */
 };
 
 struct jl_loopback_ctrl {
 	u32 enable;			/* Loopback control enable */
 	u32 mode;			/* Loopback select mode */
-	struct jl_config_mode op;	/* Loopback config opeartion mode */
+	bool ethtool;			/* Whether the ethtool is supported */
 };
 
 struct jl_mdi_ctrl {
 	u32 enable;			/* Mdi control enable */
 	u32 rate;			/* Mdi select Rate */
 	u32 amplitude;			/* Mdi select amplitude */
-	struct jl_config_mode op;	/* Mdi config opeartion mode */
+	bool ethtool;			/* Whether the ethtool is supported */
 };
 
 struct jl_rmii_ctrl {
 	u32 enable;			/* Rmii control enable */
 	u32 tx_timing;			/* Rmii modify tx timing */
 	u32 rx_timing;			/* Rmii modify rx timing */
-	struct jl_config_mode op;	/* Rmii config opeartion mode */
+	bool ethtool;			/* Whether the ethtool is supported */
 };
 
 struct jl_slew_rate_ctrl {
 	u32 enable;			/* Slew rate control enable */
-	struct jl_config_mode op;	/* Slew rate control opeartion mode */
+	bool ethtool;			/* Whether the ethtool is supported */
 };
 
 struct jl_rxc_out_ctrl {
 	u32 enable;			/* Rx clock out control enable */
-	struct jl_config_mode op;	/* Rx clock out opeartion mode */
+	bool ethtool;			/* Whether the ethtool is supported */
 };
 
 struct jl1xxx_priv {
@@ -393,13 +375,9 @@ int jl2xxx_fld_dynamic_op_get(struct phy_device *phydev, u8 *msecs);
 
 int jl2xxx_fld_dynamic_op_set(struct phy_device *phydev, const u8 *msecs);
 
-int jl1xxx_operation_mode_select(struct phy_device *phydev);
-
 int jl1xxx_operation_args_get(struct phy_device *phydev);
 
 int jl1xxx_static_op_init(struct phy_device *phydev);
-
-int jl2xxx_operation_mode_select(struct phy_device *phydev);
 
 int jl2xxx_operation_args_get(struct phy_device *phydev);
 

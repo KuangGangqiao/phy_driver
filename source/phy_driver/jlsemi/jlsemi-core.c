@@ -445,142 +445,18 @@ static int jl2xxx_c_macro_led_cfg_get(struct phy_device *phydev)
 	return 0;
 }
 
-static int jl1xxx_led_operation_mode(struct phy_device *phydev)
-{
-	struct jl1xxx_priv *priv = phydev->priv;
-	struct jl_config_mode *mode = &priv->led.op;
-
-	if (JL1XXX_LED_STATIC_OP_MODE == JL1XXX_LED_STATIC_C_MACRO)
-		mode->static_op = STATIC_C_MACRO;
-	else if (JL1XXX_LED_STATIC_OP_MODE == JL1XXX_LED_STATIC_DEVICE_TREE)
-		mode->static_op = STATIC_DEVICE_TREE;
-	else if (JL1XXX_LED_STATIC_OP_MODE == JL1XXX_LED_OP_NONE)
-		mode->static_op = STATIC_NONE;
-
-	if (JL1XXX_LED_DYNAMIC_OP_MODE == JL1XXX_LED_DYNAMIC_ETHTOOL)
-		mode->dynamic_op = DYNAMIC_ETHTOOL;
-	else if (JL1XXX_LED_DYNAMIC_OP_MODE == JL1XXX_LED_OP_NONE)
-		mode->dynamic_op = DYNAMIC_NONE;
-
-	return 0;
-}
-
-static int jl1xxx_wol_operation_mode(struct phy_device *phydev)
-{
-	struct jl1xxx_priv *priv = phydev->priv;
-	struct jl_config_mode *mode = &priv->wol.op;
-
-	if (JL1XXX_WOL_STATIC_OP_MODE == JL1XXX_WOL_STATIC_C_MACRO)
-		mode->static_op = STATIC_C_MACRO;
-	else if (JL1XXX_WOL_STATIC_OP_MODE == JL1XXX_WOL_STATIC_DEVICE_TREE)
-		mode->static_op = STATIC_DEVICE_TREE;
-	else if (JL1XXX_WOL_STATIC_OP_MODE == JL1XXX_WOL_OP_NONE)
-		mode->static_op = STATIC_NONE;
-
-	if (JL1XXX_WOL_DYNAMIC_OP_MODE == JL1XXX_WOL_DYNAMIC_ETHTOOL)
-		mode->dynamic_op = DYNAMIC_ETHTOOL;
-	else if (JL1XXX_WOL_DYNAMIC_OP_MODE == JL1XXX_WOL_OP_NONE)
-		mode->dynamic_op = DYNAMIC_NONE;
-
-	return 0;
-}
-
-static int jl1xxx_intr_operation_mode(struct phy_device *phydev)
-{
-	struct jl1xxx_priv *priv = phydev->priv;
-	struct jl_config_mode *mode = &priv->intr.op;
-
-	if (JL1XXX_INTR_STATIC_OP_MODE == JL1XXX_INTR_STATIC_C_MACRO)
-		mode->static_op = STATIC_C_MACRO;
-	else if (JL1XXX_INTR_STATIC_OP_MODE == JL1XXX_INTR_STATIC_DEVICE_TREE)
-		mode->static_op = STATIC_DEVICE_TREE;
-	else if (JL1XXX_INTR_STATIC_OP_MODE == JL1XXX_INTR_OP_NONE)
-		mode->static_op = STATIC_NONE;
-
-	if (JL1XXX_INTR_DYNAMIC_OP_MODE == JL1XXX_INTR_DYNAMIC_ETHTOOL)
-		mode->dynamic_op = DYNAMIC_ETHTOOL;
-	else if (JL1XXX_INTR_DYNAMIC_OP_MODE == JL1XXX_INTR_OP_NONE)
-		mode->dynamic_op = DYNAMIC_NONE;
-
-	return 0;
-}
-
-static int jl1xxx_mdi_operation_mode(struct phy_device *phydev)
-{
-	struct jl1xxx_priv *priv = phydev->priv;
-	struct jl_config_mode *mode = &priv->mdi.op;
-
-	if (JL1XXX_MDI_STATIC_OP_MODE == JL1XXX_MDI_STATIC_C_MACRO)
-		mode->static_op = STATIC_C_MACRO;
-	else if (JL1XXX_MDI_STATIC_OP_MODE == JL1XXX_MDI_STATIC_DEVICE_TREE)
-		mode->static_op = STATIC_DEVICE_TREE;
-	else if (JL1XXX_MDI_STATIC_OP_MODE == JL1XXX_MDI_OP_NONE)
-		mode->static_op = STATIC_NONE;
-
-	if (JL1XXX_MDI_DYNAMIC_OP_MODE == JL1XXX_MDI_DYNAMIC_ETHTOOL)
-		mode->dynamic_op = DYNAMIC_ETHTOOL;
-	else if (JL1XXX_MDI_DYNAMIC_OP_MODE == JL1XXX_MDI_OP_NONE)
-		mode->dynamic_op = DYNAMIC_NONE;
-
-	return 0;
-}
-
-static int jl1xxx_rmii_operation_mode(struct phy_device *phydev)
-{
-	struct jl1xxx_priv *priv = phydev->priv;
-	struct jl_config_mode *mode = &priv->rmii.op;
-
-	if (JL1XXX_RMII_STATIC_OP_MODE == JL1XXX_RMII_STATIC_C_MACRO)
-		mode->static_op = STATIC_C_MACRO;
-	else if (JL1XXX_RMII_STATIC_OP_MODE == JL1XXX_RMII_STATIC_DEVICE_TREE)
-		mode->static_op = STATIC_DEVICE_TREE;
-	else if (JL1XXX_RMII_STATIC_OP_MODE == JL1XXX_RMII_OP_NONE)
-		mode->static_op = STATIC_NONE;
-
-	if (JL1XXX_RMII_DYNAMIC_OP_MODE == JL1XXX_RMII_DYNAMIC_ETHTOOL)
-		mode->dynamic_op = DYNAMIC_ETHTOOL;
-	else if (JL1XXX_RMII_DYNAMIC_OP_MODE == JL1XXX_RMII_OP_NONE)
-		mode->dynamic_op = DYNAMIC_NONE;
-
-	return 0;
-}
-
-static int jl2xxx_led_operation_mode(struct phy_device *phydev)
-{
-	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_config_mode *mode = &priv->led.op;
-
-	if (JL2XXX_LED_STATIC_OP_MODE == JL2XXX_LED_STATIC_C_MACRO)
-		mode->static_op = STATIC_C_MACRO;
-	else if (JL2XXX_LED_STATIC_OP_MODE == JL2XXX_LED_STATIC_DEVICE_TREE)
-		mode->static_op = STATIC_DEVICE_TREE;
-	else if (JL2XXX_LED_STATIC_OP_MODE == JL2XXX_LED_OP_NONE)
-		mode->static_op = STATIC_NONE;
-
-	if (JL2XXX_LED_DYNAMIC_OP_MODE == JL2XXX_LED_DYNAMIC_ETHTOOL)
-		mode->dynamic_op = DYNAMIC_ETHTOOL;
-	else if (JL2XXX_LED_DYNAMIC_OP_MODE == JL2XXX_LED_OP_NONE)
-		mode->dynamic_op = DYNAMIC_NONE;
-
-	return 0;
-}
-
 static int jl1xxx_wol_operation_args(struct phy_device *phydev)
 {
 	struct jl1xxx_priv *priv = phydev->priv;
-	struct jl_config_mode *mode = &priv->wol.op;
+	struct jl_wol_ctrl *wol = &priv->wol;
 
-	if (mode->static_op == STATIC_C_MACRO)
-		jl1xxx_c_macro_wol_cfg_get(phydev);
-	else if (mode->static_op == STATIC_DEVICE_TREE)
+	if (JLSEMI_KERNEL_DEVICE_TREE_USE)
 		jl1xxx_dts_wol_cfg_get(phydev);
-	else if (mode->static_op == STATIC_NONE)
-		priv->wol.enable |= ~JL1XXX_WOL_STATIC_OP_EN;
-
-	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
-		priv->wol.enable |= JL1XXX_WOL_DYNAMIC_OP_EN;
 	else
-		priv->wol.enable &= ~JL1XXX_WOL_DYNAMIC_OP_EN;
+		jl1xxx_c_macro_wol_cfg_get(phydev);
+
+	/* Supported by default */
+	wol->ethtool = false;
 
 	return 0;
 }
@@ -588,19 +464,15 @@ static int jl1xxx_wol_operation_args(struct phy_device *phydev)
 static int jl1xxx_intr_operation_args(struct phy_device *phydev)
 {
 	struct jl1xxx_priv *priv = phydev->priv;
-	struct jl_config_mode *mode = &priv->intr.op;
+	struct jl_intr_ctrl *intr = &priv->intr;
 
-	if (mode->static_op == STATIC_C_MACRO)
-		jl1xxx_c_macro_intr_cfg_get(phydev);
-	else if (mode->static_op == STATIC_DEVICE_TREE)
+	if (JLSEMI_KERNEL_DEVICE_TREE_USE)
 		jl1xxx_dts_intr_cfg_get(phydev);
-	else if (mode->static_op == STATIC_NONE)
-		priv->intr.enable |= ~JL1XXX_INTR_STATIC_OP_EN;
-
-	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
-		priv->intr.enable |= JL1XXX_INTR_DYNAMIC_OP_EN;
 	else
-		priv->intr.enable &= ~JL1XXX_INTR_DYNAMIC_OP_EN;
+		jl1xxx_c_macro_intr_cfg_get(phydev);
+
+	/* Not supported by default */
+	intr->ethtool = false;
 
 	return 0;
 }
@@ -608,19 +480,15 @@ static int jl1xxx_intr_operation_args(struct phy_device *phydev)
 static int jl1xxx_mdi_operation_args(struct phy_device *phydev)
 {
 	struct jl1xxx_priv *priv = phydev->priv;
-	struct jl_config_mode *mode = &priv->mdi.op;
+	struct jl_mdi_ctrl *mdi = &priv->mdi;
 
-	if (mode->static_op == STATIC_C_MACRO)
-		jl1xxx_c_macro_mdi_cfg_get(phydev);
-	else if (mode->static_op == STATIC_DEVICE_TREE)
+	if (JLSEMI_KERNEL_DEVICE_TREE_USE)
 		jl1xxx_dts_mdi_cfg_get(phydev);
-	else if (mode->static_op == STATIC_NONE)
-		priv->mdi.enable |= ~JL1XXX_MDI_STATIC_OP_EN;
-
-	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
-		priv->mdi.enable |= JL1XXX_MDI_DYNAMIC_OP_EN;
 	else
-		priv->mdi.enable &= ~JL1XXX_MDI_DYNAMIC_OP_EN;
+		jl1xxx_c_macro_mdi_cfg_get(phydev);
+
+	/* Not supported by default */
+	mdi->ethtool = false;
 
 	return 0;
 }
@@ -628,19 +496,15 @@ static int jl1xxx_mdi_operation_args(struct phy_device *phydev)
 static int jl1xxx_rmii_operation_args(struct phy_device *phydev)
 {
 	struct jl1xxx_priv *priv = phydev->priv;
-	struct jl_config_mode *mode = &priv->rmii.op;
+	struct jl_rmii_ctrl *rmii = &priv->rmii;
 
-	if (mode->static_op == STATIC_C_MACRO)
-		jl1xxx_c_macro_rmii_cfg_get(phydev);
-	else if (mode->static_op == STATIC_DEVICE_TREE)
+	if (JLSEMI_KERNEL_DEVICE_TREE_USE)
 		jl1xxx_dts_rmii_cfg_get(phydev);
-	else if (mode->static_op == STATIC_NONE)
-		priv->rmii.enable |= ~JL1XXX_RMII_STATIC_OP_EN;
-
-	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
-		priv->rmii.enable |= JL1XXX_RMII_DYNAMIC_OP_EN;
 	else
-		priv->rmii.enable &= ~JL1XXX_RMII_DYNAMIC_OP_EN;
+		jl1xxx_c_macro_rmii_cfg_get(phydev);
+
+	/* Not supported by default */
+	rmii->ethtool = false;
 
 	return 0;
 }
@@ -648,19 +512,15 @@ static int jl1xxx_rmii_operation_args(struct phy_device *phydev)
 static int jl1xxx_led_operation_args(struct phy_device *phydev)
 {
 	struct jl1xxx_priv *priv = phydev->priv;
-	struct jl_config_mode *mode = &priv->led.op;
+	struct jl_led_ctrl *led = &priv->led;
 
-	if (mode->static_op == STATIC_C_MACRO)
-		jl1xxx_c_macro_led_cfg_get(phydev);
-	else if (mode->static_op == STATIC_DEVICE_TREE)
+	if (JLSEMI_KERNEL_DEVICE_TREE_USE)
 		jl1xxx_dts_led_cfg_get(phydev);
-	else if (mode->static_op == STATIC_NONE)
-		priv->led.enable |= ~JL1XXX_LED_STATIC_OP_EN;
-
-	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
-		priv->led.enable |= JL1XXX_LED_DYNAMIC_OP_EN;
 	else
-		priv->led.enable &= ~JL1XXX_LED_DYNAMIC_OP_EN;
+		jl1xxx_c_macro_led_cfg_get(phydev);
+
+	/* Not supported by default */
+	led->ethtool = false;
 
 	return 0;
 }
@@ -668,19 +528,15 @@ static int jl1xxx_led_operation_args(struct phy_device *phydev)
 static int jl2xxx_led_operation_args(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_config_mode *mode = &priv->led.op;
+	struct jl_led_ctrl *led = &priv->led;
 
-	if (mode->static_op == STATIC_C_MACRO)
-		jl2xxx_c_macro_led_cfg_get(phydev);
-	else if (mode->static_op == STATIC_DEVICE_TREE)
+	if (JLSEMI_KERNEL_DEVICE_TREE_USE)
 		jl2xxx_dts_led_cfg_get(phydev);
-	else if (mode->static_op == STATIC_NONE)
-		priv->led.enable &= ~JL2XXX_LED_STATIC_OP_EN;
-
-	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
-		priv->led.enable |= JL2XXX_LED_DYNAMIC_OP_EN;
 	else
-		priv->led.enable &= ~JL2XXX_LED_DYNAMIC_OP_EN;
+		jl2xxx_c_macro_led_cfg_get(phydev);
+
+	/* Not supported by default */
+	led->ethtool = false;
 
 	return 0;
 }
@@ -1019,257 +875,18 @@ static int jl2xxx_c_macro_rxc_out_cfg_get(struct phy_device *phydev)
 	return 0;
 }
 
-static int jl2xxx_fld_operation_mode(struct phy_device *phydev)
-{
-	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_config_mode *mode = &priv->fld.op;
-
-	if (JL2XXX_FLD_STATIC_OP_MODE == JL2XXX_FLD_STATIC_C_MACRO)
-		mode->static_op = STATIC_C_MACRO;
-	else if (JL2XXX_FLD_STATIC_OP_MODE == JL2XXX_FLD_STATIC_DEVICE_TREE)
-		mode->static_op = STATIC_DEVICE_TREE;
-	else if (JL2XXX_FLD_STATIC_OP_MODE == JL2XXX_FLD_OP_NONE)
-		mode->static_op = STATIC_NONE;
-
-	if (JL2XXX_FLD_DYNAMIC_OP_MODE == JL2XXX_FLD_DYNAMIC_ETHTOOL)
-		mode->dynamic_op = DYNAMIC_ETHTOOL;
-	else if (JL2XXX_FLD_DYNAMIC_OP_MODE == JL2XXX_FLD_OP_NONE)
-		mode->dynamic_op = DYNAMIC_NONE;
-
-	return 0;
-}
-
-static int jl2xxx_intr_operation_mode(struct phy_device *phydev)
-{
-	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_config_mode *mode = &priv->intr.op;
-
-	if (JL2XXX_INTR_STATIC_OP_MODE == JL2XXX_INTR_STATIC_C_MACRO)
-		mode->static_op = STATIC_C_MACRO;
-	else if (JL2XXX_INTR_STATIC_OP_MODE == JL2XXX_INTR_STATIC_DEVICE_TREE)
-		mode->static_op = STATIC_DEVICE_TREE;
-	else if (JL2XXX_INTR_STATIC_OP_MODE == JL2XXX_INTR_OP_NONE)
-		mode->static_op = STATIC_NONE;
-
-	if (JL2XXX_INTR_DYNAMIC_OP_MODE == JL2XXX_INTR_DYNAMIC_ETHTOOL)
-		mode->dynamic_op = DYNAMIC_ETHTOOL;
-	else if (JL2XXX_INTR_DYNAMIC_OP_MODE == JL2XXX_INTR_OP_NONE)
-		mode->dynamic_op = DYNAMIC_NONE;
-
-	return 0;
-}
-
-static int jl2xxx_wol_operation_mode(struct phy_device *phydev)
-{
-	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_config_mode *mode = &priv->wol.op;
-
-	if (JL2XXX_WOL_STATIC_OP_MODE == JL2XXX_WOL_STATIC_C_MACRO)
-		mode->static_op = STATIC_C_MACRO;
-	else if (JL2XXX_WOL_STATIC_OP_MODE == JL2XXX_WOL_STATIC_DEVICE_TREE)
-		mode->static_op = STATIC_DEVICE_TREE;
-	else if (JL2XXX_WOL_STATIC_OP_MODE == JL2XXX_WOL_OP_NONE)
-		mode->static_op = STATIC_NONE;
-
-	if (JL2XXX_WOL_DYNAMIC_OP_MODE == JL2XXX_WOL_DYNAMIC_ETHTOOL)
-		mode->dynamic_op = DYNAMIC_ETHTOOL;
-	else if (JL2XXX_WOL_DYNAMIC_OP_MODE == JL2XXX_WOL_OP_NONE)
-		mode->dynamic_op = DYNAMIC_NONE;
-
-	return 0;
-}
-
-static int jl2xxx_downshift_operation_mode(struct phy_device *phydev)
-{
-	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_config_mode *mode = &priv->downshift.op;
-
-	if (JL2XXX_DSFT_STATIC_OP_MODE == JL2XXX_DSFT_STATIC_C_MACRO)
-		mode->static_op = STATIC_C_MACRO;
-	else if (JL2XXX_DSFT_STATIC_OP_MODE == JL2XXX_DSFT_STATIC_DEVICE_TREE)
-		mode->static_op = STATIC_DEVICE_TREE;
-	else if (JL2XXX_DSFT_STATIC_OP_MODE == JL2XXX_DSFT_OP_NONE)
-		mode->static_op = STATIC_NONE;
-
-	if (JL2XXX_DSFT_DYNAMIC_OP_MODE == JL2XXX_DSFT_DYNAMIC_ETHTOOL)
-		mode->dynamic_op = DYNAMIC_ETHTOOL;
-	else if (JL2XXX_DSFT_DYNAMIC_OP_MODE == JL2XXX_DSFT_OP_NONE)
-		mode->dynamic_op = DYNAMIC_NONE;
-
-	return 0;
-}
-
-static int jl2xxx_rgmii_operation_mode(struct phy_device *phydev)
-{
-	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_config_mode *mode = &priv->rgmii.op;
-
-	if (JL2XXX_RGMII_STATIC_OP_MODE == JL2XXX_RGMII_STATIC_C_MACRO)
-		mode->static_op = STATIC_C_MACRO;
-	else if (JL2XXX_RGMII_STATIC_OP_MODE == JL2XXX_RGMII_STATIC_DEVICE_TREE)
-		mode->static_op = STATIC_DEVICE_TREE;
-	else if (JL2XXX_RGMII_STATIC_OP_MODE == JL2XXX_RGMII_OP_NONE)
-		mode->static_op = STATIC_NONE;
-
-	if (JL2XXX_RGMII_DYNAMIC_OP_MODE == JL2XXX_RGMII_DYNAMIC_ETHTOOL)
-		mode->dynamic_op = DYNAMIC_ETHTOOL;
-	else if (JL2XXX_RGMII_DYNAMIC_OP_MODE == JL2XXX_RGMII_OP_NONE)
-		mode->dynamic_op = DYNAMIC_NONE;
-
-	return 0;
-}
-
-static int jl2xxx_patch_operation_mode(struct phy_device *phydev)
-{
-	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_config_mode *mode = &priv->patch.op;
-
-	if (JL2XXX_PATCH_STATIC_OP_MODE == JL2XXX_PATCH_STATIC_C_MACRO)
-		mode->static_op = STATIC_C_MACRO;
-	else if (JL2XXX_PATCH_STATIC_OP_MODE == JL2XXX_PATCH_STATIC_DEVICE_TREE)
-		mode->static_op = STATIC_DEVICE_TREE;
-	else if (JL2XXX_PATCH_STATIC_OP_MODE == JL2XXX_PATCH_OP_NONE)
-		mode->static_op = STATIC_NONE;
-
-	if (JL2XXX_PATCH_DYNAMIC_OP_MODE == JL2XXX_PATCH_DYNAMIC_ETHTOOL)
-		mode->dynamic_op = DYNAMIC_ETHTOOL;
-	else if (JL2XXX_PATCH_DYNAMIC_OP_MODE == JL2XXX_PATCH_OP_NONE)
-		mode->dynamic_op = DYNAMIC_NONE;
-
-	return 0;
-}
-
-static int jl2xxx_clk_operation_mode(struct phy_device *phydev)
-{
-	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_config_mode *mode = &priv->clk.op;
-
-	if (JL2XXX_CLK_STATIC_OP_MODE == JL2XXX_CLK_STATIC_C_MACRO)
-		mode->static_op = STATIC_C_MACRO;
-	else if (JL2XXX_CLK_STATIC_OP_MODE == JL2XXX_CLK_STATIC_DEVICE_TREE)
-		mode->static_op = STATIC_DEVICE_TREE;
-	else if (JL2XXX_CLK_STATIC_OP_MODE == JL2XXX_CLK_OP_NONE)
-		mode->static_op = STATIC_NONE;
-
-	if (JL2XXX_CLK_DYNAMIC_OP_MODE == JL2XXX_CLK_DYNAMIC_ETHTOOL)
-		mode->dynamic_op = DYNAMIC_ETHTOOL;
-	else if (JL2XXX_CLK_DYNAMIC_OP_MODE == JL2XXX_CLK_OP_NONE)
-		mode->dynamic_op = DYNAMIC_NONE;
-
-	return 0;
-}
-
-static int jl2xxx_work_mode_operation_mode(struct phy_device *phydev)
-{
-	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_config_mode *mode = &priv->work_mode.op;
-
-	if (JL2XXX_WORK_MODE_STATIC_OP_MODE ==
-	    JL2XXX_WORK_MODE_STATIC_C_MACRO)
-		mode->static_op = STATIC_C_MACRO;
-	else if (JL2XXX_WORK_MODE_STATIC_OP_MODE ==
-		 JL2XXX_WORK_MODE_STATIC_DEVICE_TREE)
-		mode->static_op = STATIC_DEVICE_TREE;
-	else if (JL2XXX_WORK_MODE_STATIC_OP_MODE ==
-		 JL2XXX_WORK_MODE_OP_NONE)
-		mode->static_op = STATIC_NONE;
-
-	if (JL2XXX_WORK_MODE_DYNAMIC_OP_MODE ==
-	    JL2XXX_WORK_MODE_DYNAMIC_ETHTOOL)
-		mode->dynamic_op = DYNAMIC_ETHTOOL;
-	else if (JL2XXX_WORK_MODE_DYNAMIC_OP_MODE ==
-		 JL2XXX_WORK_MODE_OP_NONE)
-		mode->dynamic_op = DYNAMIC_NONE;
-
-	return 0;
-}
-
-static int jl2xxx_lpbk_operation_mode(struct phy_device *phydev)
-{
-	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_config_mode *mode = &priv->lpbk.op;
-
-	if (JL2XXX_LPBK_STATIC_OP_MODE == JL2XXX_LPBK_STATIC_C_MACRO)
-		mode->static_op = STATIC_C_MACRO;
-	else if (JL2XXX_LPBK_STATIC_OP_MODE == JL2XXX_LPBK_STATIC_DEVICE_TREE)
-		mode->static_op = STATIC_DEVICE_TREE;
-	else if (JL2XXX_LPBK_STATIC_OP_MODE == JL2XXX_LPBK_OP_NONE)
-		mode->static_op = STATIC_NONE;
-
-	if (JL2XXX_LPBK_DYNAMIC_OP_MODE == JL2XXX_LPBK_DYNAMIC_ETHTOOL)
-		mode->dynamic_op = DYNAMIC_ETHTOOL;
-	else if (JL2XXX_LPBK_DYNAMIC_OP_MODE == JL2XXX_LPBK_OP_NONE)
-		mode->dynamic_op = DYNAMIC_NONE;
-
-	return 0;
-}
-
-static int jl2xxx_slew_rate_operation_mode(struct phy_device *phydev)
-{
-	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_config_mode *mode = &priv->slew_rate.op;
-
-	if (JL2XXX_SLEW_RATE_STATIC_OP_MODE ==
-		JL2XXX_SLEW_RATE_STATIC_C_MACRO)
-		mode->static_op = STATIC_C_MACRO;
-	else if (JL2XXX_SLEW_RATE_STATIC_OP_MODE ==
-		JL2XXX_SLEW_RATE_STATIC_DEVICE_TREE)
-		mode->static_op = STATIC_DEVICE_TREE;
-	else if (JL2XXX_SLEW_RATE_STATIC_OP_MODE ==
-		JL2XXX_SLEW_RATE_OP_NONE)
-		mode->static_op = STATIC_NONE;
-
-	if (JL2XXX_SLEW_RATE_DYNAMIC_OP_MODE ==
-		JL2XXX_SLEW_RATE_DYNAMIC_ETHTOOL)
-		mode->dynamic_op = DYNAMIC_ETHTOOL;
-	else if (JL2XXX_SLEW_RATE_DYNAMIC_OP_MODE ==
-		 JL2XXX_SLEW_RATE_OP_NONE)
-		mode->dynamic_op = DYNAMIC_NONE;
-
-	return 0;
-}
-
-static int jl2xxx_rxc_out_operation_mode(struct phy_device *phydev)
-{
-	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_config_mode *mode = &priv->rxc_out.op;
-
-	if (JL2XXX_RXC_OUT_STATIC_OP_MODE ==
-		JL2XXX_RXC_OUT_STATIC_C_MACRO)
-		mode->static_op = STATIC_C_MACRO;
-	else if (JL2XXX_RXC_OUT_STATIC_OP_MODE ==
-		JL2XXX_RXC_OUT_STATIC_DEVICE_TREE)
-		mode->static_op = STATIC_DEVICE_TREE;
-	else if (JL2XXX_RXC_OUT_STATIC_OP_MODE ==
-		JL2XXX_RXC_OUT_OP_NONE)
-		mode->static_op = STATIC_NONE;
-
-	if (JL2XXX_RXC_OUT_DYNAMIC_OP_MODE ==
-		JL2XXX_RXC_OUT_DYNAMIC_ETHTOOL)
-		mode->dynamic_op = DYNAMIC_ETHTOOL;
-	else if (JL2XXX_RXC_OUT_DYNAMIC_OP_MODE ==
-		 JL2XXX_RXC_OUT_OP_NONE)
-		mode->dynamic_op = DYNAMIC_NONE;
-
-	return 0;
-}
-
 static int jl2xxx_fld_operation_args(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_config_mode *mode = &priv->fld.op;
+	struct jl_fld_ctrl *fld = &priv->fld;
 
-	if (mode->static_op == STATIC_C_MACRO)
-		jl2xxx_c_macro_fld_cfg_get(phydev);
-	else if (mode->static_op == STATIC_DEVICE_TREE)
+	if (JLSEMI_KERNEL_DEVICE_TREE_USE)
 		jl2xxx_dts_fld_cfg_get(phydev);
-	else if (mode->static_op == STATIC_NONE)
-		priv->fld.enable |= ~JL2XXX_FLD_STATIC_OP_EN;
-
-	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
-		priv->fld.enable |= JL2XXX_FLD_DYNAMIC_OP_EN;
 	else
-		priv->fld.enable &= ~JL2XXX_FLD_DYNAMIC_OP_EN;
+		jl2xxx_c_macro_fld_cfg_get(phydev);
+
+	/* Supported by default */
+	fld->ethtool = true;
 
 	return 0;
 }
@@ -1277,19 +894,15 @@ static int jl2xxx_fld_operation_args(struct phy_device *phydev)
 static int jl2xxx_wol_operation_args(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_config_mode *mode = &priv->wol.op;
+	struct jl_wol_ctrl *wol = &priv->wol;
 
-	if (mode->static_op == STATIC_C_MACRO)
-		jl2xxx_c_macro_wol_cfg_get(phydev);
-	else if (mode->static_op == STATIC_DEVICE_TREE)
+	if (JLSEMI_KERNEL_DEVICE_TREE_USE)
 		jl2xxx_dts_wol_cfg_get(phydev);
-	else if (mode->static_op == STATIC_NONE)
-		priv->wol.enable |= ~JL2XXX_WOL_STATIC_OP_EN;
-
-	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
-		priv->wol.enable |= JL2XXX_WOL_DYNAMIC_OP_EN;
 	else
-		priv->wol.enable &= ~JL2XXX_WOL_DYNAMIC_OP_EN;
+		jl2xxx_c_macro_wol_cfg_get(phydev);
+
+	/* Supported by default */
+	wol->ethtool = true;
 
 	return 0;
 }
@@ -1297,19 +910,15 @@ static int jl2xxx_wol_operation_args(struct phy_device *phydev)
 static int jl2xxx_intr_operation_args(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_config_mode *mode = &priv->intr.op;
+	struct jl_intr_ctrl *intr = &priv->intr;
 
-	if (mode->static_op == STATIC_DEVICE_TREE)
+	if (JLSEMI_KERNEL_DEVICE_TREE_USE)
 		jl2xxx_dts_intr_cfg_get(phydev);
-	else if (mode->static_op == STATIC_C_MACRO)
-		jl2xxx_c_macro_intr_cfg_get(phydev);
-	else if (mode->static_op == STATIC_NONE)
-		priv->intr.enable |= ~JL2XXX_INTR_STATIC_OP_EN;
-
-	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
-		priv->intr.enable |= JL2XXX_INTR_DYNAMIC_OP_EN;
 	else
-		priv->intr.enable &= ~JL2XXX_INTR_DYNAMIC_OP_EN;
+		jl2xxx_c_macro_intr_cfg_get(phydev);
+
+	/* Not supported by default */
+	intr->ethtool = false;
 
 	return 0;
 }
@@ -1317,19 +926,15 @@ static int jl2xxx_intr_operation_args(struct phy_device *phydev)
 static int jl2xxx_downshift_operation_args(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_config_mode *mode = &priv->downshift.op;
+	struct jl_downshift_ctrl *downshift = &priv->downshift;
 
-	if (mode->static_op == STATIC_C_MACRO)
-		jl2xxx_c_macro_downshift_cfg_get(phydev);
-	else if (mode->static_op == STATIC_DEVICE_TREE)
+	if (JLSEMI_KERNEL_DEVICE_TREE_USE)
 		jl2xxx_dts_downshift_cfg_get(phydev);
-	else if (mode->static_op == STATIC_NONE)
-		priv->downshift.enable |= ~JL2XXX_DSFT_STATIC_OP_EN;
-
-	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
-		priv->downshift.enable |= JL2XXX_DSFT_DYNAMIC_OP_EN;
 	else
-		priv->downshift.enable &= ~JL2XXX_DSFT_DYNAMIC_OP_EN;
+		jl2xxx_c_macro_downshift_cfg_get(phydev);
+
+	/* Supported by default */
+	downshift->ethtool = true;
 
 	return 0;
 }
@@ -1337,19 +942,15 @@ static int jl2xxx_downshift_operation_args(struct phy_device *phydev)
 static int jl2xxx_rgmii_operation_args(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_config_mode *mode = &priv->rgmii.op;
+	struct jl_rgmii_ctrl *rgmii= &priv->rgmii;
 
-	if (mode->static_op == STATIC_C_MACRO)
-		jl2xxx_c_macro_rgmii_cfg_get(phydev);
-	else if (mode->static_op == STATIC_DEVICE_TREE)
+	if (JLSEMI_KERNEL_DEVICE_TREE_USE)
 		jl2xxx_dts_rgmii_cfg_get(phydev);
-	else if (mode->static_op == STATIC_NONE)
-		priv->rgmii.enable |= ~JL2XXX_RGMII_STATIC_OP_EN;
-
-	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
-		priv->rgmii.enable |= JL2XXX_RGMII_DYNAMIC_OP_EN;
 	else
-		priv->rgmii.enable &= ~JL2XXX_RGMII_DYNAMIC_OP_EN;
+		jl2xxx_c_macro_rgmii_cfg_get(phydev);
+
+	/* Not supported by default */
+	rgmii->ethtool = false;
 
 	return 0;
 }
@@ -1357,19 +958,15 @@ static int jl2xxx_rgmii_operation_args(struct phy_device *phydev)
 static int jl2xxx_patch_operation_args(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_config_mode *mode = &priv->patch.op;
+	struct jl_patch_ctrl *patch = &priv->patch;
 
-	if (mode->static_op == STATIC_C_MACRO)
-		jl2xxx_c_macro_patch_cfg_get(phydev);
-	else if (mode->static_op == STATIC_DEVICE_TREE)
+	if (JLSEMI_KERNEL_DEVICE_TREE_USE)
 		jl2xxx_dts_patch_cfg_get(phydev);
-	else if (mode->static_op == STATIC_NONE)
-		priv->patch.enable |= ~JL2XXX_PATCH_STATIC_OP_EN;
-
-	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
-		priv->patch.enable |= JL2XXX_PATCH_DYNAMIC_OP_EN;
 	else
-		priv->patch.enable &= ~JL2XXX_PATCH_DYNAMIC_OP_EN;
+		jl2xxx_c_macro_patch_cfg_get(phydev);
+
+	/* Not supported by default */
+	patch->ethtool = false;
 
 	return 0;
 }
@@ -1377,19 +974,15 @@ static int jl2xxx_patch_operation_args(struct phy_device *phydev)
 static int jl2xxx_clk_operation_args(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_config_mode *mode = &priv->clk.op;
+	struct jl_clk_ctrl *clk = &priv->clk;
 
-	if (mode->static_op == STATIC_C_MACRO)
-		jl2xxx_c_macro_clk_cfg_get(phydev);
-	else if (mode->static_op == STATIC_DEVICE_TREE)
+	if (JLSEMI_KERNEL_DEVICE_TREE_USE)
 		jl2xxx_dts_clk_cfg_get(phydev);
-	else if (mode->static_op == STATIC_NONE)
-		priv->clk.enable |= ~JL2XXX_CLK_STATIC_OP_EN;
-
-	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
-		priv->clk.enable |= JL2XXX_CLK_DYNAMIC_OP_EN;
 	else
-		priv->clk.enable &= ~JL2XXX_CLK_DYNAMIC_OP_EN;
+		jl2xxx_c_macro_clk_cfg_get(phydev);
+
+	/* Not supported by default */
+	clk->ethtool = false;
 
 	return 0;
 }
@@ -1397,19 +990,15 @@ static int jl2xxx_clk_operation_args(struct phy_device *phydev)
 static int jl2xxx_work_mode_operation_args(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_config_mode *mode = &priv->work_mode.op;
+	struct jl_work_mode_ctrl *work_mode= &priv->work_mode;
 
-	if (mode->static_op == STATIC_C_MACRO)
-		jl2xxx_c_macro_work_mode_cfg_get(phydev);
-	else if (mode->static_op == STATIC_DEVICE_TREE)
+	if (JLSEMI_KERNEL_DEVICE_TREE_USE)
 		jl2xxx_dts_work_mode_cfg_get(phydev);
-	else if (mode->static_op == STATIC_NONE)
-		priv->work_mode.enable |= ~JL2XXX_WORK_MODE_STATIC_OP_EN;
-
-	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
-		priv->work_mode.enable |= JL2XXX_WORK_MODE_DYNAMIC_OP_EN;
 	else
-		priv->work_mode.enable &= ~JL2XXX_WORK_MODE_DYNAMIC_OP_EN;
+		jl2xxx_c_macro_work_mode_cfg_get(phydev);
+
+	/* Not supported by default */
+	work_mode->ethtool = false;
 
 	return 0;
 }
@@ -1417,19 +1006,15 @@ static int jl2xxx_work_mode_operation_args(struct phy_device *phydev)
 static int jl2xxx_lpbk_operation_args(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_config_mode *mode = &priv->lpbk.op;
+	struct jl_loopback_ctrl *lpbk = &priv->lpbk;
 
-	if (mode->static_op == STATIC_C_MACRO)
-		jl2xxx_c_macro_lpbk_cfg_get(phydev);
-	else if (mode->static_op == STATIC_DEVICE_TREE)
+	if (JLSEMI_KERNEL_DEVICE_TREE_USE)
 		jl2xxx_dts_lpbk_cfg_get(phydev);
-	else if (mode->static_op == STATIC_NONE)
-		priv->lpbk.enable |= ~JL2XXX_LPBK_STATIC_OP_EN;
-
-	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
-		priv->lpbk.enable |= JL2XXX_LPBK_DYNAMIC_OP_EN;
 	else
-		priv->lpbk.enable &= ~JL2XXX_LPBK_DYNAMIC_OP_EN;
+		jl2xxx_c_macro_lpbk_cfg_get(phydev);
+
+	/* Not supported by default */
+	lpbk->ethtool = false;
 
 	return 0;
 }
@@ -1437,19 +1022,15 @@ static int jl2xxx_lpbk_operation_args(struct phy_device *phydev)
 static int jl2xxx_slew_rate_operation_args(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_config_mode *mode = &priv->slew_rate.op;
+	struct jl_slew_rate_ctrl *slew_rate = &priv->slew_rate;
 
-	if (mode->static_op == STATIC_C_MACRO)
-		jl2xxx_c_macro_slew_rate_cfg_get(phydev);
-	else if (mode->static_op == STATIC_DEVICE_TREE)
+	if (JLSEMI_KERNEL_DEVICE_TREE_USE)
 		jl2xxx_dts_slew_rate_cfg_get(phydev);
-	else if (mode->static_op == STATIC_NONE)
-		priv->slew_rate.enable |= ~JL2XXX_SLEW_RATE_STATIC_OP_EN;
-
-	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
-		priv->slew_rate.enable |= JL2XXX_SLEW_RATE_DYNAMIC_OP_EN;
 	else
-		priv->slew_rate.enable &= ~JL2XXX_SLEW_RATE_DYNAMIC_OP_EN;
+		jl2xxx_c_macro_slew_rate_cfg_get(phydev);
+
+	/* Not supported by default */
+	slew_rate->ethtool = false;
 
 	return 0;
 }
@@ -1457,19 +1038,15 @@ static int jl2xxx_slew_rate_operation_args(struct phy_device *phydev)
 static int jl2xxx_rxc_out_operation_args(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_config_mode *mode = &priv->rxc_out.op;
+	struct jl_rxc_out_ctrl *rxc_out = &priv->rxc_out;
 
-	if (mode->static_op == STATIC_C_MACRO)
-		jl2xxx_c_macro_rxc_out_cfg_get(phydev);
-	else if (mode->static_op == STATIC_DEVICE_TREE)
+	if (JLSEMI_KERNEL_DEVICE_TREE_USE)
 		jl2xxx_dts_rxc_out_cfg_get(phydev);
-	else if (mode->static_op == STATIC_NONE)
-		priv->rxc_out.enable |= ~JL2XXX_RXC_OUT_STATIC_OP_EN;
-
-	if (mode->dynamic_op == DYNAMIC_ETHTOOL)
-		priv->rxc_out.enable |= JL2XXX_RXC_OUT_DYNAMIC_OP_EN;
 	else
-		priv->rxc_out.enable &= ~JL2XXX_RXC_OUT_DYNAMIC_OP_EN;
+		jl2xxx_c_macro_rxc_out_cfg_get(phydev);
+
+	/* Not supported by default */
+	rxc_out->ethtool = false;
 
 	return 0;
 }
@@ -2394,35 +1971,6 @@ int jl2xxx_intr_static_op_set(struct phy_device *phydev)
 			      JL2XXX_PIN_OUTPUT);
 	if (err < 0)
 		return err;
-
-	return 0;
-}
-
-int jl1xxx_operation_mode_select(struct phy_device *phydev)
-{
-	jl1xxx_led_operation_mode(phydev);
-	jl1xxx_wol_operation_mode(phydev);
-	jl1xxx_intr_operation_mode(phydev);
-	jl1xxx_mdi_operation_mode(phydev);
-	jl1xxx_rmii_operation_mode(phydev);
-
-	return 0;
-}
-
-int jl2xxx_operation_mode_select(struct phy_device *phydev)
-{
-	jl2xxx_led_operation_mode(phydev);
-	jl2xxx_fld_operation_mode(phydev);
-	jl2xxx_wol_operation_mode(phydev);
-	jl2xxx_intr_operation_mode(phydev);
-	jl2xxx_downshift_operation_mode(phydev);
-	jl2xxx_rgmii_operation_mode(phydev);
-	jl2xxx_patch_operation_mode(phydev);
-	jl2xxx_clk_operation_mode(phydev);
-	jl2xxx_work_mode_operation_mode(phydev);
-	jl2xxx_lpbk_operation_mode(phydev);
-	jl2xxx_slew_rate_operation_mode(phydev);
-	jl2xxx_rxc_out_operation_mode(phydev);
 
 	return 0;
 }
