@@ -19,49 +19,71 @@ Optional properties:
 
 Default child nodes are standard Ethernet PHY device
 
-Example for jl1xxx:
 
-	jl1xxxphy: jl1xxx-phy@0 {
-		compatible = "ethernet-phy-id937c.4020";
-		jl1xxx,led-enable = <JL1XXX_LED_CTRL_EN>;
-		jl1xxx,led-mode = <JL1XXX_CFG_LED_MODE>;
-		jl1xxx,led-period = <JL1XXX_GLOBAL_PERIOD_MS>;
-		jl1xxx,led-on = <JL1XXX_GLOBAL_ON_MS>;
-		jl1xxx,led-gpio = <JL1XXXX_CFG_GPIO>;
-		jl1xxx,wol-enable = <JL1XXX_WOL_CTRL_EN>;
-		jl1xxx,interrupt-enable = <JL1XXX_INTR_CTRL_EN>;
-		jl1xxx,mdi-enable = <JL1XXX_MDI_CTRL_EN>;
-		jl1xxx,mdi-rate = <JL1XXX_MDI_RATE>;
-		jl1xxx,mdi-amplitude = <JL1XXX_MDI_AMPLITUDE>;
-		jl1xxx,rmii-enable = <JL1XXX_RMII_CTRL_EN>;
-		jl1xxx,rmii-rx_timing = <JL1XXX_RMII_RX_TIMING>;
-		jl1xxx,rmii-tx_timing = <JL1XXX_RMII_TX_TIMING>;
-	};
+All configure options for jl1xxx:
+	jl1xxx,led-enable = <0>;
+	jl1xxx,led-mode = <0>;
+	jl1xxx,led-period = <0>;
+	jl1xxx,led-on = <0>;
+	jl1xxx,led-gpio = <0>;
+	jl1xxx,wol-enable = <0>;
+	jl1xxx,interrupt-enable = <0>;
+	jl1xxx,mdi-enable = <0>;
+	jl1xxx,mdi-rate = <0>;
+	jl1xxx,mdi-amplitude = <0>;
+	jl1xxx,rmii-enable = <0>;
+	jl1xxx,rmii-rx_timing = <0>;
+	jl1xxx,rmii-tx_timing = <0>;
 
-Example for jl2xxx:
 
-	jl2xxxphy: jl2xxx-phy@0 {
-		compatible = "ethernet-phy-id937c.4030";
-		jl2xxx,led-enable = <JL2XXX_LED_CTRL_EN>;
-		jl2xxx,led-mode = <JL2XXX_CFG_LED_MODE>;
-		jl2xxx,led-period = <JL2XXX_GLOBAL_PERIOD_MS>;
-		jl2xxx,led-on = <JL2XXX_GLOBAL_ON_MS>;
-		jl2xxx,led-polarity = <JL2XXX_LED_POLARITY>;
-		jl2xxx,patch-enable = <JL2XXX_PATCH_CTRL_EN>;
-		jl2xxx,rgmii-enable = <JL2XXX_RGMII_CTRL_EN>;
-		jl2xxx,rgmii-tx-delay = <JL2XXX_RGMII_TX_DLY_2NS>;
-		jl2xxx,rgmii-rx-delay = <JL2XXX_RGMII_RX_DLY_2NS>;
-		jl2xxx,clk-enable = <JL2XXX_CLK_CTRL_EN>;
-		jl2xxx,fld-enable = <JL2XXX_FLD_CTRL_EN>;
-		jl2xxx,fld-delay = <JL2XXX_FLD_DELAY>;
-		jl2xxx,wol-enable = <JL2XXX_WOL_CTRL_EN>;
-		jl2xxx,interrupt-enable = <JL2XXX_INTR_CTRL_EN>;
-		jl2xxx,downshift-enable = <JL2XXX_DSFT_CTRL_EN>;
-		jl2xxx,downshift-count = <JL2XXX_DSFT_AN_CNT>;
-		jl2xxx,work_mode-enable = <JL2XXX_WORK_MODE_CTRL_EN>;
-		jl2xxx,work_mode-mode = <JL2XXX_WOEK_MODE_MODE>;
-		jl2xxx,lpbk-enable = <JL2XXX_LPBK_CTRL_EN>;
-		jl2xxx,lpbk-mode = <JL2XXX_LPBK_MODE>;
-		jl2xxx,slew_rate-enable = <JL2XXX_SLEW_RATE_CTRL_EN>;
-		jl2xxx,rxc_out-enable = <JL2XXX_RXC_OUT_CTRL_EN>;
+All configure options for jl2xxx:
+	jl2xxx,led-enable = <0>;
+	jl2xxx,led-mode = <0>;
+	jl2xxx,led-period = <0>;
+	jl2xxx,led-on = <0>;
+	jl2xxx,led-polarity = <0>;
+	jl2xxx,patch-enable = <0>;
+	jl2xxx,rgmii-enable = <0>;
+	jl2xxx,rgmii-tx-delay = <0>;
+	jl2xxx,rgmii-rx-delay = <0>;
+	jl2xxx,clk-enable = <0>;
+	jl2xxx,fld-enable = <0>;
+	jl2xxx,fld-delay = <0>;
+	jl2xxx,wol-enable = <0>;
+	jl2xxx,interrupt-enable = <0>;
+	jl2xxx,downshift-enable = <0>;
+	jl2xxx,downshift-count = <0>;
+	jl2xxx,work_mode-enable = <0>;
+	jl2xxx,work_mode-mode = <0>;
+	jl2xxx,lpbk-enable = <0>;
+	jl2xxx,lpbk-mode = <0>;
+	jl2xxx,slew_rate-enable = <0>;
+	jl2xxx,rxc_out-enable = <0>;
+
+
+Example for device tree:
+	gmac: ethernet@ff540000 {
+		compatible = "gmac";
+		reg = <0x10 0x20>;
+		......
+		.....
+		...
+		status = "okay";
+
+		phy-handle = <&phy0>
+		phy0: ethernet-phy@0 {
+			jl2xxx,work_mode-enable = <JL2XXX_WORK_MODE_STATIC_OP_EN>;
+			jl2xxx,work_mode-mode = <JL2XXX_UTP_RGMII_MODE>;
+			reg = <0>;
+		};
+		phy1: ethernet-phy@1 {
+			reg = <1>;
+		};
+		phy31: ethernet-phy@31 {
+			reg = <31>;
+		};
+
+		......
+		.....
+		...
 	};
