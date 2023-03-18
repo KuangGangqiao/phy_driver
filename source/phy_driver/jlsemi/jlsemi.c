@@ -63,15 +63,11 @@ static int jl1xxx_probe(struct phy_device *phydev)
 	if (!dev->of_node)
 		JLSEMI_PHY_MSG("%s: Find device node failed\n", __func__);
 #endif
-	/* Select operation mode */
-	jl1xxx_operation_mode_select(phydev);
-
 	err = jl1xxx_operation_args_get(phydev);
 	if (err < 0)
 		return err;
 
-	if (jl1xxx->intr.enable & JL1XXX_INTR_STATIC_OP_EN ||
-	    jl1xxx->intr.enable & JL1XXX_INTR_DYNAMIC_OP_EN)
+	if (jl1xxx->intr.enable & JL1XXX_INTR_STATIC_OP_EN)
 		phydev->irq = JL1XXX_INTR_IRQ;
 
 	jl1xxx->static_inited = false;
@@ -165,7 +161,7 @@ static void jl1xxx_get_wol(struct phy_device *phydev,
 	struct jl1xxx_priv *priv = phydev->priv;
 	int wol_en;
 
-	if (priv->wol.enable & JL1XXX_WOL_DYNAMIC_OP_EN) {
+	if (priv->wol.ethtool) {
 		wol->supported = WAKE_MAGIC;
 		wol->wolopts = 0;
 
@@ -182,7 +178,7 @@ static int jl1xxx_set_wol(struct phy_device *phydev,
 	struct jl1xxx_priv *priv = phydev->priv;
 	int err;
 
-	if (priv->wol.enable & JL1XXX_WOL_DYNAMIC_OP_EN) {
+	if (priv->wol.ethtool) {
 		if (wol->wolopts & WAKE_MAGIC) {
 			err = jl1xxx_wol_dynamic_op_set(phydev);
 			if (err < 0)
@@ -220,15 +216,11 @@ static int jl2xxx_probe(struct phy_device *phydev)
 	if (!dev->of_node)
 		JLSEMI_PHY_MSG("%s: Find device node failed\n", __func__);
 #endif
-	/* Select operation mode */
-	jl2xxx_operation_mode_select(phydev);
-
 	err = jl2xxx_operation_args_get(phydev);
 	if (err < 0)
 		return err;
 
-	if (jl2xxx->intr.enable & JL2XXX_INTR_STATIC_OP_EN ||
-	    jl2xxx->intr.enable & JL2XXX_INTR_DYNAMIC_OP_EN)
+	if (jl2xxx->intr.enable & JL2XXX_INTR_STATIC_OP_EN)
 		phydev->irq = JL2XXX_INTR_IRQ;
 
 	jl2xxx->static_inited = false;
@@ -361,7 +353,7 @@ static void jl2xxx_get_wol(struct phy_device *phydev,
 	struct jl2xxx_priv *priv = phydev->priv;
 	int wol_en;
 
-	if (priv->wol.enable & JL2XXX_WOL_DYNAMIC_OP_EN) {
+	if (priv->wol.ethtool) {
 		wol->supported = WAKE_MAGIC;
 		wol->wolopts = 0;
 
@@ -378,7 +370,7 @@ static int jl2xxx_set_wol(struct phy_device *phydev,
 	struct jl2xxx_priv *priv = phydev->priv;
 	int err;
 
-	if (priv->wol.enable & JL2XXX_WOL_DYNAMIC_OP_EN) {
+	if (priv->wol.ethtool) {
 		if (wol->wolopts & WAKE_MAGIC) {
 			err = jl2xxx_wol_dynamic_op_set(phydev);
 			if (err < 0)
@@ -398,12 +390,12 @@ static int jl2xxx_get_tunable(struct phy_device *phydev,
 
 	switch (tuna->id) {
 	case ETHTOOL_PHY_FAST_LINK_DOWN:
-		if (priv->fld.enable & JL2XXX_FLD_DYNAMIC_OP_EN)
+		if (priv->fld.ethtool)
 			return jl2xxx_fld_dynamic_op_get(phydev, data);
 		else
 			return 0;
 	case ETHTOOL_PHY_DOWNSHIFT:
-		if (priv->downshift.enable & JL2XXX_DSFT_DYNAMIC_OP_EN)
+		if (priv->downshift.ethtool)
 			return jl2xxx_downshift_dynamic_op_get(phydev, data);
 		else
 			return 0;
@@ -421,12 +413,12 @@ static int jl2xxx_set_tunable(struct phy_device *phydev,
 
 	switch (tuna->id) {
 	case ETHTOOL_PHY_FAST_LINK_DOWN:
-		if (priv->fld.enable & JL2XXX_FLD_DYNAMIC_OP_EN)
+		if (priv->fld.ethtool)
 			return jl2xxx_fld_dynamic_op_set(phydev, data);
 		else
 			return 0;
 	case ETHTOOL_PHY_DOWNSHIFT:
-		if (priv->downshift.enable & JL2XXX_DSFT_DYNAMIC_OP_EN)
+		if (priv->downshift.ethtool)
 			return jl2xxx_downshift_dynamic_op_set(phydev,
 							*(const u8 *)data);
 		else
