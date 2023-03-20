@@ -17,6 +17,14 @@ For version `x.y.z`, it means
        Note: It will change when implementing new features.
 
 
+# Time: 2023 3 20
+# Version: 1.2.0
+**New**
+- Reconstructed the select mode function code
+- Support Device Tree to configure different phy functions based on
+  different phy addrs
+- Support 100M phy driver
+
 # Time: 2023 3 15
 # Version: 1.1.15
 **Fix**
