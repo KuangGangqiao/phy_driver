@@ -886,7 +886,7 @@ static int jl2xxx_fld_operation_args(struct phy_device *phydev)
 		jl2xxx_c_macro_fld_cfg_get(phydev);
 
 	/* Supported by default */
-	fld->ethtool = true;
+	fld->ethtool = false;
 
 	return 0;
 }
@@ -902,7 +902,7 @@ static int jl2xxx_wol_operation_args(struct phy_device *phydev)
 		jl2xxx_c_macro_wol_cfg_get(phydev);
 
 	/* Supported by default */
-	wol->ethtool = true;
+	wol->ethtool = false;
 
 	return 0;
 }
@@ -934,7 +934,7 @@ static int jl2xxx_downshift_operation_args(struct phy_device *phydev)
 		jl2xxx_c_macro_downshift_cfg_get(phydev);
 
 	/* Supported by default */
-	downshift->ethtool = true;
+	downshift->ethtool = false;
 
 	return 0;
 }
