@@ -837,7 +837,7 @@ static int jl2xxx_downshift_operation_args(struct phy_device *phydev)
 static int jl2xxx_rgmii_operation_args(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_rgmii_ctrl *rgmii= &priv->rgmii;
+	struct jl_rgmii_ctrl *rgmii = &priv->rgmii;
 
 	if (JLSEMI_KERNEL_DEVICE_TREE_USE)
 		jl2xxx_dts_rgmii_cfg_get(phydev);
@@ -885,7 +885,7 @@ static int jl2xxx_clk_operation_args(struct phy_device *phydev)
 static int jl2xxx_work_mode_operation_args(struct phy_device *phydev)
 {
 	struct jl2xxx_priv *priv = phydev->priv;
-	struct jl_work_mode_ctrl *work_mode= &priv->work_mode;
+	struct jl_work_mode_ctrl *work_mode = &priv->work_mode;
 
 	if (JLSEMI_KERNEL_DEVICE_TREE_USE)
 		jl2xxx_dts_work_mode_cfg_get(phydev);
@@ -2212,7 +2212,8 @@ int config_init_r4p1(struct phy_device *phydev)
 		return err;
 
 	err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE201, JL2XXX_REG29,
-				      JL2XXX_FG_LP_10M_MASK, JL2XXX_FG_LP_10M(1));
+				      JL2XXX_FG_LP_10M_MASK,
+				      JL2XXX_FG_LP_10M(1));
 	if (err < 0)
 		return err;
 
