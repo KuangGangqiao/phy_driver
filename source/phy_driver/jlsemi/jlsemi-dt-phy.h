@@ -298,7 +298,7 @@
 #define JL2XXX_WORK_MODE_CTRL_EN	(0)
 
 /* PHY Work Mode Config */
-#define JL2XXX_WOEK_MODE_MODE		JL2XXX_UTP_RGMII_MODE
+#define JL2XXX_WORK_MODE_MODE		JL2XXX_UTP_RGMII_MODE
 
 /*************************************************************************/
 

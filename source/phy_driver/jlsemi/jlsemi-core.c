@@ -722,7 +722,7 @@ static int jl2xxx_c_macro_work_mode_cfg_get(struct phy_device *phydev)
 
 	struct jl_work_mode_ctrl work_mode_cfg = {
 		.enable		= JL2XXX_WORK_MODE_CTRL_EN,
-		.mode		= JL2XXX_WOEK_MODE_MODE,
+		.mode		= JL2XXX_WORK_MODE_MODE,
 	};
 
 	priv->work_mode = work_mode_cfg;
