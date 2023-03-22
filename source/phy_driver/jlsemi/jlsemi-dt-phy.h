@@ -265,7 +265,7 @@
 #define JL2XXX_PATCH_STATIC_OP_EN	(1 << 0)
 //-----------------------------------------------------------------------//
 /* PHY Patch Control Mode Enable Mask Config */
-#define JL2XXX_PATCH_CTRL_EN	(0)
+#define JL2XXX_PATCH_CTRL_EN	(JL2XXX_PATCH_STATIC_OP_EN)
 
 /*************************************************************************/
 
