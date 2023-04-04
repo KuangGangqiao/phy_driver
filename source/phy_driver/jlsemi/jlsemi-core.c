@@ -1918,7 +1918,7 @@ int jl1xxx_static_op_init(struct phy_device *phydev)
 	}
 #endif
 
-	if (priv->wol.enable & JL1XXX_INTR_STATIC_OP_EN) {
+	if (priv->intr.enable & JL1XXX_INTR_STATIC_OP_EN) {
 		err = jl1xxx_intr_static_op_set(phydev);
 		if (err < 0)
 			return err;
