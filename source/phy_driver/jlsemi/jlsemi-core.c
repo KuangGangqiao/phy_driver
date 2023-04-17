@@ -1471,7 +1471,8 @@ bool jl2xxx_read_fiber_status(struct phy_device *phydev)
 	phy_mode = val & JL2XXX_WORK_MODE_MASK;
 
 	if ((phydev->interface != PHY_INTERFACE_MODE_SGMII) &&
-	    (phy_mode == JL2XXX_FIBER_RGMII_MODE)) {
+	   ((phy_mode == JL2XXX_FIBER_RGMII_MODE) ||
+	    (phy_mode == JL2XXX_UTP_FIBER_RGMII_MODE))) {
 		jl2xxx_update_fiber_status(phydev);
 		if (phydev->link)
 			fiber_ok = true;
