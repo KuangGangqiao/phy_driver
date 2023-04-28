@@ -330,7 +330,8 @@ static int jl2xxx_config_aneg(struct phy_device *phydev)
 		return 0;
 
 	if ((phydev->interface != PHY_INTERFACE_MODE_SGMII) &&
-	    (phy_mode == JL2XXX_FIBER_RGMII_MODE))
+	    ((phy_mode == JL2XXX_FIBER_RGMII_MODE) ||
+	    (phy_mode == JL2XXX_UTP_FIBER_RGMII_MODE)))
 		return jl2xxx_config_aneg_fiber(phydev);
 
 	return genphy_config_aneg(phydev);
