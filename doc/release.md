@@ -17,6 +17,17 @@ For version `x.y.z`, it means
        Note: It will change when implementing new features.
 
 
+# Time: 2023 5 19
+# Version: 1.2.4
+**Fix**
+- Fix jl1xxx intrrupt function typo
+- Fix judgment condition omission JL2XXX_UTP_FIBER_RGMII_MODE
+- Fix  add phy interface aneg_done for phy fiber mode
+    Avoiding automatic negotiation failure in phy fiber mode
+
+**New**
+- Add patch of 0x9f73 for separate load big die and small die phy
+
 # Time: 2023 3 20
 # Version: 1.2.0
 **New**
