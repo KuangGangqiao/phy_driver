@@ -495,7 +495,7 @@ static inline int jlsemi_aneg_done(struct phy_device *phydev)
 	return (retval < 0) ? retval : (retval & BMSR_ANEGCOMPLETE);
 }
 
-int jl2xxx_aneg_done(struct phy_device *phydev)
+static int jl2xxx_aneg_done(struct phy_device *phydev)
 {
 	u16 phy_mode;
 	int val;
