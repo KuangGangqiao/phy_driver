@@ -243,7 +243,7 @@
 #define JL2XXX_DSFT_CTRL_EN	(0)
 
 /* PHY Downshift Count Config */
-#define JL2XXX_DSFT_AN_CNT		3
+#define JL2XXX_DSFT_AN_CNT		4
 /*************************************************************************/
 
 /**************************** JL2XXX-RGMII *******************************/
