@@ -18,6 +18,11 @@ For version `x.y.z`, it means
 
 
 # Time: 2023 5 19
+# Version: 1.2.5
+**Fix**
+- Fix downshift config val error
+
+# Time: 2023 5 19
 # Version: 1.2.4
 **Fix**
 - Fix jl1xxx intrrupt function typo
