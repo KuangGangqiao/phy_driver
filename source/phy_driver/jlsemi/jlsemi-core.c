@@ -1401,7 +1401,6 @@ int jl2xxx_config_aneg_fiber(struct phy_device *phydev)
 				JL2XXX_BMCR_REG,
 				JL2XXX_BMCR_SPEED_LSB,
 				JL2XXX_BMCR_SPEED_MSB | BMCR_ANENABLE);
-
 	return 0;
 }
 
