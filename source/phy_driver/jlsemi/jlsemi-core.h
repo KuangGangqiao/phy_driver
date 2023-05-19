@@ -212,8 +212,6 @@ static const struct jl_hw_stat jl_phy[] = {
 	},
 };
 
-static const u16 patch_fw_versions[] = {0x1101, 0x9101, 0x9107};
-
 static const struct jl_hw_stat jl2xxx_hw_stats[] = {
 	{
 		.string	= "phy_patch_version",
@@ -385,7 +383,10 @@ int jl2xxx_static_op_init(struct phy_device *phydev);
 
 int jlsemi_soft_reset(struct phy_device *phydev);
 
-int jl2xxx_pre_init(struct phy_device *phydev);
+int jl2xxx_pre_init(struct phy_device *phydev,
+		    u32 *init_data, u16 data_len,
+		    u16 *patch_fw_versions, u16 versions_len,
+		    u16 patch_version);
 
 bool jl2xxx_read_fiber_status(struct phy_device *phydev);
 
