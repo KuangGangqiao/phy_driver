@@ -238,10 +238,6 @@ static int jl2xxx_config_init(struct phy_device *phydev)
 	struct jl2xxx_priv *priv = phydev->priv;
 	int ret;
 
-	ret = config_init_r4p1(phydev);
-	if (ret < 0)
-		return ret;
-
 	if (!priv->static_inited) {
 #if (JLSEMI_DEBUG_INFO)
 		JLSEMI_PHY_MSG("jl2xxx_config_init_before:\n");

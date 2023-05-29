@@ -157,21 +157,10 @@
 
 #define JL2XXX_PAGE174		174
 
-#define JL2XXX_PAGE201		201
-#define JL2XXX_RX_AMP2_MASK	0xfc0
-#define JL2XXX_RX_AMP2(x)	((x << 6) & JL2XXX_RX_AMP2_MASK)
 #define JL2XXX_REG29		29
-#define JL2XXX_FG_LP_10M_MASK	0xf0
-#define JL2XXX_FG_LP_10M(x)	((x << 4) & JL2XXX_FG_LP_10M_MASK)
 
 #define JL2XXX_PAGE191		191
 #define JL2XXX_RGMII_CFG	BIT(3)
-
-#define JL2XXX_PAGE206		206
-#define JL2XXX_REG22		22
-#define JL2XXX_RX_AMP_SIG_MASK	0x1e0
-#define JL2XXX_RX_AMP_SIG(x)	((x << 5) & JL2XXX_RX_AMP_SIG_MASK)
-
 
 #define JL2XXX_PAGE258		258
 #define JL2XXX_SLEW_RATE_CTRL_REG	23
@@ -344,8 +333,6 @@ struct jl2xxx_priv {
 #define JLSEMI_PHY_MSG(msg, args...) printk(msg, ## args)
 
 /************************* JLSemi iteration code *************************/
-int config_init_r4p1(struct phy_device *phydev);
-
 struct device *jlsemi_get_mdio(struct phy_device *phydev);
 
 int jl2xxx_downshift_dynamic_op_get(struct phy_device *phydev, u8 *data);
