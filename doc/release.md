@@ -17,6 +17,11 @@ For version `x.y.z`, it means
        Note: It will change when implementing new features.
 
 
+# Time: 2023 5 29
+# Version: 1.2.6
+**New**
+- add new patch version 0x2e9c for r4p1
+
 # Time: 2023 5 19
 # Version: 1.2.5
 **Fix**

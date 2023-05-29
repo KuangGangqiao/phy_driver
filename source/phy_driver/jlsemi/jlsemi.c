@@ -19,7 +19,7 @@
 #include <linux/module.h>
 #include <linux/netdevice.h>
 
-#define DRIVER_VERSION		"1.2.5"
+#define DRIVER_VERSION		"1.2.6"
 #define DRIVER_NAME_100M	"JL1xxx Fast Ethernet " DRIVER_VERSION
 #define DRIVER_NAME_1000M	"JL2xxx Gigabit Ethernet " DRIVER_VERSION
 
