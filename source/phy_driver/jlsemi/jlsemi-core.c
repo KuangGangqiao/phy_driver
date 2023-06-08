@@ -1046,13 +1046,15 @@ static int jl1xxx_wol_store_mac_addr(struct phy_device *phydev)
 static int jl2xxx_wol_enable(struct phy_device *phydev, bool enable)
 {
 	if (enable) {
-		jlsemi_set_bits(phydev, JL2XXX_WOL_STAS_PAGE,
-				JL2XXX_WOL_STAS_REG, JL2XXX_WOL_EN);
-		jlsemi_clear_bits(phydev, JL2XXX_WOL_STAS_PAGE,
-				  JL2XXX_WOL_STAS_REG, JL2XXX_WOL_GLB_EN);
-	} else {
+		jlsemi_set_bits(phydev, JL2XXX_WOL_CTRL_PAGE,
+				JL2XXX_WOL_CTRL_REG, JL2XXX_WOL_GLB_EN);
 		jlsemi_clear_bits(phydev, JL2XXX_WOL_STAS_PAGE,
 				  JL2XXX_WOL_STAS_REG, JL2XXX_WOL_EN);
+	} else {
+		jlsemi_clear_bits(phydev, JL2XXX_WOL_CTRL_PAGE,
+				  JL2XXX_WOL_CTRL_REG, JL2XXX_WOL_GLB_EN);
+		jlsemi_set_bits(phydev, JL2XXX_WOL_STAS_PAGE,
+				JL2XXX_WOL_STAS_REG, JL2XXX_WOL_EN);
 	}
 	jlsemi_soft_reset(phydev);
 
