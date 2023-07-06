@@ -181,12 +181,6 @@ static int jl2xxx_led_static_op_set(struct phy_device *phydev)
 				      priv->led.polarity);
 		if (err < 0)
 			return err;
-	} else {
-		err = jlsemi_clear_bits(phydev, JL2XXX_PAGE4096,
-					JL2XXX_LED_POLARITY_REG,
-					priv->led.polarity);
-		if (err < 0)
-			return err;
 	}
 
 	return 0;
