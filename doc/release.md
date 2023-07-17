@@ -17,6 +17,14 @@ For version `x.y.z`, it means
        Note: It will change when implementing new features.
 
 
+# Time: 2023 7 17
+# Version: 1.2.9
+**Fix**
+- Fix wol enable reg addr error.
+- Fix don't clear led polarity default val.
+**New**
+- Add new function for close 125MHz and 25MHz clock out
+
 # Time: 2023 5 29
 # Version: 1.2.6
 **New**
