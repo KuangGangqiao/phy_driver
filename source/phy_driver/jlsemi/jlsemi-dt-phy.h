@@ -274,6 +274,7 @@
 #define JL2XXX_CLK_STATIC_OP_EN		(1 << 0)
 #define JL2XXX_25M_CLK_OUT_EN		(1 << 1)
 #define JL2XXX_125M_CLK_OUT_EN		(1 << 2)
+#define JL2XXX_CLK_OUT_DIS		(1 << 3)
 //-----------------------------------------------------------------------//
 /* PHY Clock Control Mode Enable Mask Config */
 #define JL2XXX_CLK_CTRL_EN	(0)

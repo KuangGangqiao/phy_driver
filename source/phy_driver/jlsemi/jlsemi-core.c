@@ -1308,7 +1308,7 @@ int jl2xxx_clk_static_op_set(struct phy_device *phydev)
 					      JL2XXXX_CLK_SRC);
 		if (err < 0)
 			return err;
-	} else {
+	} else if (priv->clk.enable & JL2XXX_CLK_OUT_DIS) {
 		err = jlsemi_clear_bits(phydev, JL2XXX_PAGE2627,
 					JL2XXX_CLK_CTRL_REG,
 					JL2XXX_CLK_OUT_PIN);
