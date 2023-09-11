@@ -330,7 +330,7 @@ struct jl2xxx_priv {
 };
 
 /* macros to simplify debug checking */
-#define JLSEMI_PHY_MSG(msg, args...) printk(msg, ## args)
+#define JLSEMI_PHY_MSG(msg, args...) printk(KERN_INFO msg, ## args)
 
 /************************* JLSemi iteration code *************************/
 struct device *jlsemi_get_mdio(struct phy_device *phydev);
