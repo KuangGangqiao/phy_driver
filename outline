@@ -1,38 +1,40 @@
-1.兼容性问题:
-	1.1 kernel版本兼容（因为不同版本的kernel api有些许差异）
-	解决行为：1.在代码中加入kernel检测机制，不同版编译不同api
-		  2. 尽量使用每个kernel版本共有的api, 有些convenient function
-		     如果可以自己实现就自己实现
+1. Compatibility issues:
+	1.1 kernel version compatibility (due to slight differences in kernel APIs between different versions)
+	Solution behavior:
+		1. Add kernel detection mechanism to the code, and compile different APIs for different versions
+		2. Try to use the common APIs of each kernel version, some of which are conservative functions.
+		   If you can do it yourself, do it yourself
+	1.2 phy driver compatibility (100M, 1000M, autophy)
+	Solution behavior:
+		1. 100M, 1000M, and later 2.5G can be integrated into one driver, while autophy serves as
+		   an independent driver
+		2. All phy drivers are integrated into one driver (not recommended)
+2. Platform compilation issues:
+	Description: I have encountered clients with platforms such as ARM, x86, and Android.
+		     Most of the clients require us to provide source code and compile it themselves.
+	There are roughly two ways to use it:
+		1. Compile our phy into the kernel, then burn it into the development board.
+		2. Compile it into a module to load and let it boot and mount itself start.
+	Solution behavior:
+		1. Provide source code: The customer compiles using the development environment themselves,
+		   and we only provide cross compilation methods. The cross compilation tool is installedl by
+		   the customer themselves. According to the customer's usage, we also need to provide
+		   corresponding loading methods.
+		2. Provide KO file information: Here, we need to help the customer compile the code and provide
+		   corresponding solutions as well
+3. doc issue:
+	Solution behavior:
+		1. The document should be as detailed as possible
+4. Release issue:
+	1. Release in a packaged manner (currently, the code provided to customers is all tar packages)
+	2. Release in git mode
+5.Thinking:
+	Is this library all for customers? Or deliver some source code?
+	Is this code written and used by the customer after being delivered to them? Or should we keep updating the code?
+Current basic ideas:
+	1. The writing problem of device tree for jl2xxx and whether to add patches
+	2. This repo is different from submitting to the kernel
+	3. This repo section is open to customers, and I need to complete the documents
+		3.1 Explain how to use this repo
+		3.2 Explanation of how to load and how to use the phy driver
 
-
-	1.2 phy driver 的兼容（100M , 1000M, autophy ）
-	解决行为：1. 100M 与1000M及后面的2.5G等等都可以整合到一个driver中，autophy则作为一个独立的driver
-		  2. 所有phy driver 都整合到一个driver（不推荐）
-
-2.平台编译问题:
-	描述：我遇到客户平台有arm, x86, android，客户需求大多是我们提供源码他们自己编译
-	使用方式大概有两种：1.将我们的phy编入到kernel中，然后烧录到开发板中去，2.编译成模块加载让他开机自己挂载
-	启动。
-
-	解决行为：1.提供源码的情况：客户自己使用开发环境编译，我们只提供交叉编译的方法，交叉编译工具客户自己安装。
-		    根据客户的使用方式，我们也需要提供相应的加载方法
-		  2.提供ko文件情况：这里需要我们帮客户把代码编译好，然后也提供相应的方案
-
-3.doc问题:
-	解决行为：1.文档尽可能详细
-
-4. release问题：
-	1.以打包的方式release（目前提供给客户的代码都是tar包）
-	2.以git方式release
-
-思考：
-1.这个库是全部给客户？还是交付部分源码?
-2.此代码交付给客户后是由客户自己编写代码使用？还是由我们保持更新代码？
-
-
-目前基本思路：
-1.jl2xxx的device tree的写法问题，及patch要不要加的问题
-2.此repo与提交到kernel是两回事
-3.此repo全部开放给客户，而我需要补齐文档
-	3.1 说明这个repo怎么使用
-	3.2 说明phy driver怎么加载和方式
