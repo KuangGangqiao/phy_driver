@@ -23,6 +23,8 @@ CFG = CONFIG_JLSEMI_PHY=$(BUILD_MODE)
 
 pack:
 	$(call pack_repo)
+prepare:
+	$(call install_software)
 
 check_code_style:
 	$(call check_code)
@@ -148,6 +150,11 @@ endef
 define check_code
 	@./tool/checkpatch/checkpatch.sh
 endef
+
+define install_software
+	@./downloads/prepare.sh
+endef
+
 
 define clean_pack
 	@rm ./build/*
