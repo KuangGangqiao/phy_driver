@@ -7,6 +7,7 @@ doc/environment.md
 doc/phy_driver.md
 doc/tool_chain.md
 doc/release_internal.md
+doc/*.odt
 source/phy_driver/jl2xxx
 source/phy_driver/jl3xxx
 outline

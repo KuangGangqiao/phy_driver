@@ -131,6 +131,10 @@ endef
 
 define pack_repo
 	@./tool/pack/pack.sh
+	@libreoffice --invisible --convert-to pdf ./ ./doc/*.odt
+	@mv *.pdf ./build
+	@cd ./build && zip jlsemi_phy_drivers_1.2.9.zip *.tar.gz *.pdf
+	@rm ./build/*tar.gz ./build/*pdf
 endef
 
 define check_code
