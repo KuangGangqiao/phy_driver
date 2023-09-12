@@ -1,5 +1,6 @@
 include $(PWD)/config.mk
 
+VERSION=1.2.9
 PWD := $(shell pwd)
 
 SUB_DIR := $(PWD)/source/phy_driver/$(DRIVER_LIST)
@@ -123,11 +124,24 @@ define clean_code
 	$(shell rm -rf $(KERNEL_DIR)/drivers/net/phy/$(DRIVER_LIST)*)
 endef
 
+define filter_same_odt
+	$(shell if [ ! -f "./doc/Jlsemi_Phy_Driver_Quick_Start_$(VERSION)_CN.odt" ];then \
+		mv ./doc/*.odt ./doc/Jlsemi_Phy_Driver_Quick_Start_$(VERSION)_CN.odt; \
+	fi)
+endef
+
+OBJ_C_FILE=./source/phy_driver/jlsemi/jlsemi.c
+define auto_setup_version
+	$(shell sed -i '/^#define DRIVER_VERSION/ c #define DRIVER_VERSION\t\t"$(VERSION)"' $(OBJ_C_FILE))
+endef
+
 define pack_repo
-	@./tool/pack/pack.sh
+	$(call auto_setup_version)
+	@./tool/pack/pack.sh $(VERSION)
+	$(call filter_same_odt)
 	@libreoffice --invisible --convert-to pdf ./ ./doc/*.odt
 	@mv *.pdf ./build
-	@cd ./build && zip jlsemi_phy_drivers_1.2.9.zip *.tar.gz *.pdf
+	@cd ./build && zip jlsemi_phy_drivers_$(VERSION).zip *.tar.gz *.pdf
 	@rm ./build/*tar.gz ./build/*pdf
 endef
 
@@ -136,5 +150,5 @@ define check_code
 endef
 
 define clean_pack
-	@rm ./build/*.zip
+	@rm ./build/*
 endef
