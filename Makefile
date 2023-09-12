@@ -31,7 +31,6 @@ config_kernel:
 	$(call cross_compile_kernel)
 
 build_out_module:
-	$(call autocof)
 	$(call build_driver)
 
 build_in_kernel:
@@ -61,11 +60,6 @@ FIND_CONFIG = CONFIG_PHYLIB
 CONFIG_ID = CONFIG_JLSEMI_PHY
 OBJ_CONFIG = $(KERNEL_DIR)/.config
 
-
-define autocof
-	echo -e "obj-m = $(OBJ_MODULE).o \n \
-		$(OBJ_MODULE)-objs = $(OBJ_CODE)" > $(SUB_DIR)/Makefile
-endef
 
 define cross_compile_kernel
 	$(MAKE) $(BUILD) -j4 -C $(KERNEL_DIR)
@@ -122,7 +116,7 @@ endef
 define clean_module
 	$(shell rm -f $(SUB_DIR)/*.o $(SUB_DIR)/*.symvers $(SUB_DIR)/*.order \
 		$(SUB_DIR)/*.ko $(SUB_DIR)/*.mod $(SUB_DIR)/*.mod.c \
-		$(SUB_DIR)/Makefile $(PWD)/build/*.ko)
+		$(PWD)/build/*.ko)
 endef
 
 define clean_code
@@ -142,5 +136,5 @@ define check_code
 endef
 
 define clean_pack
-	rm ./build/*gz
+	@rm ./build/*.zip
 endef
