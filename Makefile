@@ -142,6 +142,7 @@ define pack_repo
 	@./tool/pack/pack.sh $(VERSION)
 	$(call filter_same_odt)
 	@libreoffice --invisible --convert-to pdf ./doc/*.odt
+	@cp *.pdf ./doc
 	@mv *.pdf ./build
 	@cd ./build && zip jlsemi_phy_drivers_$(VERSION).zip *.tar.gz *.pdf
 	@rm ./build/*tar.gz ./build/*pdf
