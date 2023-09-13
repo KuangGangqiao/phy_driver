@@ -25,6 +25,7 @@ pack:
 	$(call pack_repo)
 
 prepare:
+	$(call config_git_hook)
 	$(call install_software)
 
 check_code_style:
@@ -155,6 +156,11 @@ endef
 
 define install_software
 	@./downloads/prepare.sh
+endef
+
+define config_git_hook
+	@git config core.hooksPath .mygithooks
+	@chmod u+x .mygithooks/pre-commit
 endef
 
 define clean_pack
