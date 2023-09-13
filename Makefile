@@ -23,6 +23,7 @@ CFG = CONFIG_JLSEMI_PHY=$(BUILD_MODE)
 
 pack:
 	$(call pack_repo)
+
 prepare:
 	$(call install_software)
 
@@ -156,7 +157,7 @@ define install_software
 	@./downloads/prepare.sh
 endef
 
-
 define clean_pack
-	@rm ./build/*
+	@rm -f ./build/*
+	@rm -f ./doc/*.pdf
 endef
