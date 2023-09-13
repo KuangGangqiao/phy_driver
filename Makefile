@@ -161,6 +161,7 @@ endef
 define config_git_hook
 	@git config core.hooksPath .mygithooks
 	@chmod u+x .mygithooks/pre-commit
+	@chmod u+x .mygithooks/commit-msg
 endef
 
 define clean_pack
