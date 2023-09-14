@@ -147,7 +147,7 @@ define pack_repo
 	@cp *.pdf ./doc
 	@mv *.pdf ./build
 	@cd ./build && zip jlsemi_phy_drivers_$(VERSION).zip *.tar.gz *.pdf
-	@rm ./build/*tar.gz ./build/*pdf
+	@rm -rf ./build/*tar.gz ./build/*pdf ./build/jlsemi_ephy_kernel_phys
 endef
 
 define check_code
