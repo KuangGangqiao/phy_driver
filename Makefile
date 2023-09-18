@@ -103,17 +103,17 @@ endef
 
 
 define clean_config
-	$(shell if [ ! -f "$(OBJ_CONFIG)" ]; then\
+	$(shell if [ ! -f "$(OBJ_CONFIG)" ]&&[ -d "$(KERNEL_DIR)" ]; then\
 			sed -i "/CONFIG_JLSEMI_PHY/d" $(OBJ_CONFIG); fi)
 endef
 
 define clean_Kconfig
-	$(shell if [ ! -f "$(OBJ_KCONFIG)" ]; then\
+	$(shell if [ ! -f "$(OBJ_KCONFIG)" ]&&[ -d "$(KERNEL_DIR)" ]; then\
 			sed -i "/config JLSEMI_PHY/,+3d" $(OBJ_KCONFIG); fi)
 endef
 
 define clean_Makefile
-	$(shell if [ ! -f "$(OBJ_MAKEFILE)" ]; then\
+	$(shell if [ ! -f "$(OBJ_MAKEFILE)" ]&&[ -d "$(KERNEL_DIR)" ]; then\
 			sed -i "/obj-$(DOLLAR)(CONFIG_JLSEMI_PHY)/d" $(OBJ_MAKEFILE);\
 			sed -i "/$(OBJ_MODULE)-objs/d" $(OBJ_MAKEFILE); fi)
 endef
