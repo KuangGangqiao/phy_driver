@@ -33,8 +33,6 @@ For details, please refer to Jlsemi_Phy_Driver_Quick_Start_x.x.x_CN.pdf
 
 ### Automatic Compilation
 
-User should assign linux root path and driver aim to balal...
-
 You can update those variables in `${repo}/config.mk`
 
 1.ARCH: the arch options for gcc compilation include arm, arm64, x86, and more
@@ -53,10 +51,10 @@ You can update those variables in `${repo}/config.mk`
     such as: BUILD_MODE=m or y
 
 6.DRIVER_LIST: compiled List Object
-    such as: DRIVER_LIST=jlsemi_phy
+    such as: DRIVER_LIST=jlsemi
 
 7.OBJ_MODULE: Compiled intermediate objects
-    such as: OBJ_MODULE=jlsemi_phy
+    such as: OBJ_MODULE=jlsemiphy
 
 8.OBJ_CODE: Compiled Code Objects
     such as: OBJ_CODE=jlsemi.o jlsemi-core.o
