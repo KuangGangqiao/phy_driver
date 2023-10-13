@@ -159,6 +159,8 @@
 
 #define JL2XXX_REG29		29
 
+#define JL2XXX_PAGE179		179
+
 #define JL2XXX_PAGE191		191
 #define JL2XXX_RGMII_CFG	BIT(3)
 
@@ -180,6 +182,19 @@
 #define ADVERTISE_FIBER_1000FULL	0x20
 
 /*************************************************************************/
+struct jl_patch {
+	const u32 *data;
+	u16 data_len;
+	const u16 version;
+	struct {
+		const u16 *info;
+		u16 info_len;
+	} phy;
+	bool (*check)(struct phy_device *phydev, struct jl_patch *patch);
+	int (*load)(struct phy_device *phydev, struct jl_patch *patch);
+	int (*verify)(struct phy_device *phydev, struct jl_patch *patch);
+};
+
 struct jl_hw_stat {
 	const char *string;
 	u8 reg;
@@ -371,10 +386,7 @@ int jl2xxx_static_op_init(struct phy_device *phydev);
 
 int jlsemi_soft_reset(struct phy_device *phydev);
 
-int jl2xxx_pre_init(struct phy_device *phydev,
-		    u32 *init_data, u16 data_len,
-		    u16 *patch_fw_versions, u16 versions_len,
-		    u16 patch_version);
+int jl2xxx_pre_init(struct phy_device *phydev, struct jl_patch *patch);
 
 bool jl2xxx_read_fiber_status(struct phy_device *phydev);
 
