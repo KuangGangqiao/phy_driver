@@ -2246,7 +2246,7 @@ static struct jl_patch phy_patches[] = {
 	{
 		.data = init_data3,
 		.data_len = ARRAY_SIZE(init_data3),
-		.version = patch_version3,
+		.version = 0,
 		{
 			.info = patch_fw_versions3,
 			.info_len = ARRAY_SIZE(patch_fw_versions3),
