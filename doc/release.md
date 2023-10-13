@@ -17,6 +17,12 @@ For version `x.y.z`, it means
        Note: It will change when implementing new features.
 
 
+# Time: 2023 10 13
+# Version: 1.2.11
+**New**
+- Add new patch for r3p5 (sgmii->utp) mode
+- Add wol event self clear in phy suspend function
+
 # Time: 2023 7 17
 # Version: 1.2.9
 **Fix**

@@ -1,6 +1,6 @@
 include $(PWD)/config.mk
 
-VERSION=1.2.9
+VERSION=1.2.11
 PWD := $(shell pwd)
 
 SUB_DIR := $(PWD)/source/phy_driver/$(DRIVER_LIST)
