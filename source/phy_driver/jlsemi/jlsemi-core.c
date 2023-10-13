@@ -2122,24 +2122,6 @@ static const u32 init_data3[] = {
 	0x110000, 0x127c30, 0x104000, 0x1f0000,
 };
 
-static bool jl2xxx_patch_zte_check(struct phy_device *phydev,
-				   struct jl_patch *patch)
-{
-	struct jl2xxx_priv *priv = phydev->priv;
-	bool patch_ok = false;
-	int mode;
-
-	mode = jlsemi_read_paged(phydev, JL2XXX_PAGE18, JL2XXX_WORK_MODE_REG);
-	/* Can only be used in sgmii->utp mode */
-	if (((priv->work_mode.enable & JL2XXX_WORK_MODE_STATIC_OP_EN) &&
-	   (priv->work_mode.mode == JL2XXX_UTP_SGMII_MODE)) ||
-	   ((mode & JL2XXX_WORK_MODE_MASK) == JL2XXX_UTP_SGMII_MODE)) {
-		patch_ok |= true;
-	}
-
-	return patch_ok;
-}
-
 static bool jl2xxx_patch_check(struct phy_device *phydev,
 			      struct jl_patch *patch)
 {
@@ -2154,6 +2136,23 @@ static bool jl2xxx_patch_check(struct phy_device *phydev,
 			patch_ok |= true;
 	}
 
+	return patch_ok;
+}
+
+static bool jl2xxx_patch_zte_check(struct phy_device *phydev,
+				   struct jl_patch *patch)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	bool patch_ok = false;
+	int mode;
+
+	mode = jlsemi_read_paged(phydev, JL2XXX_PAGE18, JL2XXX_WORK_MODE_REG);
+	/* Can only be used in sgmii->utp mode */
+	if (((priv->work_mode.enable & JL2XXX_WORK_MODE_STATIC_OP_EN) &&
+	   (priv->work_mode.mode == JL2XXX_UTP_SGMII_MODE)) ||
+	   ((mode & JL2XXX_WORK_MODE_MASK) == JL2XXX_UTP_SGMII_MODE)) {
+		patch_ok = jl2xxx_patch_check(phydev, patch);
+	}
 	return patch_ok;
 }
 
@@ -2191,7 +2190,6 @@ static int jl2xxx_patch_verify_by_version(struct phy_device *phydev,
 		JLSEMI_PHY_MSG(KERN_ERR
 			       "%s: patch version is not match\n", __func__);
 	return 0;
-
 }
 
 static int jl2xxx_patch_verify_by_regval(struct phy_device *phydev,
