@@ -335,7 +335,6 @@ static int jl2xxx_config_aneg(struct phy_device *phydev)
 
 static int jl2xxx_suspend(struct phy_device *phydev)
 {
-#if (JLSEMI_PHY_WOL)
 	struct jl2xxx_priv *priv = phydev->priv;
 
 	/* clear wol event */
@@ -345,7 +344,6 @@ static int jl2xxx_suspend(struct phy_device *phydev)
 		jlsemi_clear_bits(phydev, JL2XXX_WOL_STAS_PAGE,
 				  JL2XXX_WOL_STAS_REG, JL2XXX_WOL_EVENT);
 	}
-#endif
 	return genphy_suspend(phydev);
 }
 
