@@ -1,5 +1,6 @@
 include $(PWD)/config.mk
 
+VERSION=1.2.11
 PWD := $(shell pwd)
 
 SUB_DIR := $(PWD)/source/phy_driver/$(DRIVER_LIST)
@@ -23,6 +24,10 @@ CFG = CONFIG_JLSEMI_PHY=$(BUILD_MODE)
 pack:
 	$(call pack_repo)
 
+prepare:
+	$(call config_git_hook)
+	$(call install_software)
+
 check_code_style:
 	$(call check_code)
 
@@ -31,7 +36,6 @@ config_kernel:
 	$(call cross_compile_kernel)
 
 build_out_module:
-	$(call autocof)
 	$(call build_driver)
 
 build_in_kernel:
@@ -61,11 +65,6 @@ FIND_CONFIG = CONFIG_PHYLIB
 CONFIG_ID = CONFIG_JLSEMI_PHY
 OBJ_CONFIG = $(KERNEL_DIR)/.config
 
-
-define autocof
-	echo -e "obj-m = $(OBJ_MODULE).o \n \
-		$(OBJ_MODULE)-objs = $(OBJ_CODE)" > $(SUB_DIR)/Makefile
-endef
 
 define cross_compile_kernel
 	$(MAKE) $(BUILD) -j4 -C $(KERNEL_DIR)
@@ -104,17 +103,17 @@ endef
 
 
 define clean_config
-	$(shell if [ ! -f "$(OBJ_CONFIG)" ]; then\
+	$(shell if [ ! -f "$(OBJ_CONFIG)" ]&&[ -d "$(KERNEL_DIR)" ]; then\
 			sed -i "/CONFIG_JLSEMI_PHY/d" $(OBJ_CONFIG); fi)
 endef
 
 define clean_Kconfig
-	$(shell if [ ! -f "$(OBJ_KCONFIG)" ]; then\
+	$(shell if [ ! -f "$(OBJ_KCONFIG)" ]&&[ -d "$(KERNEL_DIR)" ]; then\
 			sed -i "/config JLSEMI_PHY/,+3d" $(OBJ_KCONFIG); fi)
 endef
 
 define clean_Makefile
-	$(shell if [ ! -f "$(OBJ_MAKEFILE)" ]; then\
+	$(shell if [ ! -f "$(OBJ_MAKEFILE)" ]&&[ -d "$(KERNEL_DIR)" ]; then\
 			sed -i "/obj-$(DOLLAR)(CONFIG_JLSEMI_PHY)/d" $(OBJ_MAKEFILE);\
 			sed -i "/$(OBJ_MODULE)-objs/d" $(OBJ_MAKEFILE); fi)
 endef
@@ -122,21 +121,50 @@ endef
 define clean_module
 	$(shell rm -f $(SUB_DIR)/*.o $(SUB_DIR)/*.symvers $(SUB_DIR)/*.order \
 		$(SUB_DIR)/*.ko $(SUB_DIR)/*.mod $(SUB_DIR)/*.mod.c \
-		$(SUB_DIR)/Makefile $(PWD)/build/*.ko)
+		$(PWD)/build/*.ko)
 endef
 
 define clean_code
 	$(shell rm -rf $(KERNEL_DIR)/drivers/net/phy/$(DRIVER_LIST)*)
 endef
 
+define filter_same_odt
+	$(shell if [ ! -f "./doc/Jlsemi_Phy_Driver_Quick_Start_$(VERSION)_CN.odt" ];then \
+		mv ./doc/*.odt ./doc/Jlsemi_Phy_Driver_Quick_Start_$(VERSION)_CN.odt; \
+	fi)
+endef
+
+OBJ_C_FILE=./source/phy_driver/jlsemi/jlsemi.c
+define auto_setup_version
+	$(shell sed -i '/^#define DRIVER_VERSION/ c #define DRIVER_VERSION\t\t"$(VERSION)"' $(OBJ_C_FILE))
+endef
+
 define pack_repo
-	@./tool/pack/pack.sh
+	$(call auto_setup_version)
+	@./tool/pack/pack.sh $(VERSION)
+	$(call filter_same_odt)
+	@libreoffice --invisible --convert-to pdf ./doc/*.odt
+	@cp *.pdf ./doc
+	@mv *.pdf ./build
+	@cd ./build && zip jlsemi_phy_drivers_$(VERSION).zip *.tar.gz *.pdf
+	@rm -rf ./build/*tar.gz ./build/*pdf ./build/jlsemi_ephy_kernel_phys
 endef
 
 define check_code
 	@./tool/checkpatch/checkpatch.sh
 endef
 
+define install_software
+	@./downloads/prepare.sh
+endef
+
+define config_git_hook
+	@git config core.hooksPath .mygithooks
+	@chmod u+x .mygithooks/pre-commit
+	@chmod u+x .mygithooks/commit-msg
+endef
+
 define clean_pack
-	rm ./build/*gz
+	@rm -f ./build/*
+	@rm -f ./doc/*.pdf
 endef

@@ -11,6 +11,6 @@ BUILD_MODE = m
 
 DRIVER_LIST = jlsemi
 
-OBJ_MODULE = jlsemi_phy
+OBJ_MODULE = jlsemiphy
 
 OBJ_CODE = jlsemi.o jlsemi-core.o

@@ -1,0 +1,10 @@
+#!/bin/bash
+DIFF=`git diff --cached`
+
+if [ -n "${DIFF}" ]; then
+	./tool/checkpatch/checkpatch.sh
+fi
+EXITCODE="$?"
+exit ${EXITCODE}
+
+

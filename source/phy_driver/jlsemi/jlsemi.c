@@ -19,7 +19,7 @@
 #include <linux/module.h>
 #include <linux/netdevice.h>
 
-#define DRIVER_VERSION		"1.2.0"
+#define DRIVER_VERSION		"1.2.11"
 #define DRIVER_NAME_100M	"JL1xxx Fast Ethernet " DRIVER_VERSION
 #define DRIVER_NAME_1000M	"JL2xxx Gigabit Ethernet " DRIVER_VERSION
 
@@ -854,10 +854,6 @@ static int jl2xxx_config_init(struct phy_device *phydev)
 	struct jl2xxx_priv *priv = phydev->priv;
 	int ret;
 
-	ret = config_init_r4p1(phydev);
-	if (ret < 0)
-		return ret;
-
 	if (!priv->static_inited) {
 #if (JLSEMI_DEBUG_INFO)
 		JLSEMI_PHY_MSG("jl2xxx_config_init_before:\n");
@@ -946,7 +942,8 @@ static int jl2xxx_config_aneg(struct phy_device *phydev)
 		return 0;
 
 	if ((phydev->interface != PHY_INTERFACE_MODE_SGMII) &&
-	    (phy_mode == JL2XXX_FIBER_RGMII_MODE))
+	    ((phy_mode == JL2XXX_FIBER_RGMII_MODE) ||
+	    (phy_mode == JL2XXX_UTP_FIBER_RGMII_MODE)))
 		return jl2xxx_config_aneg_fiber(phydev);
 
 	return genphy_config_aneg(phydev);
@@ -954,6 +951,15 @@ static int jl2xxx_config_aneg(struct phy_device *phydev)
 
 static int jl2xxx_suspend(struct phy_device *phydev)
 {
+	struct jl2xxx_priv *priv = phydev->priv;
+
+	/* clear wol event */
+	if (priv->wol.enable & JL2XXX_WOL_STATIC_OP_EN) {
+		jlsemi_set_bits(phydev, JL2XXX_WOL_STAS_PAGE,
+				JL2XXX_WOL_STAS_REG, JL2XXX_WOL_EVENT);
+		jlsemi_clear_bits(phydev, JL2XXX_WOL_STAS_PAGE,
+				  JL2XXX_WOL_STAS_REG, JL2XXX_WOL_EVENT);
+	}
 	return genphy_suspend(phydev);
 }
 
@@ -1105,6 +1111,35 @@ static void jl2xxx_remove(struct phy_device *phydev)
 		devm_kfree(dev, priv);
 }
 
+static inline int jlsemi_aneg_done(struct phy_device *phydev)
+{
+	int retval = phy_read(phydev, MII_BMSR);
+
+	return (retval < 0) ? retval : (retval & BMSR_ANEGCOMPLETE);
+}
+
+static int jl2xxx_aneg_done(struct phy_device *phydev)
+{
+	u16 phy_mode;
+	int val;
+
+	val = jlsemi_read_paged(phydev, JL2XXX_PAGE18,
+				JL2XXX_WORK_MODE_REG);
+	phy_mode = val & JL2XXX_WORK_MODE_MASK;
+
+	if (phydev->interface == PHY_INTERFACE_MODE_SGMII)
+		return 0;
+
+	// fiber not an complite
+	if ((phydev->interface != PHY_INTERFACE_MODE_SGMII) &&
+	    ((phy_mode == JL2XXX_FIBER_RGMII_MODE) ||
+	    (phy_mode == JL2XXX_UTP_FIBER_RGMII_MODE)))
+		return BMSR_ANEGCOMPLETE;
+
+	return jlsemi_aneg_done(phydev);
+}
+
+
 static struct phy_driver jlsemi_drivers[] = {
 	{
 		.phy_id		= JL1XXX_PHY_ID,
@@ -1117,6 +1152,7 @@ static struct phy_driver jlsemi_drivers[] = {
 		.read_status	= jl1xxx_read_status,
 		.config_init    = jl1xxx_config_init,
 		.config_aneg    = jl1xxx_config_aneg,
+		.aneg_done	= jlsemi_aneg_done,
 		.suspend        = jl1xxx_suspend,
 		.resume         = jl1xxx_resume,
 		.remove		= jl1xxx_remove,
@@ -1136,6 +1172,7 @@ static struct phy_driver jlsemi_drivers[] = {
 		.read_status	= jl2xxx_read_status,
 		.config_init    = jl2xxx_config_init,
 		.config_aneg    = jl2xxx_config_aneg,
+		.aneg_done	= jl2xxx_aneg_done,
 		.suspend        = jl2xxx_suspend,
 		.resume         = jl2xxx_resume,
 		.remove		= jl2xxx_remove,

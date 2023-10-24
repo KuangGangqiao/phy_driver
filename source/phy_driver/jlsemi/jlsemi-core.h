@@ -164,6 +164,7 @@
 #define JL2XXX_DSFT_EN		BIT(12)
 #define JL2XXX_DSFT_SMART_EN	BIT(13)
 #define JL2XXX_DSFT_TWO_WIRE_EN	BIT(14)
+#define JL2XXX_DSFT_AN_ERR_EN	BIT(15)
 #define JL2XXX_DSFT_STL_MASK	0x03e0
 #define JL2XXX_DSFT_STL_CNT(n)	(((n << 5) & JL2XXX_DSFT_STL_MASK))
 #define JL2XXX_DSFT_AN_MASK	0x001f
@@ -183,8 +184,8 @@
 #define JL2XXX_MAC_ADDR0_REG	0x0013
 #define JL2XXX_WOL_EVENT	BIT(1)
 #define JL2XXX_WOL_POLARITY	BIT(14)
-#define JL2XXX_WOL_EN		BIT(6)
-#define JL2XXX_WOL_GLB_EN	BIT(15)
+#define JL2XXX_WOL_EN		BIT(15)
+#define JL2XXX_WOL_GLB_EN	BIT(6)
 
 #define JL2XXX_PAGE2626		2626
 #define JL2XXX_INTR_CTRL_REG	18
@@ -237,21 +238,12 @@
 
 #define JL2XXX_PAGE174		174
 
-#define JL2XXX_PAGE201		201
-#define JL2XXX_RX_AMP2_MASK	0xfc0
-#define JL2XXX_RX_AMP2(x)	((x << 6) & JL2XXX_RX_AMP2_MASK)
 #define JL2XXX_REG29		29
-#define JL2XXX_FG_LP_10M_MASK	0xf0
-#define JL2XXX_FG_LP_10M(x)	((x << 4) & JL2XXX_FG_LP_10M_MASK)
+
+#define JL2XXX_PAGE179		179
 
 #define JL2XXX_PAGE191		191
 #define JL2XXX_RGMII_CFG	BIT(3)
-
-#define JL2XXX_PAGE206		206
-#define JL2XXX_REG22		22
-#define JL2XXX_RX_AMP_SIG_MASK	0x1e0
-#define JL2XXX_RX_AMP_SIG(x)	((x << 5) & JL2XXX_RX_AMP_SIG_MASK)
-
 
 #define JL2XXX_PAGE258		258
 #define JL2XXX_SLEW_RATE_CTRL_REG	23
@@ -298,6 +290,19 @@ struct rxts {
 	u16 seqid;
 };
 
+struct jl_patch {
+	const u32 *data;
+	u16 data_len;
+	const u16 version;
+	struct {
+		const u16 *info;
+		u16 info_len;
+	} phy;
+	bool (*check)(struct phy_device *phydev, struct jl_patch *patch);
+	int (*load)(struct phy_device *phydev, struct jl_patch *patch);
+	int (*verify)(struct phy_device *phydev, struct jl_patch *patch);
+};
+
 struct jl_hw_stat {
 	const char *string;
 	u8 reg;
@@ -319,8 +324,6 @@ static const struct jl_hw_stat jl_phy[] = {
 		.reg = 1,
 	},
 };
-
-static const u16 patch_fw_versions[] = {0x1101, 0x9101, 0x9107};
 
 static const struct jl_hw_stat jl2xxx_hw_stats[] = {
 	{
@@ -477,7 +480,7 @@ struct jl2xxx_priv {
 };
 
 /* macros to simplify debug checking */
-#define JLSEMI_PHY_MSG(msg, args...) printk(msg, ## args)
+#define JLSEMI_PHY_MSG(msg, args...) printk(KERN_INFO msg, ## args)
 
 /************************* JLSemi iteration code *************************/
 int jl2xxx_ptp_sync_to_system_clock(struct phy_device *phydev);
@@ -548,7 +551,7 @@ int jl2xxx_static_op_init(struct phy_device *phydev);
 
 int jlsemi_soft_reset(struct phy_device *phydev);
 
-int jl2xxx_pre_init(struct phy_device *phydev);
+int jl2xxx_pre_init(struct phy_device *phydev, struct jl_patch *patch);
 
 bool jl2xxx_read_fiber_status(struct phy_device *phydev);
 

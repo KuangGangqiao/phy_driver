@@ -17,6 +17,41 @@ For version `x.y.z`, it means
        Note: It will change when implementing new features.
 
 
+# Time: 2023 10 13
+# Version: 1.2.11
+**New**
+- Add new patch for r3p5 (sgmii->utp) mode
+- Add wol event self clear in phy suspend function
+
+# Time: 2023 7 17
+# Version: 1.2.9
+**Fix**
+- Fix wol enable reg addr error.
+- Fix don't clear led polarity default val.
+**New**
+- Add new function for close 125MHz and 25MHz clock out
+
+# Time: 2023 5 29
+# Version: 1.2.6
+**New**
+- add new patch version 0x2e9c for r4p1
+
+# Time: 2023 5 19
+# Version: 1.2.5
+**Fix**
+- Fix downshift config val error
+
+# Time: 2023 5 19
+# Version: 1.2.4
+**Fix**
+- Fix jl1xxx intrrupt function typo
+- Fix judgment condition omission JL2XXX_UTP_FIBER_RGMII_MODE
+- Fix  add phy interface aneg_done for phy fiber mode
+    Avoiding automatic negotiation failure in phy fiber mode
+
+**New**
+- Add patch of 0x9f73 for separate load big die and small die phy
+
 # Time: 2023 3 20
 # Version: 1.2.0
 **New**

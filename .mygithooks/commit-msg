@@ -1,0 +1,30 @@
+#!/bin/bash
+
+commit_msg=`cat $1`
+
+email=`git config user.email`
+msg_re="^(feat|fix|docs|style|refactor|perf|test|workflow|build|ci|chore|release|workflow)(\(.+\))?: .{1,10}"
+
+if [[ ! ${commit_msg} =~ ${msg_re} ]]; then
+	echo -e "Illegal commit message submission format.\n \
+		please use the correct format:\n \
+		feat: add comments  or feat(xx): add comments\n \
+		fix: handle events on blur (close # 28)\n\
+		......\n \
+		...\n \
+		.\n
+		List\n\
+		feat:     new feature\n\
+		fix:      fix bugs\n\
+		docs:     documents\n\
+		Style:    format\n\
+		refactor: refactoring\n\
+		perf:     performance\n\
+		test:     add or modify tests\n\
+		build:    changes that affect the build system or external dependencies\n\
+		ci:       changes to CI configuration files and scripts\n\
+		chore:    modification of non src and test directories\n\
+		reverse:  revert a commit"
+      exit 1
+fi
+

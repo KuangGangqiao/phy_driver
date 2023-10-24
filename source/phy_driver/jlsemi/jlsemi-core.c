@@ -181,12 +181,6 @@ static int jl2xxx_led_static_op_set(struct phy_device *phydev)
 				      priv->led.polarity);
 		if (err < 0)
 			return err;
-	} else {
-		err = jlsemi_clear_bits(phydev, JL2XXX_PAGE4096,
-					JL2XXX_LED_POLARITY_REG,
-					priv->led.polarity);
-		if (err < 0)
-			return err;
 	}
 
 	return 0;
@@ -1046,13 +1040,15 @@ static int jl1xxx_wol_store_mac_addr(struct phy_device *phydev)
 static int jl2xxx_wol_enable(struct phy_device *phydev, bool enable)
 {
 	if (enable) {
-		jlsemi_set_bits(phydev, JL2XXX_WOL_STAS_PAGE,
-				JL2XXX_WOL_STAS_REG, JL2XXX_WOL_EN);
-		jlsemi_clear_bits(phydev, JL2XXX_WOL_STAS_PAGE,
-				  JL2XXX_WOL_STAS_REG, JL2XXX_WOL_GLB_EN);
-	} else {
+		jlsemi_set_bits(phydev, JL2XXX_WOL_CTRL_PAGE,
+				JL2XXX_WOL_CTRL_REG, JL2XXX_WOL_GLB_EN);
 		jlsemi_clear_bits(phydev, JL2XXX_WOL_STAS_PAGE,
 				  JL2XXX_WOL_STAS_REG, JL2XXX_WOL_EN);
+	} else {
+		jlsemi_clear_bits(phydev, JL2XXX_WOL_CTRL_PAGE,
+				  JL2XXX_WOL_CTRL_REG, JL2XXX_WOL_GLB_EN);
+		jlsemi_set_bits(phydev, JL2XXX_WOL_STAS_PAGE,
+				JL2XXX_WOL_STAS_REG, JL2XXX_WOL_EN);
 	}
 	jlsemi_soft_reset(phydev);
 
@@ -1222,8 +1218,8 @@ int jl2xxx_downshift_dynamic_op_set(struct phy_device *phydev, u8 cnt)
 					JL2XXX_DSFT_EN);
 	} else {
 		val = ((cnt - 1) & JL2XXX_DSFT_AN_MASK) | JL2XXX_DSFT_EN |
-			JL2XXX_DSFT_SMART_EN | JL2XXX_DSFT_TWO_WIRE_EN |
-			JL2XXX_DSFT_STL_CNT(12);
+			JL2XXX_DSFT_SMART_EN | JL2XXX_DSFT_AN_ERR_EN |
+			JL2XXX_DSFT_STL_CNT(18);
 		err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE0,
 					      JL2XXX_DSFT_CTRL_REG,
 					      JL2XXX_DSFT_AN_MASK, val);
@@ -1310,6 +1306,12 @@ int jl2xxx_clk_static_op_set(struct phy_device *phydev)
 					      JL2XXX_CLK_125M_OUT,
 					      JL2XXX_CLK_OUT_PIN |
 					      JL2XXXX_CLK_SRC);
+		if (err < 0)
+			return err;
+	} else if (priv->clk.enable & JL2XXX_CLK_OUT_DIS) {
+		err = jlsemi_clear_bits(phydev, JL2XXX_PAGE2627,
+					JL2XXX_CLK_CTRL_REG,
+					JL2XXX_CLK_OUT_PIN);
 		if (err < 0)
 			return err;
 	}
@@ -1401,7 +1403,6 @@ int jl2xxx_config_aneg_fiber(struct phy_device *phydev)
 				JL2XXX_BMCR_REG,
 				JL2XXX_BMCR_SPEED_LSB,
 				JL2XXX_BMCR_SPEED_MSB | BMCR_ANENABLE);
-
 	return 0;
 }
 
@@ -1471,7 +1472,8 @@ bool jl2xxx_read_fiber_status(struct phy_device *phydev)
 	phy_mode = val & JL2XXX_WORK_MODE_MASK;
 
 	if ((phydev->interface != PHY_INTERFACE_MODE_SGMII) &&
-	    (phy_mode == JL2XXX_FIBER_RGMII_MODE)) {
+	   ((phy_mode == JL2XXX_FIBER_RGMII_MODE) ||
+	    (phy_mode == JL2XXX_UTP_FIBER_RGMII_MODE))) {
 		jl2xxx_update_fiber_status(phydev);
 		if (phydev->link)
 			fiber_ok = true;
@@ -1693,337 +1695,13 @@ int jl1xxx_rmii_static_op_set(struct phy_device *phydev)
 	return 0;
 }
 
-int jl2xxx_patch_static_op_set(struct phy_device *phydev)
-{
-	int err;
-
-	err = jl2xxx_pre_init(phydev);
-	if (err < 0)
-		return err;
-
-	return 0;
-}
-
-#if (JLSEMI_PHY_WOL)
-int jl1xxx_wol_dynamic_op_get(struct phy_device *phydev)
-{
-	return jlsemi_fetch_bit(phydev, JL1XXX_PAGE129,
-				JL1XXX_WOL_CTRL_REG, JL1XXX_WOL_DIS);
-}
-
-int jl2xxx_wol_dynamic_op_get(struct phy_device *phydev)
-{
-	return jlsemi_fetch_bit(phydev, JL2XXX_WOL_CTRL_PAGE,
-				JL2XXX_WOL_CTRL_REG, JL2XXX_WOL_EN);
-}
-
-static int jl1xxx_wol_static_op_set(struct phy_device *phydev)
-{
-	int err;
-
-	err = jl1xxx_wol_dynamic_op_set(phydev);
-	if (err < 0)
-		return err;
-
-	return 0;
-}
-#endif
-
-int jl1xxx_intr_ack_event(struct phy_device *phydev)
-{
-	struct jl1xxx_priv *priv = phydev->priv;
-	int err;
-
-	if (priv->intr.enable & JL1XXX_INTR_STATIC_OP_EN) {
-		err = phy_read(phydev, JL1XXX_INTR_STATUS_REG);
-		if (err < 0)
-			return err;
-	}
-
-	return 0;
-}
-
-int jl1xxx_intr_static_op_set(struct phy_device *phydev)
-{
-	struct jl1xxx_priv *priv = phydev->priv;
-	int err;
-	int ret = 0;
-
-	if (priv->intr.enable & JL1XXX_INTR_LINK_CHANGE_EN)
-		ret |= JL1XXX_INTR_LINK;
-	if (priv->intr.enable & JL1XXX_INTR_AN_ERR_EN)
-		ret |= JL1XXX_INTR_AN_ERR;
-
-	err = jlsemi_set_bits(phydev, JL1XXX_PAGE7,
-			      JL1XXX_INTR_REG, ret);
-	if (err < 0)
-		return err;
-
-	return 0;
-}
-
-#if (JLSEMI_PHY_WOL)
-static int jl2xxx_wol_static_op_set(struct phy_device *phydev)
-{
-	int err;
-
-	err = jl2xxx_wol_dynamic_op_set(phydev);
-	if (err < 0)
-		return err;
-
-	return 0;
-}
-
-int jl1xxx_wol_dynamic_op_set(struct phy_device *phydev)
-{
-	int err;
-
-	err = jl1xxx_wol_cfg_rmii(phydev);
-	if (err < 0)
-		return err;
-
-	err = jl1xxx_wol_enable(phydev, true);
-	if (err < 0)
-		return err;
-
-	err = jl1xxx_wol_store_mac_addr(phydev);
-	if (err < 0)
-		return err;
-
-	if (jl1xxx_wol_receive_check(phydev)) {
-		err = jl1xxx_wol_clear(phydev);
-		if (err < 0)
-			return err;
-	}
-
-	return 0;
-}
-
-int jl2xxx_wol_dynamic_op_set(struct phy_device *phydev)
-{
-	int err;
-
-	err = jl2xxx_wol_enable(phydev, true);
-	if (err < 0)
-		return err;
-
-	err = jl2xxx_wol_clear(phydev);
-	if (err < 0)
-		return err;
-
-	err = jl2xxx_wol_active_low_polarity(phydev, true);
-	if (err < 0)
-		return err;
-
-	err = jl2xxx_store_mac_addr(phydev);
-	if (err < 0)
-		return err;
-
-	return 0;
-}
-#endif
-
-int jl2xxx_intr_ack_event(struct phy_device *phydev)
-{
-	int err;
-
-	err = jlsemi_read_paged(phydev, JL2XXX_PAGE2627,
-				JL2XXX_INTR_STATUS_REG);
-	if (err < 0)
-		return err;
-
-	return 0;
-}
-
-int jl2xxx_intr_static_op_set(struct phy_device *phydev)
-{
-	struct jl2xxx_priv *priv = phydev->priv;
-	int err;
-	int ret = 0;
-
-	if (priv->intr.enable & JL2XXX_INTR_LINK_CHANGE_EN)
-		ret |= JL2XXX_INTR_LINK_CHANGE;
-	if (priv->intr.enable & JL2XXX_INTR_AN_ERR_EN)
-		ret |= JL2XXX_INTR_AN_ERR;
-	if (priv->intr.enable & JL2XXX_INTR_AN_COMPLETE_EN)
-		ret |= JL2XXX_INTR_AN_COMPLETE;
-	if (priv->intr.enable & JL2XXX_INTR_AN_PAGE_RECE)
-		ret |= JL2XXX_INTR_AN_PAGE;
-
-	err = jlsemi_set_bits(phydev, JL2XXX_PAGE2626,
-			      JL2XXX_INTR_CTRL_REG, ret);
-	if (err < 0)
-		return err;
-
-	err = jlsemi_set_bits(phydev, JL2XXX_PAGE158,
-			      JL2XXX_INTR_PIN_REG,
-			      JL2XXX_INTR_PIN_EN);
-	if (err < 0)
-		return err;
-
-	err = jlsemi_set_bits(phydev, JL2XXX_PAGE160,
-			      JL2XXX_PIN_EN_REG,
-			      JL2XXX_PIN_OUTPUT);
-	if (err < 0)
-		return err;
-
-	return 0;
-}
-
-int jl1xxx_operation_args_get(struct phy_device *phydev)
-{
-	jl1xxx_led_operation_args(phydev);
-	jl1xxx_wol_operation_args(phydev);
-	jl1xxx_intr_operation_args(phydev);
-	jl1xxx_mdi_operation_args(phydev);
-	jl1xxx_rmii_operation_args(phydev);
-
-	return 0;
-}
-
-int jl2xxx_operation_args_get(struct phy_device *phydev)
-{
-	jl2xxx_led_operation_args(phydev);
-	jl2xxx_fld_operation_args(phydev);
-	jl2xxx_wol_operation_args(phydev);
-	jl2xxx_intr_operation_args(phydev);
-	jl2xxx_downshift_operation_args(phydev);
-	jl2xxx_rgmii_operation_args(phydev);
-	jl2xxx_patch_operation_args(phydev);
-	jl2xxx_clk_operation_args(phydev);
-	jl2xxx_work_mode_operation_args(phydev);
-	jl2xxx_lpbk_operation_args(phydev);
-	jl2xxx_slew_rate_operation_args(phydev);
-	jl2xxx_rxc_out_operation_args(phydev);
-
-	return 0;
-}
-
-int jl1xxx_static_op_init(struct phy_device *phydev)
-{
-	struct jl1xxx_priv *priv = phydev->priv;
-	int err;
-
-	if (priv->led.enable & JL1XXX_LED_STATIC_OP_EN) {
-		err = jl1xxx_led_static_op_set(phydev);
-		if (err < 0)
-			return err;
-	}
-
-#if (JLSEMI_PHY_WOL)
-	if (priv->wol.enable & JL1XXX_WOL_STATIC_OP_EN) {
-		err = jl1xxx_wol_static_op_set(phydev);
-		if (err < 0)
-			return err;
-	}
-#endif
-
-	if (priv->wol.enable & JL1XXX_INTR_STATIC_OP_EN) {
-		err = jl1xxx_intr_static_op_set(phydev);
-		if (err < 0)
-			return err;
-	}
-
-	if (priv->mdi.enable & JL1XXX_MDI_STATIC_OP_EN) {
-		err = jl1xxx_mdi_static_op_set(phydev);
-		if (err < 0)
-			return err;
-	}
-
-	if (priv->rmii.enable & JL1XXX_RMII_STATIC_OP_EN) {
-		err = jl1xxx_rmii_static_op_set(phydev);
-		if (err < 0)
-			return err;
-	}
-
-	return 0;
-}
-
-int jl2xxx_static_op_init(struct phy_device *phydev)
-{
-	struct jl2xxx_priv *priv = phydev->priv;
-	int err;
-
-	if (priv->patch.enable & JL2XXX_PATCH_STATIC_OP_EN) {
-		err = jl2xxx_patch_static_op_set(phydev);
-		if (err < 0)
-			return err;
-	}
-
-	if (priv->led.enable & JL2XXX_LED_STATIC_OP_EN) {
-		err = jl2xxx_led_static_op_set(phydev);
-		if (err < 0)
-			return err;
-	}
-
-	if (priv->fld.enable & JL2XXX_FLD_STATIC_OP_EN) {
-		err = jl2xxx_fld_static_op_set(phydev);
-		if (err < 0)
-			return err;
-	}
-
-#if (JLSEMI_PHY_WOL)
-	if (priv->wol.enable & JL2XXX_WOL_STATIC_OP_EN) {
-		err = jl2xxx_wol_static_op_set(phydev);
-		if (err < 0)
-			return err;
-	}
-#endif
-
-	if (priv->intr.enable & JL2XXX_INTR_STATIC_OP_EN) {
-		err = jl2xxx_intr_static_op_set(phydev);
-		if (err < 0)
-			return err;
-	}
-
-	if (priv->downshift.enable & JL2XXX_DSFT_STATIC_OP_EN) {
-		err = jl2xxx_downshift_static_op_set(phydev);
-		if (err < 0)
-			return err;
-	}
-
-	if (priv->rgmii.enable & JL2XXX_RGMII_STATIC_OP_EN) {
-		err = jl2xxx_rgmii_static_op_set(phydev);
-		if (err < 0)
-			return err;
-	}
-
-	if (priv->clk.enable & JL2XXX_CLK_STATIC_OP_EN) {
-		err = jl2xxx_clk_static_op_set(phydev);
-		if (err < 0)
-			return err;
-	}
-
-	if (priv->work_mode.enable & JL2XXX_WORK_MODE_STATIC_OP_EN) {
-		err = jl2xxx_work_mode_static_op_set(phydev);
-		if (err < 0)
-			return err;
-	}
-
-	if (priv->lpbk.enable & JL2XXX_LPBK_STATIC_OP_EN) {
-		err = jl2xxx_lpbk_static_op_set(phydev);
-		if (err < 0)
-			return err;
-	}
-
-	if (priv->slew_rate.enable & JL2XXX_SLEW_RATE_STATIC_OP_EN) {
-		err = jl2xxx_slew_rate_static_op_set(phydev);
-		if (err < 0)
-			return err;
-	}
-
-	if (priv->rxc_out.enable & JL2XXX_RXC_OUT_STATIC_OP_EN) {
-		err = jl2xxx_rxc_out_static_op_set(phydev);
-		if (err < 0)
-			return err;
-	}
-
-	return 0;
-}
-
-static const uint16_t patch_version = 0xdef2;
-
-static const uint32_t init_data[] = {
+static const u16 patch_fw_versions0[] = {0x9101, 0x9107};
+static const u16 patch_fw_versions1[] = {0x1101};
+static const u16 patch_fw_versions2[] = {0x930a};
+static const u16 patch_fw_versions3[] = {0x2208};
+
+static const u16 patch_version0 = 0xdef2;
+static const u32 init_data0[] = {
 	0x1f00a0, 0x1903f3, 0x1f0012, 0x150100, 0x1f00ad, 0x100000,
 	0x11e0c6, 0x1f00a0, 0x1903fb, 0x1903fb, 0x1903fb, 0x1903fb,
 	0x1903fb, 0x1903fb, 0x1903fb, 0x1903fb, 0x1f00ad, 0x110000,
@@ -2151,24 +1829,342 @@ static const uint32_t init_data[] = {
 	0x170000, 0x180000, 0x110000, 0x120400, 0x104000, 0x1f0000,
 };
 
-int jl2xxx_pre_init(struct phy_device *phydev)
+static const u16 patch_version1 = 0x9f73;
+static const u32 init_data1[] = {
+	0x1f00a0, 0x1903f3, 0x1f0012, 0x150100, 0x1f00ad, 0x100000,
+	0x11e0c6, 0x1f00a0, 0x1903fb, 0x1903fb, 0x1903fb, 0x1903fb,
+	0x1903fb, 0x1903fb, 0x1903fb, 0x1903fb, 0x1f00ad, 0x110000,
+	0x120400, 0x130093, 0x140000, 0x150193, 0x160000, 0x170213,
+	0x180000, 0x12040c, 0x130293, 0x140000, 0x150313, 0x160000,
+	0x170393, 0x180000, 0x120418, 0x130413, 0x140000, 0x150493,
+	0x160000, 0x170513, 0x180000, 0x120424, 0x130593, 0x140000,
+	0x150613, 0x160000, 0x170693, 0x180000, 0x120430, 0x130713,
+	0x140000, 0x150793, 0x160000, 0x171137, 0x180000, 0x12043c,
+	0x13006f, 0x140060, 0x15a001, 0x161111, 0x17cc06, 0x18ca22,
+	0x120448, 0x13c826, 0x1417b7, 0x150800, 0x16aa23, 0x179407,
+	0x180713, 0x120454, 0x1330f0, 0x1467b7, 0x150800, 0x16a423,
+	0x1746e7, 0x18a703, 0x120460, 0x13a587, 0x146685, 0x158f55,
+	0x16ac23, 0x17a4e7, 0x1867a9, 0x12046c, 0x135737, 0x140800,
+	0x158793, 0x16f737, 0x172023, 0x1874f7, 0x120478, 0x1307b7,
+	0x140800, 0x155bf8, 0x165793, 0x170037, 0x18f793, 0x120484,
+	0x131f07, 0x147713, 0x1507f7, 0x168fd9, 0x170713, 0x180210,
+	0x120490, 0x138763, 0x1400e7, 0x150713, 0x160270, 0x178263,
+	0x181ce7, 0x12049c, 0x13a001, 0x141437, 0x150002, 0x160793,
+	0x17e564, 0x18c43e, 0x1204a8, 0x1337b7, 0x140002, 0x158793,
+	0x166867, 0x17c23e, 0x1847b7, 0x1204b4, 0x130002, 0x148793,
+	0x15e9a7, 0x16c63e, 0x1767b7, 0x180800, 0x1204c0, 0x13a703,
+	0x146d87, 0x1576c1, 0x168693, 0x170ff6, 0x188f75, 0x1204cc,
+	0x1366b5, 0x148693, 0x158006, 0x168f55, 0x17ac23, 0x186ce7,
+	0x1204d8, 0x13a703, 0x1465c7, 0x1556b7, 0x160800, 0x177713,
+	0x18f0f7, 0x1204e4, 0x136713, 0x140807, 0x15ae23, 0x1664e7,
+	0x17a703, 0x185c46, 0x1204f0, 0x130413, 0x140000, 0x159b75,
+	0x16a223, 0x175ce6, 0x18a703, 0x1204fc, 0x13f5c7, 0x146691,
+	0x158f55, 0x16ae23, 0x17f4e7, 0x180737, 0x120508, 0x130809,
+	0x14433c, 0x158fd5, 0x16c33c, 0x170793, 0x180000, 0x120514,
+	0x130713, 0x141000, 0x159c23, 0x1624e7, 0x170713, 0x181010,
+	0x120520, 0x138d23, 0x142407, 0x159123, 0x1626e7, 0x17a223,
+	0x182607, 0x12052c, 0x13c026, 0x144782, 0x154581, 0x164485,
+	0x170513, 0x180000, 0x120538, 0x134792, 0x149782, 0x154018,
+	0x161775, 0x17e563, 0x1802e4, 0x120544, 0x132703, 0x140a04,
+	0x151163, 0x160297, 0x174818, 0x180563, 0x120550, 0x130097,
+	0x1447a2, 0x15c804, 0x169782, 0x176637, 0x180800, 0x12055c,
+	0x132703, 0x144c46, 0x159b71, 0x166713, 0x170027, 0x182223,
+	0x120568, 0x134ce6, 0x144703, 0x150fd4, 0x16c739, 0x172603,
+	0x181004, 0x120574, 0x134745, 0x141263, 0x1510e6, 0x163737,
+	0x170822, 0x182603, 0x120580, 0x133007, 0x1475c5, 0x1515fd,
+	0x168e6d, 0x172023, 0x1830c7, 0x12058c, 0x132603, 0x142807,
+	0x156613, 0x161006, 0x172023, 0x1828c7, 0x120598, 0x132603,
+	0x143807, 0x156613, 0x161006, 0x172023, 0x1838c7, 0x1205a4,
+	0x132603, 0x144007, 0x156613, 0x161006, 0x172023, 0x1840c7,
+	0x1205b0, 0x132603, 0x144807, 0x156613, 0x161006, 0x172023,
+	0x1848c7, 0x1205bc, 0x135637, 0x140800, 0x152703, 0x163486,
+	0x17830d, 0x188b05, 0x1205c8, 0x13cf01, 0x142703, 0x155c46,
+	0x1675f1, 0x1715fd, 0x188f6d, 0x1205d4, 0x136591, 0x142223,
+	0x155ce6, 0x168f4d, 0x172223, 0x185ce6, 0x1205e0, 0x132603,
+	0x140a04, 0x15471d, 0x161e63, 0x1700e6, 0x186737, 0x1205ec,
+	0x130800, 0x142703, 0x154cc7, 0x160613, 0x174000, 0x187713,
+	0x1205f8, 0x134807, 0x141463, 0x1500c7, 0x162223, 0x170e04,
+	0x184018, 0x120604, 0x131263, 0x140497, 0x155703, 0x1600c4,
+	0x171793, 0x180117, 0x120610, 0x13dc63, 0x140207, 0x158737,
+	0x160800, 0x174778, 0x187713, 0x12061c, 0x130807, 0x14e70d,
+	0x154782, 0x164581, 0x170513, 0x180000, 0x120628, 0x134792,
+	0x149782, 0x1547a2, 0x164711, 0x17c818, 0x18c004, 0x120634,
+	0x130d23, 0x140094, 0x150ca3, 0x160004, 0x179782, 0x185637,
+	0x120640, 0x130800, 0x144238, 0x159b71, 0x16c238, 0x174782,
+	0x180513, 0x12064c, 0x130000, 0x1447b2, 0x159782, 0x164703,
+	0x172684, 0x1803e3, 0x120658, 0x13ee07, 0x14bdd1, 0x152437,
+	0x160002, 0x170793, 0x18dae4, 0x120664, 0x13c43e, 0x1447b7,
+	0x150002, 0x168793, 0x171427, 0x18c23e, 0x120670, 0x1357b7,
+	0x140002, 0x158793, 0x169867, 0x17b589, 0x182603, 0x12067c,
+	0x131504, 0x144709, 0x151ee3, 0x16f2e6, 0x173637, 0x180822,
+	0x120688, 0x132703, 0x143006, 0x1565bd, 0x168f4d, 0x172023,
+	0x1830e6, 0x120694, 0x13b725, 0x140000, 0x150000, 0x160000,
+	0x170000, 0x180000, 0x110000, 0x120400, 0x104000, 0x1f0000,
+};
+
+static const u16 patch_version2 = 0x2e9c;
+static const u32 init_data2[] = {
+	0x1f00a0, 0x1903f3, 0x1f0012, 0x150100, 0x1f00ad, 0x100000,
+	0x11e0c6, 0x1f0102, 0x199000, 0x1f00a0, 0x1903fb, 0x1903fb,
+	0x1903fb, 0x1903fb, 0x1903fb, 0x1903fb, 0x1903fb, 0x1903fb,
+	0x1f00ad, 0x110000, 0x121000, 0x13937c, 0x140120, 0x15675e,
+	0x16fca8, 0x1706b7, 0x180800, 0x12100c, 0x135af8, 0x145793,
+	0x150037, 0x16f793, 0x171f07, 0x187713, 0x121018, 0x1307f7,
+	0x148fd9, 0x150713, 0x1606a0, 0x179b63, 0x1808e7, 0x121024,
+	0x13cd19, 0x141121, 0x15c822, 0x16ca06, 0x17c626, 0x184789,
+	0x121030, 0x13842e, 0x140963, 0x152cf5, 0x1640d2, 0x174442,
+	0x1844b2, 0x12103c, 0x134501, 0x140161, 0x158082, 0x1617b7,
+	0x170800, 0x18aa23, 0x121048, 0x139407, 0x1467b7, 0x150800,
+	0x16a703, 0x17a587, 0x186605, 0x121054, 0x138f51, 0x14ac23,
+	0x15a4e7, 0x16670d, 0x170713, 0x18e9c7, 0x121060, 0x135637,
+	0x140800, 0x152023, 0x1674e6, 0x174ab8, 0x186713, 0x12106c,
+	0x130407, 0x14cab8, 0x15a703, 0x164d47, 0x1776fd, 0x188693,
+	0x121078, 0x1303f6, 0x148f75, 0x156713, 0x162807, 0x17aa23,
+	0x184ce7, 0x121084, 0x13a703, 0x147587, 0x157713, 0x16e1f7,
+	0x176713, 0x180607, 0x121090, 0x13ac23, 0x1474e7, 0x15a703,
+	0x164f47, 0x177713, 0x18f0f7, 0x12109c, 0x136713, 0x140107,
+	0x15aa23, 0x164ee7, 0x17a703, 0x18fc07, 0x1210a8, 0x139b5d,
+	0x14a023, 0x15fce7, 0x160713, 0x170300, 0x18a223, 0x1210b4,
+	0x13a6e7, 0x144501, 0x158082, 0x166489, 0x179023, 0x180004,
+	0x1210c0, 0x134505, 0x142ebd, 0x1557fd, 0x16c49c, 0x17c4dc,
+	0x184783, 0x1210cc, 0x130ec4, 0x149363, 0x152407, 0x16b795,
+	0x1787b7, 0x180800, 0x1210d8, 0x13a583, 0x140dc7, 0x15a783,
+	0x160e07, 0x178b91, 0x188063, 0x1210e4, 0x131807, 0x14d793,
+	0x150085, 0x1681b9, 0x178bbd, 0x188985, 0x1210f0, 0x1386b7,
+	0x140800, 0x15a703, 0x160d06, 0x17833e, 0x189513, 0x1210fc,
+	0x1300c7, 0x1477c5, 0x1517fd, 0x168f7d, 0x178f49, 0x18757d,
+	0x121108, 0x130293, 0x140ff5, 0x15a603, 0x160d46, 0x171793,
+	0x180083, 0x121114, 0x137733, 0x140057, 0x158f5d, 0x167713,
+	0x17f0f7, 0x181793, 0x121120, 0x130043, 0x148f5d, 0x157793,
+	0x16ff06, 0x170513, 0x187ff5, 0x12112c, 0x13e7b3, 0x140067,
+	0x159613, 0x1600b5, 0x178fe9, 0x188fd1, 0x121138, 0x139513,
+	0x1400a5, 0x15f793, 0x169ff7, 0x179613, 0x180095, 0x121144,
+	0x138fc9, 0x148fd1, 0x1505a2, 0x16f793, 0x17eff7, 0x188fcd,
+	0x121150, 0x13a823, 0x140ce6, 0x15aa23, 0x160cf6, 0x172783,
+	0x180f04, 0x12115c, 0x134719, 0x148563, 0x1500e7, 0x16472d,
+	0x179263, 0x1810e7, 0x121168, 0x130493, 0x141104, 0x154701,
+	0x164781, 0x17d683, 0x180104, 0x121174, 0x13e2b5, 0x1446a1,
+	0x154701, 0x16853e, 0x17c436, 0x18c23a, 0x121180, 0x13c03e,
+	0x142ca9, 0x1546a2, 0x164712, 0x174782, 0x1816fd, 0x12118c,
+	0x13972a, 0x14f6f5, 0x150637, 0x160820, 0x175693, 0x184037,
+	0x121198, 0x139713, 0x140077, 0x159732, 0x164310, 0x17d703,
+	0x180004, 0x1211a4, 0x139963, 0x1422e6, 0x159593, 0x160017,
+	0x176709, 0x18972e, 0x1211b0, 0x135703, 0x140087, 0x157e63,
+	0x1600e6, 0x17d703, 0x180184, 0x1211bc, 0x139023, 0x1400d4,
+	0x159693, 0x160017, 0x179423, 0x1800e4, 0x1211c8, 0x136709,
+	0x149736, 0x151423, 0x1600c7, 0x17d703, 0x180184, 0x1211d4,
+	0x133713, 0x140017, 0x150785, 0x164691, 0x170489, 0x1899e3,
+	0x1211e0, 0x13f8d7, 0x1447b5, 0x151f63, 0x161807, 0x176785,
+	0x1897a2, 0x1211ec, 0x13a703, 0x14a687, 0x154791, 0x160b63,
+	0x1718f7, 0x186489, 0x1211f8, 0x13d783, 0x140004, 0x159de3,
+	0x16e207, 0x172703, 0x180f04, 0x121204, 0x134789, 0x1418e3,
+	0x15e2f7, 0x164505, 0x172c15, 0x185637, 0x121210, 0x130800,
+	0x1446b7, 0x150822, 0x164238, 0x17a783, 0x18f806, 0x12121c,
+	0x133537, 0x140822, 0x1575c1, 0x16f793, 0x178ff7, 0x18e793,
+	0x121228, 0x133007, 0x14a023, 0x15f8f6, 0x162683, 0x173805,
+	0x188593, 0x121234, 0x130ff5, 0x14d793, 0x150086, 0x168b85,
+	0x17e793, 0x180767, 0x121240, 0x138eed, 0x1407a2, 0x158fd5,
+	0x162023, 0x1738f5, 0x187793, 0x12124c, 0x13ffd7, 0x14c23c,
+	0x15e793, 0x160027, 0x17c23c, 0x1847c1, 0x121258, 0x139023,
+	0x1400f4, 0x154501, 0x1622cd, 0x17bbd9, 0x184585, 0x121264,
+	0x134791, 0x14b569, 0x15476d, 0x169fe3, 0x17f6e7, 0x180737,
+	0x121270, 0x130002, 0x144481, 0x150713, 0x160a67, 0x178793,
+	0x184b84, 0x12127c, 0x130786, 0x1497a2, 0x15d683, 0x160ee7,
+	0x178526, 0x180485, 0x121288, 0x13e693, 0x140026, 0x159723,
+	0x160ed7, 0x179702, 0x180737, 0x121294, 0x130002, 0x144791,
+	0x150713, 0x160a67, 0x179ee3, 0x18fcf4, 0x1212a0, 0x130493,
+	0x141000, 0x154501, 0x1614fd, 0x172a15, 0x18fced, 0x1212ac,
+	0x134785, 0x148526, 0x15c03e, 0x16222d, 0x17470d, 0x184782,
+	0x1212b8, 0x135363, 0x1400a7, 0x154781, 0x160485, 0x174711,
+	0x1896e3, 0x1212c4, 0x13fee4, 0x14c38d, 0x156789, 0x164749,
+	0x179023, 0x1800e7, 0x1212d0, 0x1347c5, 0x142c23, 0x150ef4,
+	0x160793, 0x171000, 0x182a23, 0x1212dc, 0x130ef4, 0x1445d1,
+	0x150513, 0x160ec4, 0x172a15, 0x18b709, 0x1212e8, 0x136705,
+	0x149722, 0x155783, 0x16a5a7, 0x1746a1, 0x180785, 0x1212f4,
+	0x1307c2, 0x1483c1, 0x15f963, 0x1602f6, 0x171d23, 0x18a407,
+	0x121300, 0x132823, 0x140e04, 0x154783, 0x160ec4, 0x1789e3,
+	0x18da07, 0x12130c, 0x132783, 0x140f04, 0x1585e3, 0x16da07,
+	0x172783, 0x180f04, 0x121318, 0x138ee3, 0x14da07, 0x154741,
+	0x169de3, 0x17e2e7, 0x1847ed, 0x121324, 0x132823, 0x140ef4,
+	0x15bd05, 0x1606b7, 0x170002, 0x181d23, 0x121330, 0x13a4f7,
+	0x144481, 0x158693, 0x160a66, 0x178793, 0x184b84, 0x12133c,
+	0x130786, 0x1497a2, 0x15d703, 0x160ee7, 0x178526, 0x189b75,
+	0x121348, 0x139723, 0x140ee7, 0x159682, 0x160737, 0x170820,
+	0x189793, 0x121354, 0x130074, 0x140713, 0x152007, 0x1697ba,
+	0x17a023, 0x180007, 0x121360, 0x130737, 0x140002, 0x150485,
+	0x164791, 0x170693, 0x180a67, 0x12136c, 0x1396e3, 0x14fcf4,
+	0x150737, 0x160828, 0x172783, 0x184807, 0x121378, 0x13e793,
+	0x140207, 0x152023, 0x1648f7, 0x1747b9, 0x182823, 0x121384,
+	0x130ef4, 0x14b58d, 0x156709, 0x165683, 0x170007, 0x1847c9,
+	0x121390, 0x1393e3, 0x14e6f6, 0x1547b7, 0x160800, 0x17a783,
+	0x180c87, 0x12139c, 0x130693, 0x141000, 0x1507c2, 0x1683c1,
+	0x17f663, 0x1802f6, 0x1213a8, 0x135783, 0x140027, 0x150785,
+	0x1607c2, 0x1783c1, 0x181123, 0x1213b4, 0x1300f7, 0x144725,
+	0x157fe3, 0x16c6f7, 0x1766b7, 0x180800, 0x1213c0, 0x13a783,
+	0x14f5c6, 0x157779, 0x16177d, 0x178ff9, 0x18ae23, 0x1213cc,
+	0x13f4f6, 0x14b1a5, 0x151123, 0x160007, 0x17b18d, 0x18c1e3,
+	0x1213d8, 0x13dee6, 0x14bbdd, 0x150737, 0x160830, 0x172783,
+	0x181807, 0x1213e4, 0x132703, 0x142007, 0x154685, 0x160263,
+	0x1702d5, 0x18c763, 0x1213f0, 0x1300a6, 0x148bfd, 0x15c111,
+	0x164781, 0x17853e, 0x188082, 0x1213fc, 0x134689, 0x140b63,
+	0x1500d5, 0x16478d, 0x1719e3, 0x18fef5, 0x121408, 0x135793,
+	0x140047, 0x15a011, 0x168395, 0x178bfd, 0x18b7dd, 0x121414,
+	0x1383a9, 0x14bfed, 0x151141, 0x16c422, 0x17c606, 0x1847d1,
+	0x121420, 0x13842a, 0x149a63, 0x1500f5, 0x164508, 0x1707b7,
+	0x180002, 0x12142c, 0x13c02e, 0x148793, 0x156687, 0x169782,
+	0x174582, 0x18c04c, 0x121438, 0x1340b2, 0x144422, 0x150141,
+	0x168082, 0x17ed09, 0x184781, 0x121444, 0x134737, 0x140822,
+	0x152023, 0x16d0f7, 0x172023, 0x18d8f7, 0x121450, 0x132023,
+	0x14e0f7, 0x152023, 0x16e8f7, 0x178082, 0x186785, 0x12145c,
+	0x133737, 0x140822, 0x158693, 0x16fff7, 0x172023, 0x1830d7,
+	0x121468, 0x132023, 0x145007, 0x152023, 0x165807, 0x172023,
+	0x186007, 0x121474, 0x132023, 0x146807, 0x158793, 0x16c007,
+	0x17b7e1, 0x180000, 0x1f00a0, 0x1903f3, 0x1903fb, 0x1f0000,
+};
+
+/* no patch_version, val default=0 */
+static const u16 patch_version3;
+static const u32 init_data3[] = {
+	0x1f00a0, 0x1903f3, 0x1f0012, 0x150100, 0x1f00ad, 0x100000,
+	0x11e0c6, 0x1f00a0, 0x1903fb, 0x1903fb, 0x1903fb, 0x1903fb,
+	0x1903fb, 0x1903fb, 0x1f0012, 0x150000, 0x1f00ad, 0x110000,
+	0x127c30, 0x138137, 0x140000, 0x15006f, 0x1600e0, 0x170000,
+	0x180000, 0x127c3c, 0x130000, 0x140000, 0x150000, 0x161161,
+	0x177601, 0x1895b7, 0x127c48, 0x13fffd, 0x146541, 0x1586b7,
+	0x160002, 0x17c222, 0x18c026, 0x127c54, 0x1307b7, 0x140002,
+	0x150613, 0x162b06, 0x178593, 0x183085, 0x127c60, 0x130293,
+	0x142900, 0x15157d, 0x168693, 0x1797c6, 0x188733, 0x127c6c,
+	0x1300b7, 0x148333, 0x1500c7, 0x16ec63, 0x1734e2, 0x184398,
+	0x127c78, 0x138f69, 0x140713, 0x152b07, 0x162023, 0x1700e3,
+	0x180791, 0x127c84, 0x1393e3, 0x14fed7, 0x1567a1, 0x16659d,
+	0x178793, 0x181377, 0x127c90, 0x132423, 0x142ef0, 0x158713,
+	0x166b75, 0x176785, 0x18ac23, 0x127c9c, 0x13eae7, 0x140737,
+	0x158693, 0x160713, 0x1770a7, 0x18ae23, 0x127ca8, 0x13eae7,
+	0x140737, 0x159737, 0x160713, 0x17a867, 0x18a023, 0x127cb4,
+	0x13ece7, 0x141737, 0x157737, 0x166789, 0x170713, 0x188f77,
+	0x127cc0, 0x13ae23, 0x140ce7, 0x150737, 0x16078a, 0x17a023,
+	0x180ee7, 0x127ccc, 0x130737, 0x14ffc7, 0x150713, 0x167137,
+	0x17a223, 0x180ee7, 0x127cd8, 0x133737, 0x147337, 0x150713,
+	0x162a37, 0x17ae23, 0x183ce7, 0x127ce4, 0x1302b7, 0x14050a,
+	0x150737, 0x160103, 0x17a023, 0x183e57, 0x127cf0, 0x130713,
+	0x143137, 0x15a223, 0x163ee7, 0x17668d, 0x188513, 0x127cfc,
+	0x137375, 0x1404b7, 0x150713, 0x16ae23, 0x17a0a6, 0x188313,
+	0x127d08, 0x1378a4, 0x1404b7, 0x1597ba, 0x16a023, 0x17a266,
+	0x188713, 0x127d14, 0x132474, 0x140437, 0x1577b7, 0x16a223,
+	0x17a2e6, 0x180313, 0x127d20, 0x130a74, 0x146711, 0x152c23,
+	0x16c667, 0x170337, 0x188793, 0x127d2c, 0x132e23, 0x14c667,
+	0x158293, 0x166072, 0x1703b7, 0x187737, 0x127d38, 0x132023,
+	0x14c857, 0x158393, 0x162a73, 0x172823, 0x18d077, 0x127d44,
+	0x1302b7, 0x141793, 0x150637, 0x160713, 0x172a23, 0x18d057,
+	0x127d50, 0x130613, 0x140256, 0x152c23, 0x16d0c7, 0x178493,
+	0x187474, 0x127d5c, 0x132e23, 0x14d097, 0x150413, 0x164a74,
+	0x172423, 0x18e087, 0x127d68, 0x131437, 0x14050a, 0x152623,
+	0x16e067, 0x170413, 0x188c74, 0x127d74, 0x132823, 0x14e087,
+	0x152023, 0x16ec77, 0x172223, 0x18ec57, 0x127d80, 0x1313b7,
+	0x1497ba, 0x152423, 0x16ecc7, 0x178413, 0x18a473, 0x127d8c,
+	0x132623, 0x14ec87, 0x158413, 0x167b75, 0x172223, 0x185287,
+	0x127d98, 0x138437, 0x140cc7, 0x150413, 0x167934, 0x172423,
+	0x185287, 0x127da4, 0x130437, 0x140e87, 0x152e23, 0x1676a7,
+	0x170413, 0x187134, 0x127db0, 0x132223, 0x147887, 0x1504b7,
+	0x160713, 0x176715, 0x182023, 0x127dbc, 0x13baa7, 0x148413,
+	0x1578a4, 0x162223, 0x17ba87, 0x188413, 0x127dc8, 0x131473,
+	0x142423, 0x15ba87, 0x160437, 0x1776b7, 0x180413, 0x127dd4,
+	0x130e64, 0x14c700, 0x150437, 0x16070a, 0x17c740, 0x188437,
+	0x127de0, 0x131306, 0x140413, 0x156934, 0x16cb00, 0x172a23,
+	0x1858a7, 0x127dec, 0x138413, 0x1478a4, 0x152c23, 0x165887,
+	0x178393, 0x185c73, 0x127df8, 0x132e23, 0x145877, 0x15a3b7,
+	0x167737, 0x178413, 0x186f73, 0x127e04, 0x132823, 0x145a87,
+	0x150437, 0x16078a, 0x172a23, 0x185a87, 0x127e10, 0x130437,
+	0x141707, 0x150413, 0x167134, 0x172c23, 0x185a87, 0x127e1c,
+	0x138393, 0x144f73, 0x152823, 0x165c77, 0x170437, 0x18078a,
+	0x127e28, 0x1303b7, 0x141847, 0x152a23, 0x165c87, 0x178393,
+	0x187133, 0x127e34, 0x132c23, 0x145c77, 0x1593b7, 0x167737,
+	0x178393, 0x186a73, 0x127e40, 0x132a23, 0x146a77, 0x152c23,
+	0x166a57, 0x1723b7, 0x1897ba, 0x127e4c, 0x132e23, 0x146ac7,
+	0x158413, 0x16a073, 0x172023, 0x186c87, 0x127e58, 0x131437,
+	0x1477b7, 0x156719, 0x160413, 0x174d74, 0x182623, 0x127e64,
+	0x138e87, 0x142437, 0x15068a, 0x162823, 0x178e67, 0x180413,
+	0x127e70, 0x13c874, 0x142a23, 0x158e87, 0x16c437, 0x177737,
+	0x180413, 0x127e7c, 0x136a74, 0x142c23, 0x15ba87, 0x162e23,
+	0x17ba57, 0x182023, 0x127e88, 0x13bcc7, 0x148613, 0x15dc73,
+	0x162223, 0x17bcc7, 0x18d348, 0x127e94, 0x138613, 0x1478a4,
+	0x15d710, 0x168393, 0x17f873, 0x182623, 0x127ea0, 0x130277,
+	0x14e737, 0x1577b7, 0x160713, 0x178e77, 0x18a423, 0x127eac,
+	0x13cce5, 0x142737, 0x15070a, 0x16a623, 0x17cc65, 0x180713,
+	0x127eb8, 0x130c77, 0x14a823, 0x15cce5, 0x16f737, 0x174510,
+	0x180713, 0x127ec4, 0x138e77, 0x14ac23, 0x1520e7, 0x164737,
+	0x173191, 0x180713, 0x127ed0, 0x135017, 0x14a223, 0x1524e7,
+	0x160737, 0x170200, 0x180713, 0x127edc, 0x137137, 0x14ae23,
+	0x15f6e7, 0x165737, 0x170713, 0x181761, 0x127ee8, 0x13a223,
+	0x14f8e7, 0x150737, 0x16cff8, 0x170713, 0x184007, 0x127ef4,
+	0x13a423, 0x14f8e7, 0x150737, 0x163fb0, 0x170713, 0x187137,
+	0x127f00, 0x13a623, 0x14f8e7, 0x151737, 0x160793, 0x170713,
+	0x188007, 0x127f0c, 0x13a823, 0x14f4e7, 0x151737, 0x16c37c,
+	0x17aa23, 0x18f4e7, 0x127f18, 0x136737, 0x14e793, 0x150713,
+	0x167a17, 0x17ac23, 0x18f4e7, 0x127f24, 0x131737, 0x14cb3c,
+	0x150713, 0x168077, 0x17ae23, 0x18f4e7, 0x127f30, 0x130737,
+	0x146080, 0x150713, 0x167937, 0x17a023, 0x18f6e7, 0x127f3c,
+	0x13d737, 0x148082, 0x150713, 0x16b7c7, 0x17a223, 0x18f6e7,
+	0x127f48, 0x136737, 0x140793, 0x150613, 0x164447, 0x17aa23,
+	0x184cc6, 0x127f54, 0x130637, 0x14a223, 0x150613, 0x162006,
+	0x17ac23, 0x184cc6, 0x127f60, 0x130713, 0x144f47, 0x15ae23,
+	0x164ce6, 0x174737, 0x18d0fc, 0x127f6c, 0x130713, 0x14fa07,
+	0x15a023, 0x164ee6, 0x178737, 0x189207, 0x127f78, 0x130713,
+	0x147937, 0x15a223, 0x16f2e7, 0x17c737, 0x1867a1, 0x127f84,
+	0x130713, 0x1437c7, 0x15a423, 0x16f2e7, 0x178737, 0x187807,
+	0x127f90, 0x130713, 0x147937, 0x15a623, 0x16f2e7, 0x17d737,
+	0x180793, 0x127f9c, 0x130713, 0x14b3c7, 0x15a823, 0x16f2e7,
+	0x176737, 0x18cb7c, 0x127fa8, 0x130713, 0x140807, 0x15aa23,
+	0x16f2e7, 0x178737, 0x188082, 0x127fb4, 0x130713, 0x140827,
+	0x15ac23, 0x16f2e7, 0x17806f, 0x18af4f, 0x127fc0, 0x134412,
+	0x144482, 0x154501, 0x160121, 0x178082, 0x184398, 0x127fcc,
+	0x13b94d, 0x140000, 0x150000, 0x160000, 0x170000, 0x180000,
+	0x110000, 0x127c30, 0x104000, 0x1f0000,
+};
+
+static bool jl2xxx_patch_check(struct phy_device *phydev,
+			      struct jl_patch *patch)
 {
-	int i, j;
-	int regaddr, val;
+
 	bool patch_ok = false;
+	int val;
+	int i;
 
 	val = jlsemi_read_paged(phydev, JL2XXX_PAGE0, JL2XXX_PHY_INFO_REG);
-	for (i = 0; i < ARRAY_SIZE(patch_fw_versions); i++) {
-		if (val == patch_fw_versions[i])
+	for (i = 0; i < patch->phy.info_len; i++) {
+		if (val == patch->phy.info[i])
 			patch_ok |= true;
 	}
 
-	if (!patch_ok)
-		return 0;
+	return patch_ok;
+}
 
-	for (i = 0; i < ARRAY_SIZE(init_data); i++) {
-		regaddr = ((init_data[i] >> 16) & 0xff);
-		val = (init_data[i] & 0xffff);
+static bool jl2xxx_patch_zte_check(struct phy_device *phydev,
+				   struct jl_patch *patch)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	bool patch_ok = false;
+	int mode;
+
+	mode = jlsemi_read_paged(phydev, JL2XXX_PAGE18, JL2XXX_WORK_MODE_REG);
+	/* Can only be used in sgmii->utp mode */
+	if (((priv->work_mode.enable & JL2XXX_WORK_MODE_STATIC_OP_EN) &&
+	   (priv->work_mode.mode == JL2XXX_UTP_SGMII_MODE)) ||
+	   ((mode & JL2XXX_WORK_MODE_MASK) == JL2XXX_UTP_SGMII_MODE)) {
+		patch_ok = jl2xxx_patch_check(phydev, patch);
+	}
+	return patch_ok;
+}
+
+static int jl2xxx_patch_load(struct phy_device *phydev,
+			     struct jl_patch *patch)
+{
+	int regaddr, val;
+	int i, j;
+
+	for (i = 0; i < patch->data_len; i++) {
+		regaddr = ((patch->data[i] >> 16) & 0xff);
+		val = (patch->data[i] & 0xffff);
 		phy_write(phydev, regaddr, val);
 		if (regaddr == 0x18) {
 			phy_write(phydev, 0x10, 0x8006);
@@ -2181,57 +2177,418 @@ int jl2xxx_pre_init(struct phy_device *phydev)
 	/* Wait load patch complete */
 	msleep(20);
 
-	val = jlsemi_read_paged(phydev, JL2XXX_PAGE174, JL2XXX_PATCH_REG);
+	return 0;
+}
 
-	if (val != patch_version)
+static int jl2xxx_patch_verify_by_version(struct phy_device *phydev,
+					  struct jl_patch *patch)
+{
+	int version;
+
+	version = jlsemi_read_paged(phydev, JL2XXX_PAGE174, JL2XXX_PATCH_REG);
+	if (version != patch->version)
 		JLSEMI_PHY_MSG(KERN_ERR
 			       "%s: patch version is not match\n", __func__);
+	return 0;
+}
+
+static int jl2xxx_patch_verify_by_regval(struct phy_device *phydev,
+					 struct jl_patch *patch)
+{
+	int val;
+
+	val = jlsemi_read_paged(phydev, JL2XXX_PAGE179, JL2XXX_REG16);
+	if (val != patch->version)
+		JLSEMI_PHY_MSG(KERN_ERR "%s: patch load failed!\n", __func__);
+	return 0;
+}
+
+static struct jl_patch phy_patches[] = {
+	{
+		.data = init_data0,
+		.data_len = ARRAY_SIZE(init_data0),
+		.version = patch_version0,
+		{
+			.info = patch_fw_versions0,
+			.info_len = ARRAY_SIZE(patch_fw_versions0),
+		},
+		.check = jl2xxx_patch_check,
+		.load = jl2xxx_patch_load,
+		.verify = jl2xxx_patch_verify_by_version,
+
+	},
+	{
+		.data = init_data1,
+		.data_len = ARRAY_SIZE(init_data1),
+		.version = patch_version1,
+		{
+			.info = patch_fw_versions1,
+			.info_len = ARRAY_SIZE(patch_fw_versions1),
+		},
+		.check = jl2xxx_patch_check,
+		.load = jl2xxx_patch_load,
+		.verify = jl2xxx_patch_verify_by_version,
+	},
+	{
+		.data = init_data2,
+		.data_len = ARRAY_SIZE(init_data2),
+		.version = patch_version2,
+		{
+			.info = patch_fw_versions2,
+			.info_len = ARRAY_SIZE(patch_fw_versions2),
+		},
+		.check = jl2xxx_patch_check,
+		.load = jl2xxx_patch_load,
+		.verify = jl2xxx_patch_verify_by_version,
+	},
+	{
+		.data = init_data3,
+		.data_len = ARRAY_SIZE(init_data3),
+		.version = 0,
+		{
+			.info = patch_fw_versions3,
+			.info_len = ARRAY_SIZE(patch_fw_versions3),
+		},
+		.check = jl2xxx_patch_zte_check,
+		.load = jl2xxx_patch_load,
+		.verify = jl2xxx_patch_verify_by_regval,
+	},
+};
+
+int jl2xxx_patch_static_op_set(struct phy_device *phydev)
+{
+	int found;
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(phy_patches); i++) {
+		found = jl2xxx_pre_init(phydev, &phy_patches[i]);
+		if (found)
+			return found;
+	}
 
 	return 0;
 }
 
-int config_init_r4p1(struct phy_device *phydev)
+int jl1xxx_wol_dynamic_op_get(struct phy_device *phydev)
 {
-	const u16 r4p1_version = 0x930a;
-	int chip_fw_version;
+	return jlsemi_fetch_bit(phydev, JL1XXX_PAGE129,
+				JL1XXX_WOL_CTRL_REG, JL1XXX_WOL_DIS);
+}
+
+int jl2xxx_wol_dynamic_op_get(struct phy_device *phydev)
+{
+	return jlsemi_fetch_bit(phydev, JL2XXX_WOL_CTRL_PAGE,
+				JL2XXX_WOL_CTRL_REG, JL2XXX_WOL_EN);
+}
+
+static int jl1xxx_wol_static_op_set(struct phy_device *phydev)
+{
 	int err;
 
-	chip_fw_version = jlsemi_read_paged(phydev, JL2XXX_PAGE0,
-					    JL2XXX_PHY_INFO_REG);
-	if (chip_fw_version != r4p1_version)
-		return 0;
-
-	err = jlsemi_set_bits(phydev, JL2XXX_PAGE0,
-			      JL2XXX_REG20, JL2XXX_AUTO_GAIN_DIS);
+	err = jl1xxx_wol_dynamic_op_set(phydev);
 	if (err < 0)
 		return err;
-
-	err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE201, JL2XXX_REG21,
-				      JL2XXX_RX_AMP2_MASK, JL2XXX_RX_AMP2(10));
-	if (err < 0)
-		return err;
-
-	err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE201, JL2XXX_REG29,
-				      JL2XXX_FG_LP_10M_MASK,
-				      JL2XXX_FG_LP_10M(1));
-	if (err < 0)
-		return err;
-
-	err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE206, JL2XXX_REG22,
-				      JL2XXX_RX_AMP_SIG_MASK,
-				      JL2XXX_RX_AMP_SIG(3));
-	if (err < 0)
-		return err;
-
-	err = jlsemi_clear_bits(phydev, JL2XXX_PAGE191,
-				JL2XXX_REG16, JL2XXX_RGMII_CFG);
-	if (err < 0)
-		return err;
-
-	/* Wait r4p1 config compelte */
-	msleep(20);
 
 	return 0;
+}
+
+int jl1xxx_intr_ack_event(struct phy_device *phydev)
+{
+	struct jl1xxx_priv *priv = phydev->priv;
+	int err;
+
+	if (priv->intr.enable & JL1XXX_INTR_STATIC_OP_EN) {
+		err = phy_read(phydev, JL1XXX_INTR_STATUS_REG);
+		if (err < 0)
+			return err;
+	}
+
+	return 0;
+}
+
+int jl1xxx_intr_static_op_set(struct phy_device *phydev)
+{
+	struct jl1xxx_priv *priv = phydev->priv;
+	int err;
+	int ret = 0;
+
+	if (priv->intr.enable & JL1XXX_INTR_LINK_CHANGE_EN)
+		ret |= JL1XXX_INTR_LINK;
+	if (priv->intr.enable & JL1XXX_INTR_AN_ERR_EN)
+		ret |= JL1XXX_INTR_AN_ERR;
+
+	err = jlsemi_set_bits(phydev, JL1XXX_PAGE7,
+			      JL1XXX_INTR_REG, ret);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
+static int jl2xxx_wol_static_op_set(struct phy_device *phydev)
+{
+	int err;
+
+	err = jl2xxx_wol_dynamic_op_set(phydev);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
+int jl1xxx_wol_dynamic_op_set(struct phy_device *phydev)
+{
+	int err;
+
+	err = jl1xxx_wol_cfg_rmii(phydev);
+	if (err < 0)
+		return err;
+
+	err = jl1xxx_wol_enable(phydev, true);
+	if (err < 0)
+		return err;
+
+	err = jl1xxx_wol_store_mac_addr(phydev);
+	if (err < 0)
+		return err;
+
+	if (jl1xxx_wol_receive_check(phydev)) {
+		err = jl1xxx_wol_clear(phydev);
+		if (err < 0)
+			return err;
+	}
+
+	return 0;
+}
+
+int jl2xxx_wol_dynamic_op_set(struct phy_device *phydev)
+{
+	int err;
+
+	err = jl2xxx_wol_enable(phydev, true);
+	if (err < 0)
+		return err;
+
+	err = jl2xxx_wol_clear(phydev);
+	if (err < 0)
+		return err;
+
+	err = jl2xxx_wol_active_low_polarity(phydev, true);
+	if (err < 0)
+		return err;
+
+	err = jl2xxx_store_mac_addr(phydev);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
+int jl2xxx_intr_ack_event(struct phy_device *phydev)
+{
+	int err;
+
+	err = jlsemi_read_paged(phydev, JL2XXX_PAGE2627,
+				JL2XXX_INTR_STATUS_REG);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
+int jl2xxx_intr_static_op_set(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	int err;
+	int ret = 0;
+
+	if (priv->intr.enable & JL2XXX_INTR_LINK_CHANGE_EN)
+		ret |= JL2XXX_INTR_LINK_CHANGE;
+	if (priv->intr.enable & JL2XXX_INTR_AN_ERR_EN)
+		ret |= JL2XXX_INTR_AN_ERR;
+	if (priv->intr.enable & JL2XXX_INTR_AN_COMPLETE_EN)
+		ret |= JL2XXX_INTR_AN_COMPLETE;
+	if (priv->intr.enable & JL2XXX_INTR_AN_PAGE_RECE)
+		ret |= JL2XXX_INTR_AN_PAGE;
+
+	err = jlsemi_set_bits(phydev, JL2XXX_PAGE2626,
+			      JL2XXX_INTR_CTRL_REG, ret);
+	if (err < 0)
+		return err;
+
+	err = jlsemi_set_bits(phydev, JL2XXX_PAGE158,
+			      JL2XXX_INTR_PIN_REG,
+			      JL2XXX_INTR_PIN_EN);
+	if (err < 0)
+		return err;
+
+	err = jlsemi_set_bits(phydev, JL2XXX_PAGE160,
+			      JL2XXX_PIN_EN_REG,
+			      JL2XXX_PIN_OUTPUT);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
+int jl1xxx_operation_args_get(struct phy_device *phydev)
+{
+	jl1xxx_led_operation_args(phydev);
+	jl1xxx_wol_operation_args(phydev);
+	jl1xxx_intr_operation_args(phydev);
+	jl1xxx_mdi_operation_args(phydev);
+	jl1xxx_rmii_operation_args(phydev);
+
+	return 0;
+}
+
+int jl2xxx_operation_args_get(struct phy_device *phydev)
+{
+	jl2xxx_led_operation_args(phydev);
+	jl2xxx_fld_operation_args(phydev);
+	jl2xxx_wol_operation_args(phydev);
+	jl2xxx_intr_operation_args(phydev);
+	jl2xxx_downshift_operation_args(phydev);
+	jl2xxx_rgmii_operation_args(phydev);
+	jl2xxx_patch_operation_args(phydev);
+	jl2xxx_clk_operation_args(phydev);
+	jl2xxx_work_mode_operation_args(phydev);
+	jl2xxx_lpbk_operation_args(phydev);
+	jl2xxx_slew_rate_operation_args(phydev);
+	jl2xxx_rxc_out_operation_args(phydev);
+
+	return 0;
+}
+
+int jl1xxx_static_op_init(struct phy_device *phydev)
+{
+	struct jl1xxx_priv *priv = phydev->priv;
+	int err;
+
+	if (priv->led.enable & JL1XXX_LED_STATIC_OP_EN) {
+		err = jl1xxx_led_static_op_set(phydev);
+		if (err < 0)
+			return err;
+	}
+
+	if (priv->wol.enable & JL1XXX_WOL_STATIC_OP_EN) {
+		err = jl1xxx_wol_static_op_set(phydev);
+		if (err < 0)
+			return err;
+	}
+
+	if (priv->intr.enable & JL1XXX_INTR_STATIC_OP_EN) {
+		err = jl1xxx_intr_static_op_set(phydev);
+		if (err < 0)
+			return err;
+	}
+
+	if (priv->mdi.enable & JL1XXX_MDI_STATIC_OP_EN) {
+		err = jl1xxx_mdi_static_op_set(phydev);
+		if (err < 0)
+			return err;
+	}
+
+	if (priv->rmii.enable & JL1XXX_RMII_STATIC_OP_EN) {
+		err = jl1xxx_rmii_static_op_set(phydev);
+		if (err < 0)
+			return err;
+	}
+
+	return 0;
+}
+
+int jl2xxx_static_op_init(struct phy_device *phydev)
+{
+	struct jl2xxx_priv *priv = phydev->priv;
+	int err;
+
+	if (priv->patch.enable & JL2XXX_PATCH_STATIC_OP_EN) {
+		err = jl2xxx_patch_static_op_set(phydev);
+		if (err < 0)
+			return err;
+	}
+
+	if (priv->led.enable & JL2XXX_LED_STATIC_OP_EN) {
+		err = jl2xxx_led_static_op_set(phydev);
+		if (err < 0)
+			return err;
+	}
+
+	if (priv->fld.enable & JL2XXX_FLD_STATIC_OP_EN) {
+		err = jl2xxx_fld_static_op_set(phydev);
+		if (err < 0)
+			return err;
+	}
+
+	if (priv->wol.enable & JL2XXX_WOL_STATIC_OP_EN) {
+		err = jl2xxx_wol_static_op_set(phydev);
+		if (err < 0)
+			return err;
+	}
+
+	if (priv->intr.enable & JL2XXX_INTR_STATIC_OP_EN) {
+		err = jl2xxx_intr_static_op_set(phydev);
+		if (err < 0)
+			return err;
+	}
+
+	if (priv->downshift.enable & JL2XXX_DSFT_STATIC_OP_EN) {
+		err = jl2xxx_downshift_static_op_set(phydev);
+		if (err < 0)
+			return err;
+	}
+
+	if (priv->rgmii.enable & JL2XXX_RGMII_STATIC_OP_EN) {
+		err = jl2xxx_rgmii_static_op_set(phydev);
+		if (err < 0)
+			return err;
+	}
+
+	if (priv->clk.enable & JL2XXX_CLK_STATIC_OP_EN) {
+		err = jl2xxx_clk_static_op_set(phydev);
+		if (err < 0)
+			return err;
+	}
+
+	if (priv->work_mode.enable & JL2XXX_WORK_MODE_STATIC_OP_EN) {
+		err = jl2xxx_work_mode_static_op_set(phydev);
+		if (err < 0)
+			return err;
+	}
+
+	if (priv->lpbk.enable & JL2XXX_LPBK_STATIC_OP_EN) {
+		err = jl2xxx_lpbk_static_op_set(phydev);
+		if (err < 0)
+			return err;
+	}
+
+	if (priv->slew_rate.enable & JL2XXX_SLEW_RATE_STATIC_OP_EN) {
+		err = jl2xxx_slew_rate_static_op_set(phydev);
+		if (err < 0)
+			return err;
+	}
+
+	if (priv->rxc_out.enable & JL2XXX_RXC_OUT_STATIC_OP_EN) {
+		err = jl2xxx_rxc_out_static_op_set(phydev);
+		if (err < 0)
+			return err;
+	}
+
+	return 0;
+}
+
+int jl2xxx_pre_init(struct phy_device *phydev, struct jl_patch *patch)
+{
+	bool check;
+
+	check = patch->check(phydev, patch);
+	if (!check)
+		return 0;
+	patch->load(phydev, patch);
+	patch->verify(phydev, patch);
+
+	return 1;
 }
 
 int jlsemi_soft_reset(struct phy_device *phydev)
