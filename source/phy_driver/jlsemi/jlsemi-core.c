@@ -2605,6 +2605,1122 @@ int jlsemi_soft_reset(struct phy_device *phydev)
 	return 0;
 }
 
+module_param(gptp, int, 0444);
+module_param(p2p_onestep, int, 0444);
+
+static int jl3xxx_ptp_clock_step(struct phy_device *phydev,
+				 bool positive, s64 time_step_ns)
+{
+	if (time_step_ns >= MAX_AMT)
+		time_step_ns = MAX_AMT;
+
+	if (time_step_ns <= TIMEBASE) {
+		jl3xxx_set_mmd_bits(phydev, JL3XXX_DEVAD31,
+				    JL3XXX_TIME_DEC, TIMEDECAMT(time_step_ns));
+	} else {
+		jl3xxx_set_mmd_bits(phydev, JL3XXX_DEVAD31,
+				    JL3XXX_TIME_DEC, TIMEDECAMT(time_step_ns));
+		phy_write_mmd(phydev, JL3XXX_DEVAD31,
+			      JL3XXX_TIME_DEC_AMT_EXP, (time_step_ns >> 10));
+	}
+
+	if (positive)
+		jl3xxx_set_mmd_bits(phydev, JL3XXX_DEVAD31, JL3XXX_TIME_DEC,
+				JL3XXX_TIME_DEC_OP_BIT);
+	else
+		jl3xxx_clear_mmd_bits(phydev, JL3XXX_DEVAD31, JL3XXX_TIME_DEC,
+				JL3XXX_TIME_DEC_OP_BIT);
+
+	jl3xxx_set_mmd_bits(phydev, JL3XXX_DEVAD31,
+			    JL3XXX_TIME_DEC_EN, JL3XXX_TIME_DEC_EN_BIT);
+
+	/* Fix timedecamt need clear after TIME_DEC_EN */
+	jl3xxx_clear_mmd_bits(phydev, JL3XXX_DEVAD31,
+			      JL3XXX_TIME_DEC, TIMEDECAMT_MASK);
+	phy_write_mmd(phydev, JL3XXX_DEVAD31,
+		      JL3XXX_TIME_DEC_AMT_EXP, 0);
+
+	return 0;
+}
+
+static int jl3xxx_ptp_set_clock(struct phy_device *phydev,
+				u64 seconds, u32 nano_second)
+{
+	u64 s_word0, s_word1, s_word2;
+	u32 ns_word0, ns_word1;
+	int err;
+
+	ns_word0 = nano_second & 0xffff;
+	ns_word1 = nano_second >> 16;
+	s_word0 = seconds & 0xffff;
+	s_word1 = (seconds >> 16) & 0xffff;
+	s_word2 = seconds >> 32;
+	/* Carefully must write SEC WORD before NSEC WORD */
+	err = phy_write_mmd(phydev, JL3XXX_DEVAD31,
+			    JL3XXX_GBL_SEC_WORD2, s_word2);
+	if (err < 0)
+		return err;
+	err = phy_write_mmd(phydev, JL3XXX_DEVAD31,
+			    JL3XXX_GBL_SEC_WORD1, s_word1);
+	if (err < 0)
+		return err;
+	err = phy_write_mmd(phydev, JL3XXX_DEVAD31,
+			    JL3XXX_GBL_SEC_WORD0, s_word0);
+	if (err < 0)
+		return err;
+	err = phy_write_mmd(phydev, JL3XXX_DEVAD31,
+			    JL3XXX_GBL_NSEC_WORD1, ns_word1);
+	if (err < 0)
+		return err;
+	err = phy_write_mmd(phydev, JL3XXX_DEVAD31,
+			    JL3XXX_GBL_NSEC_WORD0, ns_word0);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
+static int jl3xxx_ptp_get_ts_arr_time(struct phy_device *phydev,
+				      u64 *seconds, u32 *nano_seconds)
+{
+	u64 s_word0, s_word1, s_word2;
+	u32 ns_word0, ns_word1;
+	bool valid;
+
+	valid = jl3xxx_fetch_mmd_bit(phydev, JL3XXX_DEVAD31,
+				     JL3XXX_ARR_VALID, JL3XXX_ARR_VALID_BIT);
+	if (!valid) {
+		JLSEMI_PHY_MSG(KERN_ERR "%s: Arrive time is not valid!\n",
+			       __func__);
+		return 0;
+	}
+
+	ns_word0 = phy_read_mmd(phydev, JL3XXX_DEVAD31, JL3XXX_ARR_NSEC_TIME0);
+	ns_word1 = phy_read_mmd(phydev, JL3XXX_DEVAD31, JL3XXX_ARR_NSEC_TIME1);
+	s_word0 = phy_read_mmd(phydev, JL3XXX_DEVAD31, JL3XXX_ARR_SEC_TIME0);
+	s_word1 = phy_read_mmd(phydev, JL3XXX_DEVAD31, JL3XXX_ARR_SEC_TIME1);
+	s_word2 = phy_read_mmd(phydev, JL3XXX_DEVAD31, JL3XXX_ARR_SEC_TIME2);
+
+	/* This bits need clear */
+	jl3xxx_clear_mmd_bits(phydev, JL3XXX_DEVAD31,
+			      JL3XXX_ARR_VALID, JL3XXX_ARR_VALID_BIT);
+	if (seconds)
+		(*seconds) = (s_word2 << 32) | (s_word1 << 16) | s_word0;
+
+	if (nano_seconds)
+		(*nano_seconds) = (ns_word1 << 16) | ns_word0;
+
+	return 0;
+}
+
+static int jl3xxx_ptp_get_ts_dep_time(struct phy_device *phydev,
+				      u64 *seconds, u32 *nano_seconds)
+{
+	u64 s_word0, s_word1, s_word2;
+	u32 ns_word0, ns_word1;
+	bool valid;
+
+	valid = jl3xxx_fetch_mmd_bit(phydev, JL3XXX_DEVAD31,
+				     JL3XXX_DEP_VALID, JL3XXX_DEP_VALID_BIT);
+	if (!valid) {
+		JLSEMI_PHY_MSG(KERN_ERR "%s: Departure time is not valid!\n",
+			       __func__);
+		return 0;
+	}
+
+	ns_word0 = phy_read_mmd(phydev, JL3XXX_DEVAD31, JL3XXX_DEP_NSEC_TIME0);
+	ns_word1 = phy_read_mmd(phydev, JL3XXX_DEVAD31, JL3XXX_DEP_NSEC_TIME1);
+	s_word0 = phy_read_mmd(phydev, JL3XXX_DEVAD31, JL3XXX_DEP_SEC_TIME0);
+	s_word1 = phy_read_mmd(phydev, JL3XXX_DEVAD31, JL3XXX_DEP_SEC_TIME1);
+	s_word2 = phy_read_mmd(phydev, JL3XXX_DEVAD31, JL3XXX_DEP_SEC_TIME2);
+
+	/* This bits need clear */
+	jl3xxx_clear_mmd_bits(phydev, JL3XXX_DEVAD31,
+			      JL3XXX_DEP_VALID, JL3XXX_DEP_VALID_BIT);
+	if (seconds)
+		(*seconds) = (s_word2 << 32) | (s_word1 << 16) | s_word0;
+
+	if (nano_seconds)
+		(*nano_seconds) = (ns_word1 << 16) | ns_word0;
+
+	return 0;
+}
+
+static int jl3xxx_ptp_get_ts_arr_seqid(struct phy_device *phydev, u16 *seqid)
+{
+	int val;
+
+	val = phy_read_mmd(phydev, JL3XXX_DEVAD31, JL3XXX_ARR_SEQID);
+
+	if (seqid)
+		(*seqid) = val;
+
+	return 0;
+}
+
+static int jl3xxx_ptp_get_ts_dep_seqid(struct phy_device *phydev, u16 *seqid)
+{
+	int val;
+
+	val = phy_read_mmd(phydev, JL3XXX_DEVAD31, JL3XXX_DEP_SEQID);
+
+	if (seqid)
+		(*seqid) = val;
+
+	return 0;
+}
+
+static int jl3xxx_ptp_set_global_time(struct phy_device *phydev,
+				      u64 seconds, u32 nano_seconds)
+{
+	int err;
+
+	err = jl3xxx_ptp_set_clock(phydev, seconds, nano_seconds);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
+static int jl3xxx_ptp_get_global_time(struct phy_device *phydev,
+				      u64 *seconds, u32 *nano_seconds)
+{
+	u32 ns_lo, ns_hi;
+	u64 s_lo, s_me, s_hi;
+
+	/* Need fix */
+	s_hi = 0;
+
+	/* Read global time need command */
+	/* need fix mdio indirect */
+	phy_write_mmd(phydev, JL3XXX_DEVAD31,
+		      JL3XXX_READ_PULS, JL3XXX_READ_PULS_CMD);
+	ns_lo = phy_read_mmd(phydev, JL3XXX_DEVAD31, JL3XXX_READ_PULS_DATA);
+	ns_hi = phy_read_mmd(phydev, JL3XXX_DEVAD31, JL3XXX_READ_PULS_DATA);
+	s_lo = phy_read_mmd(phydev, JL3XXX_DEVAD31, JL3XXX_READ_PULS_DATA);
+	s_me = phy_read_mmd(phydev, JL3XXX_DEVAD31, JL3XXX_READ_PULS_DATA);
+
+	if (seconds)
+		(*seconds) = (s_hi << 32) | (s_me << 16) | s_lo;
+
+	if (nano_seconds)
+		(*nano_seconds) = (ns_hi << 16) | ns_lo;
+
+	return 0;
+}
+
+static int jl3xxx_ptp_init_pps(struct phy_device *phydev)
+{
+	int err;
+
+	JLSEMI_PHY_MSG(KERN_INFO "%s\n", __func__);
+	/* Pulse Width Range for the 1 Pulse Per Second on the Second signal */
+	err = jl3xxx_mmd_modify(phydev, JL3XXX_DEVAD31, JL3XXX_PPS,
+				JL3XXX_PPS_RANGE_MASK, JL3XXX_PPS_RANGE(0x7));
+	if (err < 0)
+		return err;
+	/* Pulse Width for the 1 Pulse Per Second on the Second signal */
+	err = jl3xxx_mmd_modify(phydev, JL3XXX_DEVAD31, JL3XXX_PPS,
+				JL3XXX_PPS_WIDTH_MASK, JL3XXX_PPS_WIDTH(0xf));
+	if (err < 0)
+		return err;
+	/* Phase of the 1 Pulse Per Second on the Second signal */
+	err = jl3xxx_clear_mmd_bits(phydev, JL3XXX_DEVAD31, JL3XXX_PPS,
+				    JL3XXX_PPS_PHASE_BIT);
+	if (err < 0)
+		return err;
+	err = jl3xxx_set_mmd_bits(phydev, JL3XXX_DEVAD31, 0x3b30, BIT(7));
+	if (err < 0)
+		return err;
+
+	err = jl3xxx_set_mmd_bits(phydev, 0x3, 0x8001, BIT(4) | BIT(5));
+	if (err < 0)
+		return err;
+
+	err = jl3xxx_set_mmd_bits(phydev, JL3XXX_DEVAD31, 0x0709, BIT(9));
+	if (err < 0)
+		return err;
+
+	err = jl3xxx_set_mmd_bits(phydev, JL3XXX_DEVAD31, 0x0708, BIT(9));
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
+static void jl3xxx_ptp_soft_reset(struct phy_device *phydev)
+{
+	jl3xxx_set_mmd_bits(phydev, JL3XXX_DEVAD3,
+			    JL3XXX_PTP_CONFIG, JL3XXX_PTP_RESET_BIT);
+	/* Wait reset complete */
+	msleep(2000);
+}
+
+int jl3xxx_gptp_master_config(struct phy_device *phydev)
+{
+	struct jl3xxx_priv *priv = phydev->priv;
+	int err;
+
+	if (gptp && priv->is_master) {
+		JLSEMI_PHY_MSG(KERN_INFO "%s\n", __func__);
+		err = jl3xxx_set_mmd_bits(phydev, JL3XXX_DEVAD31,
+					JL3XXX_PTS_GLB_DAT, BIT(3) | BIT(15));
+		if (err < 0)
+			return err;
+	}
+
+	return 0;
+}
+
+int jl3xxx_ptp_p2p_onestep_master_config(struct phy_device *phydev)
+{
+	struct jl3xxx_priv *priv = phydev->priv;
+	int err;
+
+	if (p2p_onestep && priv->is_master) {
+		JLSEMI_PHY_MSG(KERN_INFO "%s\n", __func__);
+		err = jl3xxx_set_mmd_bits(phydev, JL3XXX_DEVAD31,
+					JL3XXX_PTS_GLB_DAT, BIT(3) | BIT(15));
+		if (err < 0)
+			return err;
+	}
+
+	return 0;
+}
+
+static int jl3xxx_ptp_init(struct phy_device *phydev)
+{
+	struct jl3xxx_priv *priv = phydev->priv;
+	int err;
+
+	JLSEMI_PHY_MSG(KERN_INFO "%s\n", __func__);
+
+	/* Ptp clock enable */
+	err = jl3xxx_set_mmd_bits(phydev, JL3XXX_DEVAD3,
+				  JL3XXX_PTP_CONFIG, JL3XXX_PTP_EN_BIT);
+	if (err < 0)
+		return err;
+	/* Set TAI clock cycle 8ns */
+	err = phy_write_mmd(phydev, JL3XXX_DEVAD31,
+		      JL3XXX_PTS_CLK_CYCLE, JL3XXX_TS_CLK_CYCLE_VAL);
+	if (err < 0)
+		return err;
+	/* Ptp soft reset only one times */
+	if (!priv->init_ptp) {
+		jl3xxx_ptp_soft_reset(phydev);
+		priv->init_ptp = true;
+	}
+
+	/* To be configured to 0x1 for IEEE 802.1AS */
+	err = jl3xxx_mmd_modify(phydev, JL3XXX_DEVAD31, JL3XXX_PTS_TRANS,
+				JL3XXX_PTS_TRANS_MASK,
+				JL3XXX_PTS_TRANS_S(gptp));
+	if (err < 0)
+		return err;
+	/* Enable hardware acceleration */
+	err = jl3xxx_set_mmd_bits(phydev, JL3XXX_DEVAD31,
+				  JL3XXX_PTS_HW_ACCEL, JL3XXX_PTS_HW_ACCEL_BIT);
+	if (err < 0)
+		return err;
+	/* Keep ethernet Source addr */
+	err = jl3xxx_set_mmd_bits(phydev, JL3XXX_DEVAD31,
+			    JL3XXX_PTS_HW_ACCEL, JL3XXX_PTS_KEEP_SA_BIT);
+	if (err < 0)
+		return err;
+	/* Record timestamp of messages type:
+	 * sync and delay_req pdelay_req pdelay_resp
+	 */
+	err = phy_write_mmd(phydev, JL3XXX_DEVAD31,
+			    JL3XXX_PTS_MSGID, JL3XXX_PTS_MSGID_EN(0xf));
+	if (err < 0)
+		return err;
+	/* Set PTP One-step */
+	if (priv->hwts_tx_en == HWTSTAMP_TX_ONESTEP_SYNC ||
+			priv->hwts_tx_en == HWTSTAMP_TX_ONESTEP_P2P) {
+		err = jl3xxx_mmd_modify(phydev, JL3XXX_DEVAD31,
+					JL3XXX_PTS_GLB_DAT,
+					JL3XXX_PTS_GLB_DAT_MASK,
+					JL3XXX_PTS_GLB_DAT_S(0x4) |
+					JL3XXX_PTS_UPDAT_BIT);
+		if (err < 0)
+			return err;
+	} else {
+		jl3xxx_clear_mmd_bits(phydev, JL3XXX_DEVAD31,
+				      JL3XXX_PTS_GLB_DAT,
+				      JL3XXX_PTS_GLB_DAT_MASK);
+	}
+	/* Power Up PTP */
+	err = jl3xxx_clear_mmd_bits(phydev, JL3XXX_DEVAD31,
+				    JL3XXX_PTP_CFG0, JL3XXX_PTP_POWER_DOWN);
+	if (err < 0)
+		return err;
+	/* Enable sec select */
+	err = jl3xxx_set_mmd_bits(phydev, JL3XXX_DEVAD31,
+				    JL3XXX_PTP_CFG0, JL3XXX_PTP_TS_SEL_SEC);
+	if (err < 0)
+		return err;
+	/* enable ptp port */
+	err = jl3xxx_clear_mmd_bits(phydev, JL3XXX_DEVAD31,
+				    JL3XXX_PTP_DIS, JL3XXX_PTP_DIS_BIT);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
+static int jl3xxx_phc_set_step(struct phy_device *phydev,
+			       bool positive, long step)
+{
+	if (step < 0)
+		step = -step;
+
+	return jl3xxx_ptp_clock_step(phydev, positive, step);
+}
+
+static int jl3xxx_ptp_enable(struct ptp_clock_info *ptp,
+			     struct ptp_clock_request *rq, int on)
+{
+	return -EOPNOTSUPP;
+}
+
+#define ONE_SEC_TO_NSEC	1000000000
+static int jl3xxx_phc_adjust(struct phy_device *phydev, s64 delta)
+{
+	/* TODO */
+	return 0;
+}
+
+static int jl3xxx_ptp_adjtime(struct ptp_clock_info *ptp, s64 delta)
+{
+	struct jl3xxx_priv *priv =
+	container_of(ptp, struct jl3xxx_priv, ptp_info);
+	struct phy_device *phydev = priv->phydev;
+
+	return jl3xxx_phc_adjust(phydev, delta);
+}
+
+static long jl3xxx_ppm_to_ppb(long ppm)
+{
+	/*
+	 * The 'freq' field in the 'struct timex' is in parts per
+	 * million, but with a 16 bit binary fractional field.
+	 *
+	 * We want to calculate
+	 *
+	 *    ppb = scaled_ppm * 1000 / 2^16
+	 *
+	 * which simplifies to
+	 *
+	 *    ppb = scaled_ppm * 125 / 2^13
+	 */
+	s64 ppb = 1 + ppm;
+
+	ppb *= 125;
+	ppb >>= 13;
+
+	return (long) ppb;
+}
+
+static int jl3xxx_ptp_adjfine(struct ptp_clock_info *ptp, long scaled_ppm)
+{
+	struct jl3xxx_priv *priv =
+		container_of(ptp, struct jl3xxx_priv, ptp_info);
+	struct ptp_clock_info *ptp_info = &priv->ptp_info;
+	bool neg_adj = false;
+	long scaled_ppb;
+
+	scaled_ppb = jl3xxx_ppm_to_ppb(scaled_ppm);
+	if (scaled_ppb < 0)
+		neg_adj = true;
+
+	priv->ptp_work_neg_adj = neg_adj;
+	priv->ptp_work_ppb = scaled_ppb;
+
+	if ((priv->ptp_work_ppb * priv->last_ppb / ptp_info->max_adj) < 0)
+		priv->safe_quit = true;
+
+	priv->last_ppb = priv->ptp_work_ppb;
+
+	schedule_delayed_work(&priv->state_queue, 175);
+
+	return 0;
+}
+//offset > 0 --> slave freq > master freq
+//cycle=1 ---> add ~= 125000ns by 1s
+static int jl3xxx_ptp_adjphase(struct ptp_clock_info *ptp, s32 phase)
+{
+	/* TODO */
+//
+//	struct jl3xxx_priv *priv =
+//		container_of(ptp, struct jl3xxx_priv, ptp_info);
+//	bool phase_adj = false;
+//	bool neg_adj = false;
+//	int err;
+//
+//	if (phase < 0) {
+//		neg_adj = true;
+//	}
+//
+//	if (phase < 0){
+//		phase_adj = false;
+//	} else {
+//		phase_adj = true;
+//	}
+//
+//	if (phase < -6000 || phase > 6000)
+//		priv->init_adj = true;
+//		//phase_adj = false;
+//
+//	printk("%s\n", __func__);
+//	printk("phase: %d\n", phase);
+//	err = phy_read_mmd(priv->phydev, JL3XXX_DEVAD31,
+//			  JL3XXX_PTS_CLK_CYCLE);
+//	printk("clk: %d", err);
+//
+//
+//#if 0
+//	phy_write_mmd(priv->phydev, JL3XXX_DEVAD31,
+//			    JL3XXX_PTS_CLK_CYCLE, 0);
+//#endif
+//#if 0
+//	phy_write_mmd(priv->phydev, JL3XXX_DEVAD31,
+//			    JL3XXX_PTS_CLK_CYCLE,
+//			    JL3XXX_TS_CLK_CYCLE_VAL - adj);
+//#endif
+//#if 0
+//		if (priv->init_adj) {
+//			printk("step++++");
+//			jl3xxx_phc_set_step(priv->phydev, neg_adj, phase);
+//			err = phy_write_mmd(priv->phydev, JL3XXX_DEVAD31,
+//					    JL3XXX_PTS_CLK_CYCLE,
+//					    JL3XXX_TS_CLK_CYCLE_VAL);
+//			return 0;
+//		}
+//#endif
+//
+//#if 0
+//	if (priv->init_adj) {
+//		err = phy_write_mmd(priv->phydev, JL3XXX_DEVAD31,
+//				    JL3XXX_PTS_CLK_CYCLE,
+//				    JL3XXX_TS_CLK_CYCLE_VAL + 5);
+//#if 1
+//		udelay(1000);
+////		msleep(5);
+//		err = phy_write_mmd(priv->phydev, JL3XXX_DEVAD31,
+//				    JL3XXX_PTS_CLK_CYCLE,
+//				    JL3XXX_TS_CLK_CYCLE_VAL);
+//		if (err < 0)
+//			return err;
+//#endif
+////		priv->init_adj = true;
+////		return 0;
+//	}
+//#endif
+//
+//#if 0
+//		printk("step0++++");
+//		jl3xxx_phc_set_step(priv->phydev, neg_adj, phase);
+//#endif
+//
+//#if 0
+//
+//		if (phase_adj) {
+//#if 1
+//			printk("phase++++");
+//			/* Set TAI clock cycle */
+//			err = phy_write_mmd(priv->phydev, JL3XXX_DEVAD31,
+//					    JL3XXX_PTS_CLK_CYCLE,
+//					    JL3XXX_TS_CLK_CYCLE_VAL + 1);
+//#if 1
+//			if (phase < 0)
+//				phase = -phase;
+//			udelay(500);
+//			//msleep(5);
+//			err = phy_write_mmd(priv->phydev, JL3XXX_DEVAD31,
+//					    JL3XXX_PTS_CLK_CYCLE,
+//					    JL3XXX_TS_CLK_CYCLE_VAL);
+//			if (err < 0)
+//				return err;
+//#endif
+//			err = phy_read_mmd(priv->phydev, JL3XXX_DEVAD31,
+//					  JL3XXX_PTS_CLK_CYCLE);
+//			printk("clk: %d", err);
+//#endif
+//		} else {
+//#if 1
+//			printk("phase----");
+//			/* Set TAI clock cycle */
+//			err = phy_write_mmd(priv->phydev, JL3XXX_DEVAD31,
+//					    JL3XXX_PTS_CLK_CYCLE,
+//					    JL3XXX_TS_CLK_CYCLE_VAL - 1);
+//#if 1
+//			if (phase < 0)
+//				phase = -phase;
+//			udelay(2000);
+//			err = phy_write_mmd(priv->phydev, JL3XXX_DEVAD31,
+//					    JL3XXX_PTS_CLK_CYCLE,
+//					    JL3XXX_TS_CLK_CYCLE_VAL);
+//			if (err < 0)
+//				return err;
+//#endif
+//			err = phy_read_mmd(priv->phydev, JL3XXX_DEVAD31,
+//					  JL3XXX_PTS_CLK_CYCLE);
+//			printk("clk: %d", err);
+//#endif
+//		}
+//#endif
+	return 0;
+}
+
+
+static int jl3xxx_ptp_gettime64(struct ptp_clock_info *ptp,
+				struct timespec64 *ts)
+{
+	struct jl3xxx_priv *priv =
+		container_of(ptp, struct jl3xxx_priv, ptp_info);
+	struct phy_device *phydev = priv->phydev;
+	u64 sec;
+	u32 ns;
+	int ret;
+
+	/* Update ptp hardware clock to system real time */
+	ret = jl3xxx_ptp_get_global_time(phydev, &sec, &ns);
+	if (ret < 0)
+		return ret;
+
+	ts->tv_sec = sec;
+	ts->tv_nsec = ns;
+
+	return ret;
+}
+
+void jl3xxx_ptp_sync_to_system_clock(struct phy_device *phydev)
+{
+	struct timespec64 ts;
+
+	ktime_get_clocktai_ts64(&ts);
+
+	jl3xxx_ptp_set_global_time(phydev, ts.tv_sec, ts.tv_nsec);
+}
+
+static int jl3xxx_ptp_settime64(struct ptp_clock_info *ptp,
+				const struct timespec64 *ts)
+{
+	struct jl3xxx_priv *priv =
+		container_of(ptp, struct jl3xxx_priv, ptp_info);
+	struct phy_device *phydev = priv->phydev;
+	int ret;
+
+	/* maybe need lock */
+	ret = jl3xxx_ptp_set_global_time(phydev, ts->tv_sec, ts->tv_nsec);
+
+	return 0;
+}
+
+static struct ptp_clock_info jl3xxx_ptp_info = {
+	.owner		= THIS_MODULE,
+	.name		= "jl3xxx ptp clock",
+	.enable		= jl3xxx_ptp_enable,
+	.adjfine	= jl3xxx_ptp_adjfine,
+	.adjphase	= jl3xxx_ptp_adjphase,
+	.adjtime	= jl3xxx_ptp_adjtime,
+	.gettime64	= jl3xxx_ptp_gettime64,
+	.settime64	= jl3xxx_ptp_settime64,
+	.max_adj	= 10 * MAX_AMT,
+};
+
+static int jl3xxx_get_rxts(struct jl3xxx_priv *priv)
+{
+	int err;
+
+	err = jl3xxx_ptp_get_ts_arr_time(priv->phydev,
+					&priv->arr_ts.sec,
+					&priv->arr_ts.nsec);
+	if (err < 0)
+		return err;
+
+	err = jl3xxx_ptp_get_ts_arr_seqid(priv->phydev,
+					  &priv->arr_ts.seqid);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
+static int jl3xxx_get_txts(struct jl3xxx_priv *priv)
+{
+	int err;
+
+	err = jl3xxx_ptp_get_ts_dep_time(priv->phydev, &priv->dep_ts.sec,
+					 &priv->dep_ts.nsec);
+	if (err < 0)
+		return err;
+	err = jl3xxx_ptp_get_ts_dep_seqid(priv->phydev, &priv->dep_ts.seqid);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
+int jl3xxx_ptp_config(struct phy_device *phydev)
+{
+	struct jl3xxx_priv *priv = phydev->priv;
+	int err;
+
+	JLSEMI_PHY_MSG(KERN_INFO "%s\n", __func__);
+	err = jl3xxx_ptp_init(phydev);
+	if (err < 0)
+		return err;
+	err = jl3xxx_ptp_init_pps(phydev);
+	if (err < 0)
+		return err;
+	priv->adj_state = PHC_STOP_ADJ;
+	/*
+	 * Due to link down need config again,
+	 * we need init safe_quit to false
+	 */
+	priv->safe_quit = false;
+
+	return 0;
+}
+
+static void jl3xxx_phy_to_rxts(struct jl3xxx_priv *priv, struct rxts *rxts)
+{
+	mutex_lock(&priv->ptp_lock);
+	jl3xxx_get_rxts(priv);
+	mutex_unlock(&priv->ptp_lock);
+
+	rxts->sec = priv->arr_ts.sec;
+	rxts->nsec = priv->arr_ts.nsec;
+	rxts->seqid = priv->arr_ts.seqid;
+	rxts->tmo = jiffies + SKB_TIMESTAMP_TIMEOUT;
+}
+
+void prune_rx_ts(struct jl3xxx_priv *priv)
+{
+	struct list_head *this, *next;
+	struct rxts *rxts;
+
+	list_for_each_safe(this, next, &priv->rxts) {
+		rxts = list_entry(this, struct rxts, list);
+		/* rx timestamp timeout */
+		if (time_after(jiffies, rxts->tmo)) {
+			list_del_init(&rxts->list);
+			list_add(&rxts->list, &priv->rxpool);
+		}
+	}
+}
+
+enum ptp_msg_type jl3xxx_ptp_get_msgtype(struct sk_buff *skb, int type)
+{
+	u8 *data = skb->data, *msgtype;
+	unsigned int offset = 0;
+
+	if (type & PTP_CLASS_VLAN)
+		offset += VLAN_HLEN;
+
+	switch (type & PTP_CLASS_PMASK) {
+	case PTP_CLASS_IPV4:
+		offset += ETH_HLEN + IPV4_HLEN(data + offset) + UDP_HLEN;
+		break;
+	case PTP_CLASS_IPV6:
+		offset += ETH_HLEN + IP6_HLEN + UDP_HLEN;
+		break;
+	case PTP_CLASS_L2:
+		offset += ETH_HLEN;
+		break;
+	default:
+		return 0;
+	}
+
+	if (type & PTP_CLASS_V1)
+		offset += OFF_PTP_CONTROL;
+
+	if (skb->len < offset + 1)
+		return 0;
+
+	msgtype = data + offset;
+
+	if ((*msgtype & 0xf) == 0)
+		return SYNC;
+	else if ((*msgtype & 0xf) == 1)
+		return DELAY_REQ;
+	else if ((*msgtype & 0xf) == 2)
+		return PDELAY_REQ;
+	else if ((*msgtype & 0xf) == 3)
+		return PDELAY_RESP;
+	else
+		return UNKNOW_TYPE;
+
+	return UNKNOW_TYPE;
+}
+
+int match(struct sk_buff *skb, unsigned int type, u16 seqid)
+{
+	u8 *data = skb_mac_header(skb);
+	unsigned int offset = 0;
+	u16 *pseqid;
+
+	if (type & PTP_CLASS_VLAN)
+		offset += VLAN_HLEN;
+
+	switch (type & PTP_CLASS_PMASK) {
+	case PTP_CLASS_IPV4:
+		offset += ETH_HLEN + IPV4_HLEN(data + offset) + UDP_HLEN;
+		break;
+	case PTP_CLASS_IPV6:
+		offset += ETH_HLEN + IP6_HLEN + UDP_HLEN;
+		break;
+	case PTP_CLASS_L2:
+		offset += ETH_HLEN;
+		break;
+	default:
+		return 0;
+	}
+	/* Check sequence id */
+	offset += OFF_PTP_SEQUENCE_ID;
+	if (skb->len + ETH_HLEN < offset + sizeof(*pseqid))
+		return 0;
+
+	pseqid = (u16 *)(data + offset);
+
+	if (seqid != ntohs(*pseqid))
+		return 0;
+
+	return 1;
+}
+
+static void rx_timestamp_work(struct work_struct *work)
+{
+	struct jl3xxx_priv *priv =
+		container_of(work, struct jl3xxx_priv, rx_ts_work.work);
+	struct rxts *rxts;
+	struct skb_shared_hwtstamps *shhwtstamps = NULL;
+	struct sk_buff *skb;
+	unsigned long flags;
+
+	spin_lock_irqsave(&priv->rx_lock, flags);
+
+	prune_rx_ts(priv);
+
+	if (list_empty(&priv->rxpool)) {
+		JLSEMI_PHY_MSG(KERN_ERR
+			       "%s: Rx timestamp pool is empty\n", __func__);
+		goto out;
+	}
+	rxts = list_first_entry(&priv->rxpool, struct rxts, list);
+	list_del_init(&rxts->list);
+	jl3xxx_phy_to_rxts(priv, rxts);
+
+	spin_lock(&priv->rx_queue.lock);
+	skb_queue_walk(&priv->rx_queue, skb) {
+		struct jl3xxx_skb_info *skb_info;
+
+		skb_info = (struct jl3xxx_skb_info *)skb->cb;
+		if (match(skb, skb_info->ptp_type, rxts->seqid)) {
+			__skb_unlink(skb, &priv->rx_queue);
+			shhwtstamps = skb_hwtstamps(skb);
+			memset(shhwtstamps, 0, sizeof(*shhwtstamps));
+			shhwtstamps->hwtstamp = ns_to_ktime(rxts->nsec +
+				rxts->sec * 1000000000ULL);
+			list_add(&rxts->list, &priv->rxpool);
+			break;
+		}
+	}
+	spin_unlock(&priv->rx_queue.lock);
+
+	if (!shhwtstamps)
+		list_add_tail(&rxts->list, &priv->rxts);
+out:
+	spin_unlock_irqrestore(&priv->rx_lock, flags);
+
+	if (shhwtstamps)
+		netif_rx_ni(skb);
+}
+
+static void tx_timestamp_work(struct work_struct *work)
+{
+	struct jl3xxx_priv *priv =
+		container_of(work, struct jl3xxx_priv, tx_ts_work.work);
+	struct skb_shared_hwtstamps shhwtstamps;
+	struct jl3xxx_skb_info *skb_info;
+	struct sk_buff *skb;
+
+	skb = skb_dequeue(&priv->tx_queue);
+	if (skb != NULL) {
+		skb_info = (struct jl3xxx_skb_info *)skb->cb;
+		if (time_after(jiffies, skb_info->tmo)) {
+			kfree_skb(skb);
+			schedule_delayed_work(&priv->tx_ts_work, 0);
+			JLSEMI_PHY_MSG(KERN_ERR
+				"%s: Tx timestamp is timeout!\n", __func__);
+			return;
+		}
+		mutex_lock(&priv->ptp_lock);
+		jl3xxx_get_txts(priv);
+		mutex_unlock(&priv->ptp_lock);
+		if (match(skb, skb_info->ptp_type, priv->dep_ts.seqid)) {
+			memset(&shhwtstamps, 0, sizeof(shhwtstamps));
+			shhwtstamps.hwtstamp = ns_to_ktime(priv->dep_ts.nsec +
+				priv->dep_ts.sec * 1000000000ULL);
+			skb_complete_tx_timestamp(skb, &shhwtstamps);
+		} else {
+			JLSEMI_PHY_MSG(KERN_ERR
+			"%s: Tx timestamp doesn't match with skb\n", __func__);
+			JLSEMI_PHY_MSG(KERN_ERR "%s: Seqid=%d\n", __func__,
+					priv->dep_ts.seqid);
+		}
+	}
+}
+
+#define MAX_ADJ_TIMES		1000000000
+static void phc_adj_state_machine(struct work_struct *work)
+{
+	struct jl3xxx_priv *priv =
+	container_of(work, struct jl3xxx_priv, state_queue.work);
+
+//#if 0
+//	struct ptp_clock_info *ptp_info = &priv->ptp_info;
+//	int i;
+//
+//	printk("%s\n", __func__);
+//	printk("work_ppb: %ld", priv->ptp_work_ppb);
+//	printk("state: %d", priv->adj_state);
+//
+//	switch (priv->adj_state) {
+//	case PHC_STOP_ADJ:
+//		if ((priv->ptp_work_ppb >= (ptp_info->max_adj * 9) / 10) ||
+//		   (priv->ptp_work_ppb <= -(ptp_info->max_adj * 9) / 10))
+//			priv->adj_state = PHC_LOOP_ADJ;
+//		else if (priv->ptp_work_ppb != 0 &&
+//			 priv->last_state == PHC_STEP_ADJ)
+//			priv->adj_state = PHC_STEP_ADJ;
+//		break;
+//	case PHC_LOOP_ADJ:
+//		for (i = 0; i < MAX_ADJ_TIMES; i++) {
+//			if (priv->safe_quit)
+//				goto quit;
+//			jl3xxx_phc_set_step(priv->phydev,
+//					    priv->ptp_work_neg_adj,
+//					    priv->ptp_work_ppb);
+//			if (i % 10)
+//				udelay(150);
+//		}
+//quit:
+//		priv->adj_state = PHC_READY_ADJ;
+//		break;
+//	case PHC_READY_ADJ:
+//		if ((priv->ptp_work_ppb >= (ptp_info->max_adj / 2)) ||
+//		    (priv->ptp_work_ppb <= -(ptp_info->max_adj / 2))) {
+//			for (i = 0; i < (ptp_info->max_adj / MAX_AMT); i++) {
+//				jl3xxx_phc_set_step(priv->phydev,
+//						    priv->ptp_work_neg_adj,
+//						    priv->ptp_work_ppb);
+//				udelay(100);
+//			}
+//		} else {
+//			priv->adj_state = PHC_STEP_ADJ;
+//		}
+//		break;
+//	case PHC_STEP_ADJ:
+//		if (!priv->ptp_work_ppb)
+//			priv->adj_state = PHC_STOP_ADJ;
+//		else if ((priv->ptp_work_ppb > (ptp_info->max_adj / 2)) ||
+//			(priv->ptp_work_ppb < -(ptp_info->max_adj / 2)))
+//			priv->adj_state = PHC_READY_ADJ;
+//		jl3xxx_phc_set_step(priv->phydev,
+//				    priv->ptp_work_neg_adj,
+//				    priv->ptp_work_ppb);
+//		priv->last_state = PHC_STEP_ADJ;
+//		break;
+//	}
+//#endif
+//
+//#if 0
+//	if (priv->ptp_work_ppb > 0) {
+//		printk("++++");
+//		phy_write_mmd(priv->phydev, JL3XXX_DEVAD31,
+//				    JL3XXX_PTS_CLK_CYCLE,
+//				    JL3XXX_TS_CLK_CYCLE_VAL + 1);
+//		udelay(1000);
+//		phy_write_mmd(priv->phydev, JL3XXX_DEVAD31,
+//				    JL3XXX_PTS_CLK_CYCLE,
+//				    JL3XXX_TS_CLK_CYCLE_VAL);
+//	} else {
+//		printk("----");
+//		phy_write_mmd(priv->phydev, JL3XXX_DEVAD31,
+//				    JL3XXX_PTS_CLK_CYCLE,
+//				    JL3XXX_TS_CLK_CYCLE_VAL - 1);
+//		udelay(1000);
+//		phy_write_mmd(priv->phydev, JL3XXX_DEVAD31,
+//				    JL3XXX_PTS_CLK_CYCLE,
+//				    JL3XXX_TS_CLK_CYCLE_VAL);
+//	}
+//#endif
+	jl3xxx_phc_set_step(priv->phydev,
+			    priv->ptp_work_neg_adj,
+			    priv->ptp_work_ppb);
+
+}
+
+int jl3xxx_ptp_probe(struct phy_device *phydev)
+{
+	struct device *dev = &phydev->mdio.dev;
+	struct jl3xxx_priv *priv = phydev->priv;
+	int i;
+
+	priv->ptp_info = jl3xxx_ptp_info;
+	priv->ptp_clock = ptp_clock_register(&priv->ptp_info, dev);
+	if (IS_ERR(priv->ptp_clock))
+		return PTR_ERR(priv->ptp_clock);
+
+	priv->phydev = phydev;
+
+	INIT_LIST_HEAD(&priv->rxts);
+	INIT_LIST_HEAD(&priv->rxpool);
+
+	for (i = 0; i < MAX_RXTS; i++)
+		list_add(&priv->rx_pool_data[i].list, &priv->rxpool);
+
+	spin_lock_init(&priv->rx_lock);
+	mutex_init(&priv->ptp_lock);
+
+	INIT_DELAYED_WORK(&priv->rx_ts_work, rx_timestamp_work);
+	INIT_DELAYED_WORK(&priv->tx_ts_work, tx_timestamp_work);
+	INIT_DELAYED_WORK(&priv->state_queue, phc_adj_state_machine);
+
+	skb_queue_head_init(&priv->rx_queue);
+	skb_queue_head_init(&priv->tx_queue);
+
+	return 0;
+}
+
+void jl3xxx_ptp_remove(struct phy_device *phydev)
+{
+	struct jl3xxx_priv *priv = phydev->priv;
+
+	priv->safe_quit = true;
+	cancel_delayed_work_sync(&priv->rx_ts_work);
+	cancel_delayed_work_sync(&priv->tx_ts_work);
+	cancel_delayed_work_sync(&priv->state_queue);
+
+	skb_queue_purge(&priv->rx_queue);
+	skb_queue_purge(&priv->tx_queue);
+
+	if (priv->ptp_clock)
+		ptp_clock_unregister(priv->ptp_clock);
+}
+
+int jl3xxx_mmd_modify(struct phy_device *phydev,
+		      int devad, u16 reg, u16 mask, u16 bits)
+{
+	int old, val, ret;
+
+	old = phy_read_mmd(phydev, devad, reg);
+	if (old < 0)
+		return old;
+
+	val = (old & ~mask) | bits;
+	if (val == old)
+		return 0;
+
+	ret = phy_write_mmd(phydev, devad, reg, val);
+
+	return ret < 0 ? ret : 1;
+}
+
+int jl3xxx_fetch_mmd_bit(struct phy_device *phydev,
+			 int devad, u16 reg, u16 bit)
+{
+	int val;
+
+	val = phy_read_mmd(phydev, devad, reg);
+	if (val < 0)
+		return val;
+
+	return ((val & bit) == bit) ? 1 : 0;
+}
+
+int jl3xxx_set_mmd_bits(struct phy_device *phydev,
+			int devad, u16 reg, u16 bits)
+{
+	return jl3xxx_mmd_modify(phydev, devad, reg, 0, bits);
+}
+
+int jl3xxx_clear_mmd_bits(struct phy_device *phydev,
+			  int devad, u16 reg, u16 bits)
+{
+	return jl3xxx_mmd_modify(phydev, devad, reg, bits, 0);
+}
+
+int jl3xxx_check_link(struct phy_device *phydev)
+{
+	return jl3xxx_fetch_mmd_bit(phydev, JL3XXX_IEEE_CTL_ADDR,
+				    JL3XXX_IEEE_CTL, JL3XXX_GLOBAL_LINK);
+}
+
+int jl3xxx_set_mode(struct phy_device *phydev, int mode)
+{
+	if (mode == PHY_MODE_MASTER)
+		jl3xxx_set_mmd_bits(phydev, JL3XXX_PMA_CTL_ADDR,
+				    JL3XXX_PMA_CTL, JL3XXX_MASTER_MODE);
+	else if (mode == PHY_MODE_SLAVE)
+		jl3xxx_clear_mmd_bits(phydev, JL3XXX_PMA_CTL_ADDR,
+				      JL3XXX_PMA_CTL, JL3XXX_MASTER_MODE);
+	else
+		JLSEMI_PHY_MSG(KERN_ERR "%s: unknow mode!\n", __func__);
+
+	return 0;
+}
+
+int jl3xxx_set_speed(struct phy_device *phydev, int speed)
+{
+	if (speed == PHY_SPEED_1000M)
+		jl3xxx_mmd_modify(phydev, JL3XXX_PCS_CTL_ADDR, JL3XXX_PCS_CTL,
+				  JL3XXX_PCS_SPEED_LSB, JL3XXX_PCS_SPEED_MSB);
+	else
+		jl3xxx_mmd_modify(phydev, JL3XXX_PCS_CTL_ADDR, JL3XXX_PCS_CTL,
+				  JL3XXX_PCS_SPEED_MSB, JL3XXX_PCS_SPEED_LSB);
+
+	return 0;
+}
+
+int jl3xxx_get_speed(struct phy_device *phydev)
+{
+	int msb, lsb, speed;
+
+	msb = jl3xxx_fetch_mmd_bit(phydev, JL3XXX_PCS_CTL_ADDR,
+				   JL3XXX_PCS_CTL, JL3XXX_PCS_SPEED_MSB);
+
+	lsb = jl3xxx_fetch_mmd_bit(phydev, JL3XXX_PCS_CTL_ADDR,
+				   JL3XXX_PCS_CTL, JL3XXX_PCS_SPEED_LSB);
+
+	if (~lsb & msb)
+		speed = JL3XXX_1000BASE_T1;
+	else if (lsb & ~msb)
+		speed = JL3XXX_100BASE_T1;
+	else
+		JLSEMI_PHY_MSG(KERN_ERR "%s: unknow speed!\n", __func__);
+
+	return speed;
+}
+
+int jl3xxx_set_rgmii_dly(struct phy_device *phydev, bool tx_on, bool rx_on)
+{
+	if (tx_on)
+		jl3xxx_set_mmd_bits(phydev, JL3XXX_IEEE_CTL_ADDR,
+				    JL3XXX_RGMII_CFG, JL3XXX_RGMII_TX_DLY);
+	else
+		jl3xxx_clear_mmd_bits(phydev, JL3XXX_IEEE_CTL_ADDR,
+				      JL3XXX_RGMII_CFG, JL3XXX_RGMII_TX_DLY);
+	if (rx_on)
+		jl3xxx_set_mmd_bits(phydev, JL3XXX_IEEE_CTL_ADDR,
+				    JL3XXX_RGMII_CFG, JL3XXX_RGMII_RX_DLY);
+	else
+		jl3xxx_clear_mmd_bits(phydev, JL3XXX_IEEE_CTL_ADDR,
+				      JL3XXX_RGMII_CFG, JL3XXX_RGMII_RX_DLY);
+	return 0;
+}
 /********************** Convenience function for phy **********************/
 
 /**
