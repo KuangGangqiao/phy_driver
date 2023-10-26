@@ -322,11 +322,7 @@ static int jl2xxx_config_aneg(struct phy_device *phydev)
 				JL2XXX_WORK_MODE_REG);
 	phy_mode = val & JL2XXX_WORK_MODE_MASK;
 
-	if (phydev->interface == PHY_INTERFACE_MODE_SGMII)
-		return 0;
-
-	if ((phydev->interface != PHY_INTERFACE_MODE_SGMII) &&
-	    ((phy_mode == JL2XXX_FIBER_RGMII_MODE) ||
+	if (((phy_mode == JL2XXX_FIBER_RGMII_MODE) ||
 	    (phy_mode == JL2XXX_UTP_FIBER_RGMII_MODE)))
 		return jl2xxx_config_aneg_fiber(phydev);
 
@@ -509,12 +505,8 @@ static int jl2xxx_aneg_done(struct phy_device *phydev)
 				JL2XXX_WORK_MODE_REG);
 	phy_mode = val & JL2XXX_WORK_MODE_MASK;
 
-	if (phydev->interface == PHY_INTERFACE_MODE_SGMII)
-		return 0;
-
 	// fiber not an complite
-	if ((phydev->interface != PHY_INTERFACE_MODE_SGMII) &&
-	    ((phy_mode == JL2XXX_FIBER_RGMII_MODE) ||
+	if (((phy_mode == JL2XXX_FIBER_RGMII_MODE) ||
 	    (phy_mode == JL2XXX_UTP_FIBER_RGMII_MODE)))
 		return BMSR_ANEGCOMPLETE;
 
