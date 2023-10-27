@@ -17,6 +17,14 @@ For version `x.y.z`, it means
        Note: It will change when implementing new features.
 
 
+# Time: 2023 10 27
+# Version: 1.2.14
+**New**
+- Optimize the load patch check function
+**Change**
+- Remove PHY_INTERFACE_MODE_SGMII redundancy options
+- Update development documents
+
 # Time: 2023 10 13
 # Version: 1.2.11
 **New**
