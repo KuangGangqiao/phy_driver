@@ -1339,12 +1339,40 @@ int jl2xxx_slew_rate_static_op_set(struct phy_device *phydev)
 
 int jl2xxx_rxc_out_static_op_set(struct phy_device *phydev)
 {
+	struct jl2xxx_priv *priv = phydev->priv;
+	int mode;
 	int err;
 
+	/* fake power down */
 	err = jlsemi_set_bits(phydev, JL2XXX_PAGE18,
 			      JL2XXX_RXC_OUT_REG, JL2XXX_RXC_OUT);
 	if (err < 0)
 		return err;
+
+	mode = jlsemi_read_paged(phydev, JL2XXX_PAGE18, JL2XXX_WORK_MODE_REG);
+	/* Description: Some SOC Ethernet initialization requires PHY to
+	 * provide rx clock for MAC to pass initialization, otherwise DMA
+	 * initialization errors will be reported. However, when PHY is
+	 * set (MAC) sgmii<-->rgmii (PHY) mode, rx clock does not have a
+	 * clock.
+	 * Workaround: Configure PHY to utp<-->rgmii mode before Ethernet
+	 * initialization, and then configure it to sgmii<-->rgmii mode
+	 * after initialization is completed. The adverse effect is that
+	 * it will cause the link up time to become longer
+	 */
+	if (((priv->work_mode.enable & JL2XXX_WORK_MODE_STATIC_OP_EN) &&
+	   (priv->work_mode.mode == JL2XXX_MAC_SGMII_RGMII_MODE)) ||
+	   ((mode & JL2XXX_WORK_MODE_MASK) == JL2XXX_MAC_SGMII_RGMII_MODE)) {
+		err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE18,
+					      JL2XXX_WORK_MODE_REG,
+					      JL2XXX_WORK_MODE_MASK,
+					      JL2XXX_UTP_RGMII_MODE);
+		if (err < 0)
+			return err;
+		/* Record the previous value */
+		priv->work_mode.mode = JL2XXX_MAC_SGMII_RGMII_MODE;
+		priv->rxc_out.inited = false;
+	}
 
 	err = jlsemi_soft_reset(phydev);
 	if (err < 0)

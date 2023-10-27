@@ -295,6 +295,22 @@ static int jl2xxx_read_status(struct phy_device *phydev)
 	bool fiber_mode;
 	int err;
 
+	if ((!priv->rxc_out.inited) &&
+	   (priv->rxc_out.enable & JL2XXX_RXC_OUT_STATIC_OP_EN) &&
+	   (priv->work_mode.mode == JL2XXX_MAC_SGMII_RGMII_MODE)) {
+		err = jlsemi_modify_paged_reg(phydev, JL2XXX_PAGE18,
+					      JL2XXX_WORK_MODE_REG,
+					      JL2XXX_WORK_MODE_MASK,
+					      priv->work_mode.mode);
+		if (err < 0)
+			return err;
+
+		err = jlsemi_soft_reset(phydev);
+		if (err < 0)
+			return err;
+		priv->rxc_out.inited = true;
+	}
+
 	if (priv->intr.enable & JL2XXX_INTR_STATIC_OP_EN) {
 		err = jl2xxx_ack_interrupt(phydev);
 		if (err < 0)

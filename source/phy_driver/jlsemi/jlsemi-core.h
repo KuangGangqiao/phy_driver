@@ -313,6 +313,7 @@ struct jl_slew_rate_ctrl {
 
 struct jl_rxc_out_ctrl {
 	u32 enable;			/* Rx clock out control enable */
+	bool inited;			/* Only execute once flag */
 	bool ethtool;			/* Whether the ethtool is supported */
 };
 
